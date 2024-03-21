@@ -13,11 +13,11 @@ public final class PaperView: UIView {
     // MARK: - ViewProperties
     
     public struct ViewProperties {
-        var cornerRadius: CGFloat
-        var maskedCorners: CACornerMask
-        var masksToBounds: Bool
-        var backgroundColor: UIColor
-        var shadow: Shadow
+        public var cornerRadius: CGFloat
+        public var maskedCorners: CACornerMask
+        public var masksToBounds: Bool
+        public var backgroundColor: UIColor
+        public var shadow: Shadow
         
         public init(
             cornerRadius: CGFloat = 0,
@@ -34,10 +34,10 @@ public final class PaperView: UIView {
         }
         
         public struct Shadow {
-            var color: UIColor
-            var offset: CGSize
-            var opacity: Float
-            var radius: CGFloat
+            public var color: UIColor
+            public var offset: CGSize
+            public var opacity: Float
+            public var radius: CGFloat
             
             public init(
                 color: UIColor = .clear,
