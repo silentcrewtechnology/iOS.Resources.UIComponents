@@ -12,18 +12,48 @@ public final class SelectView: UIView {
     
     public struct ViewProperties {
         public var header: NSMutableAttributedString?
-        public var text: NSMutableAttributedString = .init(string: "")
-        public var placeholder: NSMutableAttributedString = .init(string: "")
-        public var hint: NSMutableAttributedString = .init(string: "")
-        public var isHintHidden = true
-        public var isUserInteractionEnabled = true
-        public var borderColor: UIColor = .clear
-        public var backgroundColor: UIColor = .clear
-        public var clearButtonIsHidden: Bool = true
+        public var text: NSMutableAttributedString
+        public var placeholder: NSMutableAttributedString
+        public var hint: NSMutableAttributedString
+        public var isHintHidden: Bool
+        public var isUserInteractionEnabled: Bool
+        public var borderColor: UIColor
+        public var backgroundColor: UIColor
+        public var clearButtonIsHidden: Bool
         public var clearButtonIcon: UIImage?
         public var disclosureIcon: UIImage?
-        public var clearButtonAction: () -> Void = { }
-        public var inputTapAction: () -> Void = { }
+        public var clearButtonAction: () -> Void
+        public var inputTapAction: () -> Void
+        
+        public init(
+            header: NSMutableAttributedString? = nil,
+            text: NSMutableAttributedString = .init(string: ""),
+            placeholder: NSMutableAttributedString = .init(string: ""),
+            hint: NSMutableAttributedString = .init(string: ""),
+            isHintHidden: Bool = true,
+            isUserInteractionEnabled: Bool = true,
+            borderColor: UIColor = .clear,
+            backgroundColor: UIColor = .clear,
+            clearButtonIsHidden: Bool = true,
+            clearButtonIcon: UIImage? = nil,
+            disclosureIcon: UIImage? = nil,
+            clearButtonAction: @escaping () -> Void = { },
+            inputTapAction: @escaping () -> Void = { }
+        ) {
+            self.header = header
+            self.text = text
+            self.placeholder = placeholder
+            self.hint = hint
+            self.isHintHidden = isHintHidden
+            self.isUserInteractionEnabled = isUserInteractionEnabled
+            self.borderColor = borderColor
+            self.backgroundColor = backgroundColor
+            self.clearButtonIsHidden = clearButtonIsHidden
+            self.clearButtonIcon = clearButtonIcon
+            self.disclosureIcon = disclosureIcon
+            self.clearButtonAction = clearButtonAction
+            self.inputTapAction = inputTapAction
+        }
     }
     
     // MARK: - UI
