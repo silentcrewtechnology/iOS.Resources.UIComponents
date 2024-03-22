@@ -10,6 +10,7 @@ public final class DividerView: UIView {
         public enum Size: Equatable {
             case width(CGFloat)
             case height(CGFloat)
+            case size(CGSize)
         }
         
         public init(
@@ -58,6 +59,11 @@ public final class DividerView: UIView {
             horizontalConstraint?.activate()
         case .height(let height):
             verticalConstraint?.update(offset: height)
+            verticalConstraint?.activate()
+        case .size(let size):
+            horizontalConstraint?.update(offset: size.width)
+            verticalConstraint?.update(offset: size.height)
+            horizontalConstraint?.activate()
             verticalConstraint?.activate()
         }
     }
