@@ -5,11 +5,11 @@ public final class CheckboxView: UIView {
     
     public struct ViewProperties {
         public var background: Background
-        public var indicator: Indicator
+        public var indicator: CheckboxIndicator
         
         public init(
             background: Background = .init(),
-            indicator: Indicator = .init()
+            indicator: CheckboxIndicator = .init()
         ) {
             self.background = background
             self.indicator = indicator
@@ -31,7 +31,7 @@ public final class CheckboxView: UIView {
             }
         }
         
-        public struct Indicator {
+        public struct CheckboxIndicator {
             public var backgroundColor: UIColor
             public var size: CGFloat
             public var cornerRadius: CGFloat
@@ -94,7 +94,7 @@ public final class CheckboxView: UIView {
         layer.cornerRadius = background.cornerRadius
     }
     
-    private func setupIndicator(indicator: ViewProperties.Indicator) {
+    private func setupIndicator(indicator: ViewProperties.CheckboxIndicator) {
         checkView.layer.cornerRadius = indicator.cornerRadius
         checkView.image = indicator.image
         checkView.backgroundColor = indicator.backgroundColor
