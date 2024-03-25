@@ -15,16 +15,13 @@ public final class IndicatorView: UIView {
     public struct ViewProperties {
         public var backgroundColor: UIColor?
         public var size: CGFloat
-        public var cornerRadius: CGFloat
         
         public init(
             backgroundColor: UIColor? = nil,
-            size: CGFloat = .zero,
-            cornerRadius: CGFloat = .zero
+            size: CGFloat = .zero
         ) {
             self.backgroundColor = backgroundColor
             self.size = size
-            self.cornerRadius = cornerRadius
         }
     }
     
@@ -45,14 +42,19 @@ public final class IndicatorView: UIView {
     
     public func update(with viewProperties: ViewProperties) {
         if self.viewProperties.size != viewProperties.size {
-            snp.makeConstraints {
+            snp.updateConstraints {
                 $0.size.equalTo(viewProperties.size)
             }
         }
-        layer.cornerRadius = viewProperties.cornerRadius
         backgroundColor = viewProperties.backgroundColor
         
     }
+    
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        layer.cornerRadius = bounds.width / 2
+    }
+
     
     // MARK: - private methods
     
