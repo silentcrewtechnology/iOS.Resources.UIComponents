@@ -8,7 +8,8 @@ public class IconButton: UIButton {
         public var size: CGFloat
         public var cornerRadius: CGFloat
         public var backgroundColor: UIColor
-        public var icon: Icon
+        public var image: UIImage
+        public var isLoading: Bool
         public var onHighlighted: (Bool) -> Void
         public var onTap: () -> Void
         
@@ -18,6 +19,8 @@ public class IconButton: UIButton {
             cornerRadius: CGFloat = .zero,
             backgroundColor: UIColor = .clear,
             icon: Icon = .image(.init()),
+            image: UIImage = .init(),
+            isLoading: Bool = false,
             onHighlighted: @escaping (Bool) -> Void = { _ in }, 
             onTap: @escaping () -> Void = { }
         ) {
@@ -25,7 +28,8 @@ public class IconButton: UIButton {
             self.size = size
             self.cornerRadius = cornerRadius
             self.backgroundColor = backgroundColor
-            self.icon = icon
+            self.image = image
+            self.isLoading = isLoading
             self.onHighlighted = onHighlighted
             self.onTap = onTap
         }
@@ -77,18 +81,17 @@ public class IconButton: UIButton {
         layer.cornerRadius = viewProperties.cornerRadius
         isEnabled = viewProperties.isEnabled
         backgroundColor = viewProperties.backgroundColor
-        updateIcon(icon: viewProperties.icon)
+        updateIcon(with: viewProperties)
         self.viewProperties = viewProperties
     }
     
-    private func updateIcon(icon: ViewProperties.Icon) {
-        switch icon {
-        case .image(let image):
-            loadingIndicator.stopAnimating()
-            updateButtonImage(image: image)
-        case .loader:
+    private func updateIcon(with viewProperties: ViewProperties) {
+        if viewProperties.isLoading {
             updateButtonImage(image: nil)
             loadingIndicator.startAnimating()
+        } else {
+            loadingIndicator.stopAnimating()
+            updateButtonImage(image: viewProperties.image)
         }
     }
     
