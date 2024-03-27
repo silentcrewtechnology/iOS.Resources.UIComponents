@@ -48,7 +48,7 @@ public final class TextBlockView: UIView {
             public init(
                 image: UIImage? = nil,
                 text: NSMutableAttributedString = .init(string: ""),
-                backgroundColor: UIColor = . clear
+                backgroundColor: UIColor = UIColor.clear
             ) {
                 self.image = image
                 self.text = text
@@ -110,7 +110,7 @@ public final class TextBlockView: UIView {
     // MARK: - Public Methods
     
     public func update(with viewProperties: ViewProperties) {
-        setupProperties(viewProperties: viewProperties)
+        updateProperties(viewProperties: viewProperties)
         self.viewProperties = viewProperties
     }
     
@@ -135,7 +135,7 @@ public final class TextBlockView: UIView {
         verticalStack.addArrangedSubview(plainLabel)
     }
     
-    private func setupProperties(viewProperties: ViewProperties) {
+    private func updateProperties(viewProperties: ViewProperties) {
         let plainText = viewProperties.text
         if viewProperties.isMarked {
             plainText.insert(.init(string: Constants.markerSymbol), at: 0)
@@ -149,16 +149,16 @@ public final class TextBlockView: UIView {
             }
         }
         
-        setupIcon(icon: viewProperties.icon)
-        setupBackground(background: viewProperties.background)
+        updateIcon(icon: viewProperties.icon)
+        updateBackground(background: viewProperties.background)
     }
 
-    private func setupBackground(background: ViewProperties.Background) {
+    private func updateBackground(background: ViewProperties.Background) {
         backgroundColor = background.color
         layer.cornerRadius = background.cornerRadius
     }
     
-    private func setupIcon(icon: ViewProperties.Icon?) {
+    private func updateIcon(icon: ViewProperties.Icon?) {
         guard let icon else {
             iconView.isHidden = true
             return
