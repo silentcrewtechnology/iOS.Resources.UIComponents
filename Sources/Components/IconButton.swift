@@ -69,20 +69,26 @@ public class IconButton: UIButton {
         loadingIndicator.snp.makeConstraints {
             $0.center.equalToSuperview()
         }
+        snp.makeConstraints {
+            $0.size.equalTo(0) // будет изменён
+        }
         addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
     }
     
     public func update(with viewProperties: ViewProperties) {
-        if self.viewProperties.size != viewProperties.size {
-            snp.makeConstraints {
-                $0.size.equalTo(viewProperties.size)
-            }
-        }
+        updateSize(with: viewProperties)
         layer.cornerRadius = viewProperties.cornerRadius
         isEnabled = viewProperties.isEnabled
         backgroundColor = viewProperties.backgroundColor
         updateIcon(with: viewProperties)
         self.viewProperties = viewProperties
+    }
+    
+    private func updateSize(with viewProperties: ViewProperties) {
+        guard self.viewProperties.size != viewProperties.size else { return }
+        snp.updateConstraints {
+            $0.size.equalTo(viewProperties.size)
+        }
     }
     
     private func updateIcon(with viewProperties: ViewProperties) {
