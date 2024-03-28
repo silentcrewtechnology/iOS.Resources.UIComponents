@@ -7,16 +7,29 @@ public class InputMessageView: UIView {
         public var attributedText: NSMutableAttributedString?
         public var attributedPlaceholder: NSMutableAttributedString?
         public var backgroundColor: UIColor
-        public var borderColor: UIColor
+        public var border: Border
         public var cornerRadius: CGFloat
         public var isUserInteractionEnabled: Bool
         public var delegateAssigningClosure: (UITextField) -> Void
+        
+        public struct Border {
+            public var color: UIColor
+            public var width: CGFloat
+            
+            public init(
+                color: UIColor = .clear,
+                width: CGFloat = .zero
+            ) {
+                self.color = color
+                self.width = width
+            }
+        }
         
         public init(
             attributedText: NSMutableAttributedString? = nil,
             attributedPlaceholder: NSMutableAttributedString? = nil,
             backgroundColor: UIColor = .white,
-            borderColor: UIColor = .clear,
+            border: Border = .init(),
             cornerRadius: CGFloat = .zero,
             isUserInteractionEnabled: Bool = true,
             delegateAssigningClosure: @escaping (UITextField) -> Void = { _ in }
@@ -24,7 +37,7 @@ public class InputMessageView: UIView {
             self.attributedText = attributedText
             self.attributedPlaceholder = attributedPlaceholder
             self.backgroundColor = backgroundColor
-            self.borderColor = borderColor
+            self.border = border
             self.cornerRadius = cornerRadius
             self.isUserInteractionEnabled = isUserInteractionEnabled
             self.delegateAssigningClosure = delegateAssigningClosure
@@ -58,7 +71,7 @@ public class InputMessageView: UIView {
         backgroundColor = viewProperties.backgroundColor
         layer.cornerRadius = viewProperties.cornerRadius
         updateTextField(with: viewProperties)
-        updateBorder(with: viewProperties)
+        updateBorder(with: viewProperties.border)
         isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
         self.viewProperties = viewProperties
     }
@@ -70,8 +83,8 @@ public class InputMessageView: UIView {
         isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
     }
     
-    private func updateBorder(with viewProperties: ViewProperties) {
-        layer.borderWidth = 1
-        layer.borderColor = viewProperties.borderColor.cgColor
+    private func updateBorder(with border: ViewProperties.Border) {
+        layer.borderWidth = border.width
+        layer.borderColor = border.color.cgColor
     }
 }
