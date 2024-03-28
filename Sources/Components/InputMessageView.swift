@@ -4,8 +4,8 @@ import SnapKit
 public class InputMessageView: UIView {
     
     public struct ViewProperties {
-        public var attributedText: NSMutableAttributedString?
-        public var attributedPlaceholder: NSMutableAttributedString?
+        public var text: NSMutableAttributedString?
+        public var placeholder: NSMutableAttributedString?
         public var backgroundColor: UIColor
         public var border: Border
         public var cornerRadius: CGFloat
@@ -26,16 +26,16 @@ public class InputMessageView: UIView {
         }
         
         public init(
-            attributedText: NSMutableAttributedString? = nil,
-            attributedPlaceholder: NSMutableAttributedString? = nil,
+            text: NSMutableAttributedString? = nil,
+            placeholder: NSMutableAttributedString? = nil,
             backgroundColor: UIColor = .white,
             border: Border = .init(),
             cornerRadius: CGFloat = .zero,
             isUserInteractionEnabled: Bool = true,
             delegateAssigningClosure: @escaping (UITextField) -> Void = { _ in }
         ) {
-            self.attributedText = attributedText
-            self.attributedPlaceholder = attributedPlaceholder
+            self.text = text
+            self.placeholder = placeholder
             self.backgroundColor = backgroundColor
             self.border = border
             self.cornerRadius = cornerRadius
@@ -77,8 +77,8 @@ public class InputMessageView: UIView {
     }
     
     private func updateTextField(with viewProperties: ViewProperties) {
-        textField.attributedText = viewProperties.attributedText
-        textField.attributedPlaceholder = viewProperties.attributedPlaceholder
+        textField.attributedText = viewProperties.text
+        textField.attributedPlaceholder = viewProperties.placeholder
         viewProperties.delegateAssigningClosure(textField)
         isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
     }
