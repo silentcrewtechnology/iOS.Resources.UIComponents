@@ -41,7 +41,7 @@ public class TitleView: UIView {
     
     // MARK: - UI
     
-    private let titleLabel: UILabel = {
+    private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
         return label
