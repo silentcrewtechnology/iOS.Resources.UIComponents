@@ -1,5 +1,5 @@
 //
-//  InputTextarea.swift
+//  InputTextareaView.swift
 //
 //
 //  Created by Ilnur Mugaev on 04.04.2024.
@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-public final class InputTextarea: UIView {
+public final class InputTextareaView: UIView {
     
     // MARK: - ViewProperties
     
