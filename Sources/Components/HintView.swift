@@ -27,8 +27,7 @@ public class HintView: UIView {
             rightLabel
         ])
         stack.axis = .horizontal
-        stack.spacing = 0
-        stack.distribution = .fillEqually
+        stack.spacing = 16
         stack.alignment = .top
         return stack
     }()
@@ -41,7 +40,8 @@ public class HintView: UIView {
     
     private let rightLabel: UILabel = {
         let label = UILabel()
-        label.numberOfLines = 0
+        label.setContentHuggingPriority(.defaultHigh + 1, for: .horizontal)
+        label.setContentCompressionResistancePriority(.defaultHigh + 1, for: .horizontal)
         return label
     }()
     
