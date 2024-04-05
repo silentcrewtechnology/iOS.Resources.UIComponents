@@ -24,10 +24,24 @@ public final class InputTextareaView: UIView {
         public var placeholder: NSMutableAttributedString
         public var hintViewViewProperties: HintView.ViewProperties
         public var textViewHeight: TextViewHeight
-        public var isUserInteractionEnabled: Bool
-        public var borderColor: UIColor
         public var backgroundColor: UIColor
+        public var border: Border
+        public var cornerRadius: CGFloat
+        public var isUserInteractionEnabled: Bool
         public var delegateAssigningClosure: (UITextView) -> Void
+        
+        public struct Border {
+            public var color: UIColor
+            public var width: CGFloat
+            
+            public init(
+                color: UIColor = .clear,
+                width: CGFloat = .zero
+            ) {
+                self.color = color
+                self.width = width
+            }
+        }
         
         public init(
             header: NSMutableAttributedString? = nil,
@@ -36,9 +50,10 @@ public final class InputTextareaView: UIView {
             placeholder: NSMutableAttributedString = .init(string: ""),
             hintViewViewProperties: HintView.ViewProperties = .init(),
             textViewHeight: TextViewHeight = .custom(lines: 4, autoResizeHeight: false),
-            isUserInteractionEnabled: Bool = true,
-            borderColor: UIColor = .clear,
             backgroundColor: UIColor = .clear,
+            border: Border = .init(),
+            cornerRadius: CGFloat = .zero,
+            isUserInteractionEnabled: Bool = true,
             delegateAssigningClosure: @escaping (UITextView) -> Void = { _ in }
         ) {
             self.header = header
@@ -47,9 +62,10 @@ public final class InputTextareaView: UIView {
             self.placeholder = placeholder
             self.hintViewViewProperties = hintViewViewProperties
             self.textViewHeight = textViewHeight
-            self.isUserInteractionEnabled = isUserInteractionEnabled
-            self.borderColor = borderColor
             self.backgroundColor = backgroundColor
+            self.border = border
+            self.cornerRadius = cornerRadius
+            self.isUserInteractionEnabled = isUserInteractionEnabled
             self.delegateAssigningClosure = delegateAssigningClosure
         }
     }
@@ -82,8 +98,6 @@ public final class InputTextareaView: UIView {
     
     private lazy var textView: UITextView = {
         let textView = UITextView()
-        textView.layer.borderWidth = 1
-        textView.layer.cornerRadius = 8
         textView.layer.masksToBounds = true
         textView.textContainerInset = Constants.textViewContainerInset
         return textView
@@ -153,7 +167,9 @@ public final class InputTextareaView: UIView {
     private func updateTextView(with viewProperties: ViewProperties) {
         textView.typingAttributes = viewProperties.typingText.attributes(at: 0, effectiveRange: nil)
         textView.attributedText = viewProperties.text
-        textView.layer.borderColor = viewProperties.borderColor.cgColor
+        textView.layer.borderColor = viewProperties.border.color.cgColor
+        textView.layer.borderWidth = viewProperties.border.width
+        textView.layer.cornerRadius = viewProperties.cornerRadius
         textView.backgroundColor = viewProperties.backgroundColor
         textView.isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
         viewProperties.delegateAssigningClosure(textView)
