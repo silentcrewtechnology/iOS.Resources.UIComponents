@@ -12,11 +12,6 @@ public final class InputTextareaView: UIView {
     
     // MARK: - ViewProperties
     
-    public enum Counter: Equatable {
-        case undefined
-        case number(Int)
-    }
-    
     public enum TextViewHeight {
         case minimal
         case custom(lines: Int, autoResizeHeight: Bool)
@@ -29,7 +24,6 @@ public final class InputTextareaView: UIView {
         public var placeholder: NSMutableAttributedString
         public var hintViewViewProperties: HintView.ViewProperties
         public var textViewHeight: TextViewHeight
-        public var maxCount: Counter
         public var isUserInteractionEnabled: Bool
         public var borderColor: UIColor
         public var backgroundColor: UIColor
@@ -42,7 +36,6 @@ public final class InputTextareaView: UIView {
             placeholder: NSMutableAttributedString = .init(string: ""),
             hintViewViewProperties: HintView.ViewProperties = .init(),
             textViewHeight: TextViewHeight = .custom(lines: 4, autoResizeHeight: false),
-            maxCount: Counter = .undefined,
             isUserInteractionEnabled: Bool = true,
             borderColor: UIColor = .clear,
             backgroundColor: UIColor = .clear,
@@ -54,7 +47,6 @@ public final class InputTextareaView: UIView {
             self.placeholder = placeholder
             self.hintViewViewProperties = hintViewViewProperties
             self.textViewHeight = textViewHeight
-            self.maxCount = maxCount
             self.isUserInteractionEnabled = isUserInteractionEnabled
             self.borderColor = borderColor
             self.backgroundColor = backgroundColor
