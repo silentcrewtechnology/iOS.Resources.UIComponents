@@ -139,7 +139,7 @@ public final class InputTextareaView: UIView {
     
     private func updateHeader(with header: NSAttributedString?) {
         headerLabel.attributedText = header
-        headerView.isHidden = header?.string.isEmpty != false
+        headerView.isHidden = header?.string.isEmpty == true
     }
     
     private func updatePlaceholder(
@@ -147,7 +147,7 @@ public final class InputTextareaView: UIView {
         text: NSAttributedString?
     ) {
         placeholderLabel.attributedText = placeholder
-        placeholderLabel.isHidden = !(text?.string.isEmpty ?? true)
+        placeholderLabel.isHidden = text?.string.isEmpty == false
     }
     
     private func updateTextView(with viewProperties: ViewProperties) {
