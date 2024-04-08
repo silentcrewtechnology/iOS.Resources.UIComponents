@@ -6,7 +6,6 @@ public final class ButtonView: UIButton {
     
     public struct ViewProperties {
         public var isEnabled: Bool
-        public var isLoading: Bool
         public var attributedText: NSMutableAttributedString
         public var leftIcon: UIImage?
         public var rightIcon: UIImage?
@@ -29,7 +28,6 @@ public final class ButtonView: UIButton {
             insets: UIEdgeInsets = .zero
         ) {
             self.isEnabled = isEnabled
-            self.isLoading = isLoading
             self.attributedText = attributedText
             self.leftIcon = leftIcon
             self.rightIcon = rightIcon
@@ -148,12 +146,10 @@ public final class ButtonView: UIButton {
         }
     }
     
-    
     private func updateIndicator(indicator: ActivityIndicatorView.ViewProperties) {
         stackView.isHidden = indicator.isAnimating
         activityIndicator.update(with: indicator)
     }
-    
     
     @objc
     private func didTapAction() {
