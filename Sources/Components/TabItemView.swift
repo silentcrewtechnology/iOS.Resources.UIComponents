@@ -44,7 +44,7 @@ public class TabItemView: UIView {
         addSubview(hStack)
         hStack.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(8)
-            $0.center.equalToSuperview()
+            $0.top.bottom.equalToSuperview()
         }
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapped)))
     }
