@@ -1,73 +1,121 @@
-//
-//  SectionMessageView.swift
-//  
-//
-//  Created by firdavs on 09.06.2023.
-//
-
 import UIKit
 import SnapKit
 
 public final class SectionMessageView: UIView {
     
     public struct ViewProperties {
-        public var title: NSAttributedString?
-        public var content: NSAttributedString?
-        public var subtitle: NSAttributedString?
-        public var iconImage: UIImage?
-        public var backgroundColor: UIColor?
-        public var action: (() -> Void)?
+        public var title: NSMutableAttributedString?
+        public var subtitle: NSMutableAttributedString?
+        public var bottomButton: BottomButton?
+        public var icon: Icon
+        public var backgroundColor: UIColor
+        public var cornerRadius: CGFloat
+        public var insets: UIEdgeInsets
+        
+        public struct BottomButton {
+            public var text: NSMutableAttributedString?
+            public var action: () -> Void
+            
+            public init(
+                text: NSMutableAttributedString? = nil,
+                action: @escaping () -> Void = { }
+            ) {
+                self.text = text
+                self.action = action
+            }
+        }
+        
+        public struct Icon {
+            public var image: UIImage
+            public var size: CGSize
+            
+            public init(
+                image: UIImage = .init(),
+                size: CGSize = .zero
+            ) {
+                self.image = image
+                self.size = size
+            }
+        }
         
         public init(
-            title: NSAttributedString? = nil,
-            content: NSAttributedString? = nil,
-            subtitle: NSAttributedString? = nil,
-            iconImage: UIImage? = nil,
-            backgroundColor: UIColor? = nil,
-            action: (() -> Void)? = nil
+            title: NSMutableAttributedString? = nil,
+            subtitle: NSMutableAttributedString? = nil,
+            bottomButton: BottomButton? = nil,
+            icon: Icon = .init(),
+            backgroundColor: UIColor = .clear,
+            cornerRadius: CGFloat = 0,
+            insets: UIEdgeInsets = .zero
         ) {
             self.title = title
-            self.content = content
             self.subtitle = subtitle
-            self.iconImage = iconImage
+            self.bottomButton = bottomButton
+            self.icon = icon
             self.backgroundColor = backgroundColor
-            self.action = action
+            self.cornerRadius = cornerRadius
+            self.insets = insets
         }
     }
     
     //MARK: - UI
     
-    private let titleLabel: UILabel = {
-        let label = UILabel()
-        label.textAlignment = .left
-        label.numberOfLines = 0
-        return label
+    private let iconView: UIImageView = {
+        let view = UIImageView()
+        view.contentMode = .center
+        view.snp.makeConstraints {
+            $0.size.equalTo(0) // будет обновлен
+        }
+        return view
     }()
     
-    private let contentLabel: UILabel = {
+    private let titleLabel: UILabel = {
         let label = UILabel()
-        label.textAlignment = .left
         label.numberOfLines = 0
         return label
     }()
     
     private let subtitleLabel: UILabel = {
         let label = UILabel()
-        label.textAlignment = .left
         label.numberOfLines = 0
         return label
     }()
     
-    private let actionButton: UIButton = {
-        let button = UIButton()
-        return button
+    private let bottomButtonTopSpacer: UIView = {
+        let view = SpacerView()
+        view.update(with: .init(size: .init(width: 4, height: 4)))
+        return view
     }()
     
-    private let titlesStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .vertical
-        stackView.spacing = 4
-        return stackView
+    private lazy var bottomButtonLabel: UILabel = {
+        let label = UILabel()
+        label.isUserInteractionEnabled = true
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(buttonTapped)))
+        label.isHidden = true
+        return label
+    }()
+    
+    private lazy var rightStack: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [
+            titleLabel,
+            subtitleLabel,
+            bottomButtonTopSpacer,
+            bottomButtonLabel
+        ])
+        stack.axis = .vertical
+        stack.alignment = .leading
+        stack.spacing = 0
+        return stack
+    }()
+    
+    private lazy var hStack: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [
+            iconView,
+            rightStack
+        ])
+        stack.axis = .horizontal
+        stack.alignment = .leading
+        stack.spacing = 12
+        return stack
     }()
     
     //MARK: - private properties
@@ -76,71 +124,75 @@ public final class SectionMessageView: UIView {
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
-        addedViews()
-        setupConstraints()
-        setupActionButton()
         setupView()
     }
     
     required init?(coder: NSCoder) { fatalError() }
     
-    // MARK: - public methods
+    private func setupView(){
+        addSubview(hStack)
+        hStack.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+            $0.height.greaterThanOrEqualTo(16)
+        }
+        // Запрет пропуска нажатий сквозь вьюху
+        addGestureRecognizer(UITapGestureRecognizer())
+    }
     
     public func update(with viewProperties: ViewProperties) {
-        setData(with: viewProperties)
+        updateTitle(title: viewProperties.title)
+        updateSubtitle(subtitle: viewProperties.subtitle)
+        updateIcon(icon: viewProperties.icon)
+        updateButton(button: viewProperties.bottomButton)
+        updateButtonTopSpacer(with: viewProperties)
+        backgroundColor = viewProperties.backgroundColor
+        layer.cornerRadius = viewProperties.cornerRadius
+        updateInsets(insets: viewProperties.insets)
         self.viewProperties = viewProperties
     }
     
-    //MARK: - private methods
-    
-    private func setData(with viewProperties: ViewProperties){
-        titleLabel.attributedText = viewProperties.title
-        contentLabel.attributedText = viewProperties.content
-        subtitleLabel.attributedText = viewProperties.subtitle
-        actionButton.setImage(viewProperties.iconImage, for: .normal)
-        backgroundColor = viewProperties.backgroundColor
-    }
-    
-    private func setupView(){
-        self.cornerRadius(
-            radius: 12,
-            direction: .allCorners,
-            clipsToBounds: true
-        )
-    }
-    
-    private func setupActionButton(){
-        let action = #selector(didTapAction)
-        actionButton.addTarget(self, action: action, for: .touchUpInside)
-    }
-    
-    private func addedViews(){
-        addSubview(actionButton)
-        addSubview(titlesStackView)
-        titlesStackView.addArrangedSubview(titleLabel)
-        titlesStackView.addArrangedSubview(contentLabel)
-        titlesStackView.addArrangedSubview(subtitleLabel)
-    }
-    
-    private func setupConstraints(){
-    
-        actionButton.snp.makeConstraints {
-            $0.top.equalToSuperview().inset(14)
-            $0.left.equalToSuperview().inset(16)
-            $0.width.height.equalTo(24)
-        }
-        
-        titlesStackView.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(14)
-            $0.trailing.equalToSuperview().offset(-16)
-            $0.leading.equalTo(actionButton.snp.trailing).inset(-14)
-            $0.bottom.equalToSuperview().offset(-14)
+    private func updateTitle(title: NSMutableAttributedString?) {
+        if let title = title {
+            titleLabel.attributedText = title
+            titleLabel.isHidden = false
+        } else {
+            titleLabel.isHidden = true
         }
     }
     
-    @objc
-    private func didTapAction(){
-        viewProperties.action?()
+    private func updateSubtitle(subtitle: NSMutableAttributedString?) {
+        if let subtitle = subtitle {
+            subtitleLabel.attributedText = subtitle
+            subtitleLabel.isHidden = false
+        } else {
+            subtitleLabel.isHidden = true
+        }
+    }
+    
+    private func updateIcon(icon: ViewProperties.Icon) {
+        iconView.image = icon.image
+        guard self.viewProperties.icon.size != icon.size else { return }
+        iconView.snp.updateConstraints { $0.size.equalTo(icon.size) }
+    }
+    
+    private func updateButton(button: ViewProperties.BottomButton?) {
+        bottomButtonLabel.attributedText = button?.text
+        bottomButtonLabel.isHidden = button == nil
+    }
+    
+    private func updateButtonTopSpacer(with viewProperties: ViewProperties) {
+        bottomButtonTopSpacer.isHidden = viewProperties.bottomButton == nil
+        || viewProperties.title == nil && viewProperties.subtitle == nil
+    }
+    
+    private func updateInsets(insets: UIEdgeInsets) {
+        guard self.viewProperties.insets != insets else { return }
+        hStack.snp.updateConstraints {
+            $0.edges.equalToSuperview().inset(insets)
+        }
+    }
+    
+    @objc private func buttonTapped() {
+        viewProperties.bottomButton?.action()
     }
 }
-
