@@ -47,6 +47,8 @@ public final class RadioView: UIView {
     
     private var viewProperties: ViewProperties = .init()
     
+    // MARK: - UI
+    
     private let onIndicatorView: UIView = {
         let view = UIView()
         return view
@@ -56,6 +58,26 @@ public final class RadioView: UIView {
         let view = UIView()
         return view
     }()
+    
+    // MARK: - Init
+    
+    override public init(frame: CGRect) {
+        super.init(frame: frame)
+        setupView()
+    }
+    
+    @available(*, unavailable) required init?(coder: NSCoder) { fatalError() }
+    
+    // MARK: - Public Methods
+    
+    public func update(with viewProperties: ViewProperties) {
+        setupBackground(background: viewProperties.background)
+        setupOnIndicator(indicator: viewProperties.onIndicator)
+        setupOffIndicator(indicator: viewProperties.offIndicator)
+        self.viewProperties = viewProperties
+    }
+    
+    // MARK: - Private Methods
     
     private func setupView() {
         snp.makeConstraints {
@@ -71,20 +93,6 @@ public final class RadioView: UIView {
             $0.center.equalToSuperview()
             $0.size.equalTo(0) // будет обновляться
         }
-    }
-    
-    override public init(frame: CGRect) {
-        super.init(frame: frame)
-        setupView()
-    }
-    
-    @available(*, unavailable) required init?(coder: NSCoder) { fatalError() }
-    
-    public func update(viewProperties: ViewProperties) {
-        setupBackground(background: viewProperties.background)
-        setupOnIndicator(indicator: viewProperties.onIndicator)
-        setupOffIndicator(indicator: viewProperties.offIndicator)
-        self.viewProperties = viewProperties
     }
     
     private func setupBackground(background: ViewProperties.Background) {
