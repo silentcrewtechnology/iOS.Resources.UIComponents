@@ -119,7 +119,6 @@ public final class ButtonView: UIButton {
     
     private func setupActionButton(with viewProperties: ViewProperties) {
         addTarget(self, action: #selector(didTapAction), for: .touchUpInside)
-        setAttributedTitle(viewProperties.attributedText, for: .normal)
     }
     
     private func setupView() {
@@ -130,7 +129,10 @@ public final class ButtonView: UIButton {
         [leftIconView, textLabel, rightIconView].forEach { stackView.addArrangedSubview($0) }
         
         stackView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+            $0.center.equalToSuperview()
+            $0.leading.greaterThanOrEqualToSuperview()
+            $0.trailing.lessThanOrEqualToSuperview()
+            $0.top.bottom.equalToSuperview()
         }
         
         activityIndicator.snp.makeConstraints {
@@ -141,8 +143,9 @@ public final class ButtonView: UIButton {
     private func updateInsets(with viewProperties: ViewProperties) {
         guard self.viewProperties.insets != viewProperties.insets else { return }
         stackView.snp.updateConstraints {
-            $0.center.equalToSuperview()
-            $0.edges.equalToSuperview().inset(viewProperties.insets)
+            $0.leading.greaterThanOrEqualToSuperview().offset(viewProperties.insets.left)
+            $0.trailing.lessThanOrEqualToSuperview().inset(viewProperties.insets.right)
+            $0.top.bottom.equalToSuperview().inset(viewProperties.insets)
         }
     }
     
