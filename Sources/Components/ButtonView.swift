@@ -141,7 +141,6 @@ public final class ButtonView: UIButton {
     private func updateInsets(with viewProperties: ViewProperties) {
         guard self.viewProperties.insets != viewProperties.insets else { return }
         stackView.snp.updateConstraints {
-            $0.center.equalToSuperview()
             $0.edges.equalToSuperview().inset(viewProperties.insets)
         }
     }
