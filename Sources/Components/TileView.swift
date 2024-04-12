@@ -4,7 +4,7 @@ import SnapKit
 public final class TileView: UIView {
     
     public struct ViewProperties {
-        public var icon: Icon
+        public var icon: UIImage
         public var text: NSMutableAttributedString
         public var backgroundColor: UIColor
         public var width: CGFloat
@@ -13,7 +13,7 @@ public final class TileView: UIView {
         public var action: () -> Void
         
         public init(
-            icon: TileView.ViewProperties.Icon = .init(),
+            icon: UIImage = .init(),
             text: NSMutableAttributedString = .init(string: ""),
             backgroundColor: UIColor = .clear,
             width: CGFloat = .zero,
@@ -28,24 +28,6 @@ public final class TileView: UIView {
             self.cornerRadius = cornerRadius
             self.textWidth = textWidth
             self.action = action
-        }
-        
-        public struct Icon {
-            public var variant: Variant
-            public var backgroundColor: UIColor
-            
-            public init(
-                variant: TileView.ViewProperties.Icon.Variant = .icon(.init()),
-                backgroundColor: UIColor = .clear
-            ) {
-                self.variant = variant
-                self.backgroundColor = backgroundColor
-            }
-            
-            public enum Variant {
-                case icon(UIImage)
-                case image(UIImage)
-            }
         }
     }
     
@@ -76,7 +58,7 @@ public final class TileView: UIView {
         setupSizeConstraints(with: viewProperties)
         backgroundColor = viewProperties.backgroundColor
         layer.cornerRadius = viewProperties.cornerRadius
-        setupIcon(with: viewProperties)
+        iconView.image = viewProperties.icon
         self.viewProperties = viewProperties
     }
     
@@ -117,18 +99,6 @@ public final class TileView: UIView {
         textLabel.snp.updateConstraints {
             $0.width.equalTo(viewProperties.textWidth)
         }
-    }
-    
-    private func setupIcon(with viewProperties: ViewProperties) {
-        switch viewProperties.icon.variant {
-        case .icon(let image):
-            iconView.contentMode = .center
-            iconView.image = image
-        case .image(let image):
-            iconView.contentMode = .scaleAspectFill
-            iconView.image = image
-        }
-        iconView.backgroundColor = viewProperties.icon.backgroundColor
     }
     
     @objc
