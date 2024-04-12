@@ -5,20 +5,20 @@ public final class InputAmountView: UIView {
     
     public struct ViewProperties {
         public var title: NSMutableAttributedString
-        public var hint: NSMutableAttributedString
+        public var hintViewProperties: HintView.ViewProperties
         public var textFieldProperties: InputAmountTextField.ViewProperties
         public var amountSymbol: NSMutableAttributedString
         public var isUserInteractionEnabled: Bool
         
         public init(
             title: NSMutableAttributedString = .init(string: ""),
-            hint: NSMutableAttributedString = .init(string: ""),
+            hintViewProperties: HintView.ViewProperties = .init(),
             textFieldProperties: InputAmountTextField.ViewProperties = .init(),
             amountSymbol: NSMutableAttributedString = .init(string: ""),
             isUserInteractionEnabled: Bool = true
         ) {
             self.title = title
-            self.hint = hint
+            self.hintViewProperties = hintViewProperties
             self.textFieldProperties = textFieldProperties
             self.amountSymbol = amountSymbol
             self.isUserInteractionEnabled = isUserInteractionEnabled
@@ -39,13 +39,10 @@ public final class InputAmountView: UIView {
         return textField
     }()
     private var currencyLabel = UILabel()
-    private var hintLabel: UILabel = {
-        let label = UILabel()
-        label.numberOfLines = 0
-        label.snp.makeConstraints {
-            $0.height.greaterThanOrEqualTo(16)
-        }
-        return label
+    
+    private lazy var hintView: HintView = {
+        let view = HintView()
+        return view
     }()
     
     private lazy var vStack: UIStackView = {
@@ -62,7 +59,7 @@ public final class InputAmountView: UIView {
             spacer(size: 4),
             amountCurrencyStack,
             spacer(size: 4),
-            hintLabel,
+            hintView,
             spacer(size: 4)
         ])
         stack.axis = .vertical
@@ -91,6 +88,7 @@ public final class InputAmountView: UIView {
     
     public func update(with viewProperties: ViewProperties) {
         amountTextField.update(with: viewProperties.textFieldProperties)
+        hintView.update(with: viewProperties.hintViewProperties)
         updateView(viewProperties: viewProperties)
         self.viewProperties = viewProperties
     }
@@ -110,7 +108,6 @@ public final class InputAmountView: UIView {
         isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
         titleLabel.attributedText = viewProperties.title
         currencyLabel.attributedText = viewProperties.amountSymbol
-        hintLabel.attributedText = viewProperties.hint
         addGestureRecognizer(UITapGestureRecognizer(
             target: self,
             action: #selector(didTap)))
