@@ -219,8 +219,12 @@ public class InputPhoneNumberView: UIView {
     // MARK: - Private methods
     
     private func updateHeader(with header: NSAttributedString?) {
-        headerLabel.attributedText = header
-        headerView.isHidden = header?.string.isEmpty == true
+        if let headerText = header, !headerText.string.isEmpty {
+            headerLabel.attributedText = headerText
+            headerView.isHidden = false
+        } else {
+            headerView.isHidden = true
+        }
     }
     
     private func updatePrefix(with prefix: Prefix) {
