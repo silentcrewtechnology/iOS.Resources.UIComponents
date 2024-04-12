@@ -118,12 +118,6 @@ public class InputPhoneNumberView: UIView {
         return label
     }()
     
-    private lazy var spacerView: SpacerView = {
-        let spacer = SpacerView()
-        spacer.update(with: .init(size: .init(width: 0, height: 8)))
-        return spacer
-    }()
-    
     private lazy var dividerView: DividerView = {
         let divider = DividerView()
         return divider
