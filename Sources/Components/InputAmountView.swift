@@ -6,7 +6,6 @@ public final class InputAmountView: UIView {
     public struct ViewProperties {
         public var title: NSMutableAttributedString
         public var hintViewProperties: HintView.ViewProperties
-        public var hintViewHidden: Bool
         public var textFieldProperties: InputAmountTextField.ViewProperties
         public var amountSymbol: NSMutableAttributedString
         public var isUserInteractionEnabled: Bool
@@ -14,14 +13,12 @@ public final class InputAmountView: UIView {
         public init(
             title: NSMutableAttributedString = .init(string: ""),
             hintViewProperties: HintView.ViewProperties = .init(),
-            hintViewHidden: Bool = false,
             textFieldProperties: InputAmountTextField.ViewProperties = .init(),
             amountSymbol: NSMutableAttributedString = .init(string: ""),
             isUserInteractionEnabled: Bool = true
         ) {
             self.title = title
             self.hintViewProperties = hintViewProperties
-            self.hintViewHidden = hintViewHidden
             self.textFieldProperties = textFieldProperties
             self.amountSymbol = amountSymbol
             self.isUserInteractionEnabled = isUserInteractionEnabled
@@ -91,7 +88,7 @@ public final class InputAmountView: UIView {
     
     public func update(with viewProperties: ViewProperties) {
         amountTextField.update(with: viewProperties.textFieldProperties)
-        updateHintView(viewProperties: viewProperties)
+        hintView.update(with: viewProperties.hintViewProperties)
         updateView(viewProperties: viewProperties)
         self.viewProperties = viewProperties
     }
@@ -105,11 +102,6 @@ public final class InputAmountView: UIView {
         vStack.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-    }
-    
-    private func updateHintView(viewProperties: ViewProperties) {
-        hintView.update(with: viewProperties.hintViewProperties)
-        hintView.isHidden = viewProperties.hintViewHidden
     }
     
     private func updateView(viewProperties: ViewProperties) {
