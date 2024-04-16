@@ -1,56 +1,66 @@
 //
-//  SelectView.swift
+//  InputSelectView.swift
 //
 //
-//  Created by Ilnur Mugaev on 20.12.2023.
+//  Created by Ilnur Mugaev on 16.04.2024.
 //
 
 import UIKit
 import SnapKit
 
-public final class SelectView: UIView {
+public final class InputSelectView: UIView {
     
     public struct ViewProperties {
         public var header: NSMutableAttributedString?
         public var text: NSMutableAttributedString
         public var placeholder: NSMutableAttributedString
-        public var hint: NSMutableAttributedString
-        public var isHintHidden: Bool
-        public var isUserInteractionEnabled: Bool
-        public var borderColor: UIColor
+        public var clearButtonIcon: UIImage
+        public var disclosureIcon: UIImage
+        public var hintViewViewProperties: HintView.ViewProperties
+        public var border: Border
         public var backgroundColor: UIColor
-        public var clearButtonIsHidden: Bool
-        public var clearButtonIcon: UIImage?
-        public var disclosureIcon: UIImage?
+        public var isUserInteractionEnabled: Bool
         public var clearButtonAction: () -> Void
         public var inputTapAction: () -> Void
+        
+        public struct Border {
+            public var color: UIColor
+            public var width: CGFloat
+            public var cornerRadius: CGFloat
+            
+            public init(
+                color: UIColor = .clear,
+                width: CGFloat = .zero,
+                cornerRadius: CGFloat = .zero
+            ) {
+                self.color = color
+                self.width = width
+                self.cornerRadius = cornerRadius
+            }
+        }
         
         public init(
             header: NSMutableAttributedString? = nil,
             text: NSMutableAttributedString = .init(string: ""),
             placeholder: NSMutableAttributedString = .init(string: ""),
-            hint: NSMutableAttributedString = .init(string: ""),
-            isHintHidden: Bool = true,
-            isUserInteractionEnabled: Bool = true,
-            borderColor: UIColor = .clear,
+            clearButtonIcon: UIImage = .init(),
+            disclosureIcon: UIImage = .init(),
+            hintViewViewProperties: HintView.ViewProperties = .init(),
+            border: Border = .init(),
             backgroundColor: UIColor = .clear,
-            clearButtonIsHidden: Bool = true,
-            clearButtonIcon: UIImage? = nil,
-            disclosureIcon: UIImage? = nil,
+            isUserInteractionEnabled: Bool = true,
             clearButtonAction: @escaping () -> Void = { },
             inputTapAction: @escaping () -> Void = { }
         ) {
             self.header = header
             self.text = text
             self.placeholder = placeholder
-            self.hint = hint
-            self.isHintHidden = isHintHidden
-            self.isUserInteractionEnabled = isUserInteractionEnabled
-            self.borderColor = borderColor
-            self.backgroundColor = backgroundColor
-            self.clearButtonIsHidden = clearButtonIsHidden
             self.clearButtonIcon = clearButtonIcon
             self.disclosureIcon = disclosureIcon
+            self.hintViewViewProperties = hintViewViewProperties
+            self.isUserInteractionEnabled = isUserInteractionEnabled
+            self.border = border
+            self.backgroundColor = backgroundColor
             self.clearButtonAction = clearButtonAction
             self.inputTapAction = inputTapAction
         }
@@ -67,16 +77,15 @@ public final class SelectView: UIView {
         let view = UIView()
         view.addSubview(headerLabel)
         headerLabel.snp.makeConstraints {
-            $0.edges.equalToSuperview().inset(Constants.labelInset)
+            $0.edges.equalToSuperview().inset(UIEdgeInsets(top: 4, left: 0, bottom: 4, right: 0))
         }
         return view
     }()
     
     private lazy var textField: UITextField = {
-        let textField = UITextField(frame: .zero)
+        let textField = CorrectShiftedTextField(frame: .zero)
         textField.borderStyle = .none
         textField.isUserInteractionEnabled = false
-        textField.contentVerticalAlignment = .top
         return textField
     }()
     
@@ -111,8 +120,6 @@ public final class SelectView: UIView {
     
     private lazy var inputContainerView: UIView = {
         let view = UIView()
-        view.layer.borderWidth = 1
-        view.layer.cornerRadius = 8
         view.layer.masksToBounds = true
         view.addSubview(inputStackView)
         inputStackView.snp.makeConstraints {
@@ -128,20 +135,8 @@ public final class SelectView: UIView {
         return view
     }()
     
-    private lazy var hintLabel: UILabel = {
-        let label = UILabel()
-        return label
-    }()
-    
-    private lazy var hintView: UIView = {
-        let view = UIView()
-        view.addSubview(hintLabel)
-        hintLabel.snp.makeConstraints {
-            $0.edges.equalToSuperview().inset(Constants.labelInset)
-        }
-        view.snp.makeConstraints {
-            $0.height.equalTo(24)
-        }
+    private lazy var hintView: HintView = {
+        let view = HintView()
         return view
     }()
     
@@ -169,15 +164,6 @@ public final class SelectView: UIView {
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError() }
     
-    // MARK: - Public Methods
-    
-    public func update(with viewProperties: ViewProperties) {
-        updateView(with: viewProperties)
-        self.viewProperties = viewProperties
-    }
-    
-    // MARK: - Private Methods
-    
     private func setupView() {
         addSubview(stackView)
         stackView.snp.makeConstraints {
@@ -185,28 +171,54 @@ public final class SelectView: UIView {
         }
     }
     
-    private func updateView(with viewProperties: ViewProperties) {
-        
-        headerLabel.attributedText = viewProperties.header
-        headerView.isHidden = viewProperties.header?.string.isEmpty != false
-        
+    // MARK: - Public Methods
+    
+    public func update(with viewProperties: ViewProperties) {
+        updateHeader(with: viewProperties.header)
+        updateTextField(with: viewProperties)
+        updateClearButton(with: viewProperties)
+        updateBorder(with: viewProperties.border)
+        updateHintView(with: viewProperties.hintViewViewProperties)
+        disclosureImageView.image = viewProperties.disclosureIcon
+        inputContainerView.backgroundColor = viewProperties.backgroundColor
+        isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
+        self.viewProperties = viewProperties
+    }
+    
+    // MARK: - Private Methods
+    
+    private func updateHeader(with header: NSAttributedString?) {
+        if let headerText = header, !headerText.string.isEmpty {
+            headerLabel.attributedText = headerText
+            headerView.isHidden = false
+        } else {
+            headerView.isHidden = true
+        }
+    }
+    
+    private func updateTextField(with viewProperties: ViewProperties) {
         textField.attributedText = viewProperties.text
         textField.attributedPlaceholder = viewProperties.placeholder
-        
+    }
+    
+    private func updateClearButton(with viewProperties: ViewProperties) {
         clearButton.setImage(viewProperties.clearButtonIcon, for: .normal)
         clearButton.setImage(viewProperties.clearButtonIcon, for: .highlighted)
         clearButton.setImage(viewProperties.clearButtonIcon, for: .disabled)
-        clearButton.isHidden = viewProperties.clearButtonIsHidden
-        
-        disclosureImageView.image = viewProperties.disclosureIcon
-        
-        hintLabel.attributedText = viewProperties.hint
-        hintLabel.isHidden = viewProperties.isHintHidden
-        
-        inputContainerView.isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
-        inputContainerView.layer.borderColor = viewProperties.borderColor.cgColor
-        inputContainerView.backgroundColor = viewProperties.backgroundColor
+        clearButton.isHidden = textField.text?.isEmpty ?? true
     }
+    
+    private func updateBorder(with border: ViewProperties.Border) {
+        inputContainerView.layer.borderColor = border.color.cgColor
+        inputContainerView.layer.borderWidth = border.width
+        inputContainerView.layer.cornerRadius = border.cornerRadius
+    }
+    
+    private func updateHintView(with hintViewProperties: HintView.ViewProperties) {
+        hintView.update(with: hintViewProperties)
+    }
+    
+    // MARK: - Actions
     
     @objc private func clearButtonTapped() {
         viewProperties.clearButtonAction()
@@ -215,8 +227,4 @@ public final class SelectView: UIView {
     @objc private func inputContainerViewTapped() {
         viewProperties.inputTapAction()
     }
-}
-
-private enum Constants {
-    static let labelInset = UIEdgeInsets(top: 4, left: 0, bottom: 4, right: 0)
 }

@@ -295,24 +295,38 @@ public class InputPhoneNumberView: UIView {
 
 public final class CorrectShiftedTextField: UITextField {
     
-    public var defaultShift: CGFloat = -3.0
-    public var placeholderShift: CGFloat = -0.35
+    public enum TextFieldShift {
+        case robotoTextM
+        
+        var shifts: (text: CGFloat, placeholder: CGFloat) {
+            switch self {
+            case .robotoTextM:
+                return (-2.67, 0)
+            }
+        }
+    }
+    
+    public var textFieldShift: TextFieldShift = .robotoTextM {
+        didSet {
+            setNeedsLayout()
+        }
+    }
     
     public override func textRect(forBounds bounds: CGRect) -> CGRect {
         var newRect = super.textRect(forBounds: bounds)
-        newRect.origin.y += defaultShift
+        newRect.origin.y += textFieldShift.shifts.text
         return newRect
     }
     
     public override func editingRect(forBounds bounds: CGRect) -> CGRect {
         var newRect = super.textRect(forBounds: bounds)
-        newRect.origin.y += defaultShift
+        newRect.origin.y += textFieldShift.shifts.text
         return newRect
     }
     
     public override func placeholderRect(forBounds bounds: CGRect) -> CGRect {
         var newRect = super.textRect(forBounds: bounds)
-        newRect.origin.y += placeholderShift
+        newRect.origin.y += textFieldShift.shifts.placeholder
         return newRect
     }
 }
