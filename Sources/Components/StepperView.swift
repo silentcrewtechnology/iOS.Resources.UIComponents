@@ -46,6 +46,9 @@ public final class StepperView: UIView {
         for (itemView, itemViewProperties) in zip(itemViews, viewProperties.items) {
             itemView.update(with: itemViewProperties)
         }
+        itemsStack.snp.updateConstraints {
+            $0.height.equalTo(viewProperties.height)
+        }
         self.viewProperties = viewProperties
     }
     
