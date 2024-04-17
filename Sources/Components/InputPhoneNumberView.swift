@@ -204,8 +204,12 @@ public class InputPhoneNumberView: UIView {
     // MARK: - Private methods
     
     private func updateHeader(with header: LabelView.ViewProperties?) {
-        guard let header else { return }
-        headerView.update(with: header)
+        if let header {
+            headerView.update(with: header)
+            headerView.isHidden = false
+        } else {
+            headerView.isHidden = true
+        }
     }
     
     private func updatePrefix(with prefix: Prefix) {

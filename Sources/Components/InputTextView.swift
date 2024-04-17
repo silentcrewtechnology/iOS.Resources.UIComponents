@@ -103,8 +103,12 @@ public class InputTextView: UIView {
     }
     
     private func updateHeader(with header: LabelView.ViewProperties?) {
-        guard let header else { return }
-        headerView.update(with: header)
+        if let header {
+            headerView.update(with: header)
+            headerView.isHidden = false
+        } else {
+            headerView.isHidden = true
+        }
     }
     
     private func updateFieldContainer(with viewProperties: ViewProperties) {
