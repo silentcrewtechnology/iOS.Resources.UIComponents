@@ -16,14 +16,14 @@ public class InputPhoneNumberView: UIView {
     }
     
     public struct ViewProperties {
-        public var header: NSMutableAttributedString?
+        public var header: LabelView.ViewProperties?
         public var prefix: Prefix
         public var text: NSMutableAttributedString?
         public var defaultText: NSMutableAttributedString
         public var placeholder: NSMutableAttributedString?
         public var clearButtonIcon: UIImage
-        public var hintViewViewProperties: HintView.ViewProperties
-        public var dividerViewProperties: DividerView.ViewProperties
+        public var hint: HintView.ViewProperties
+        public var divider: DividerView.ViewProperties
         public var backgroundColor: UIColor
         public var border: Border
         public var isUserInteractionEnabled: Bool
@@ -48,14 +48,14 @@ public class InputPhoneNumberView: UIView {
         }
         
         public init(
-            header: NSMutableAttributedString? = nil,
+            header: LabelView.ViewProperties? = nil,
             prefix: Prefix = .icon(image: .init()),
             text: NSMutableAttributedString? = nil,
             defaultText: NSMutableAttributedString = .init(string: " "),
             placeholder: NSMutableAttributedString? = nil,
             clearButtonIcon: UIImage = .init(),
-            hintViewViewProperties: HintView.ViewProperties = .init(),
-            dividerViewProperties: DividerView.ViewProperties = .init(),
+            hint: HintView.ViewProperties = .init(),
+            divider: DividerView.ViewProperties = .init(),
             backgroundColor: UIColor = .clear,
             border: Border = .init(),
             isUserInteractionEnabled: Bool = true,
@@ -69,8 +69,8 @@ public class InputPhoneNumberView: UIView {
             self.defaultText = defaultText
             self.placeholder = placeholder
             self.clearButtonIcon = clearButtonIcon
-            self.hintViewViewProperties = hintViewViewProperties
-            self.dividerViewProperties = dividerViewProperties
+            self.hint = hint
+            self.divider = divider
             self.backgroundColor = backgroundColor
             self.border = border
             self.isUserInteractionEnabled = isUserInteractionEnabled
@@ -84,17 +84,8 @@ public class InputPhoneNumberView: UIView {
     
     // MARK: - UI
     
-    private lazy var headerLabel: UILabel = {
-        let label = UILabel()
-        return label
-    }()
-    
-    private lazy var headerView: UIView = {
-        let view = UIView()
-        view.addSubview(headerLabel)
-        headerLabel.snp.makeConstraints {
-            $0.edges.equalToSuperview().inset(UIEdgeInsets(top: 4, left: 0, bottom: 4, right: 0))
-        }
+    private lazy var headerView: LabelView = {
+        let view = LabelView()
         return view
     }()
     
@@ -204,17 +195,17 @@ public class InputPhoneNumberView: UIView {
         updateTextField(with: viewProperties)
         updateClearButton(with: viewProperties)
         updateBorder(with: viewProperties.border)
-        updateHintView(with: viewProperties.hintViewViewProperties)
-        updateDividerView(with: viewProperties.dividerViewProperties)
+        updateHintView(with: viewProperties.hint)
+        updateDividerView(with: viewProperties.divider)
         inputContainerView.backgroundColor = viewProperties.backgroundColor
         self.viewProperties = viewProperties
     }
     
     // MARK: - Private methods
     
-    private func updateHeader(with header: NSAttributedString?) {
-        if let headerText = header, !headerText.string.isEmpty {
-            headerLabel.attributedText = headerText
+    private func updateHeader(with header: LabelView.ViewProperties?) {
+        if let header {
+            headerView.update(with: header)
             headerView.isHidden = false
         } else {
             headerView.isHidden = true
@@ -266,12 +257,12 @@ public class InputPhoneNumberView: UIView {
         inputContainerView.layer.cornerRadius = border.cornerRadius
     }
     
-    private func updateHintView(with hintViewProperties: HintView.ViewProperties) {
-        hintView.update(with: hintViewProperties)
+    private func updateHintView(with hint: HintView.ViewProperties) {
+        hintView.update(with: hint)
     }
     
-    private func updateDividerView(with dividerViewProperties: DividerView.ViewProperties) {
-        dividerView.update(with: dividerViewProperties)
+    private func updateDividerView(with divider: DividerView.ViewProperties) {
+        dividerView.update(with: divider)
     }
     
     private func setImage(for button: UIButton, with image: UIImage?) {

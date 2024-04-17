@@ -4,7 +4,7 @@ import SnapKit
 public class InputTextView: UIView {
     
     public struct ViewProperties {
-        public var title: NSMutableAttributedString?
+        public var header: LabelView.ViewProperties?
         public var textField: InputTextField.ViewProperties
         public var rightViews: [UIView]
         public var hint: HintView.ViewProperties
@@ -15,7 +15,7 @@ public class InputTextView: UIView {
         public var borderWidth: CGFloat
         
         public init(
-            title: NSMutableAttributedString? = nil,
+            header: LabelView.ViewProperties? = nil,
             textField: InputTextField.ViewProperties = .init(),
             rightViews: [UIView] = [],
             hint: HintView.ViewProperties = .init(),
@@ -25,7 +25,7 @@ public class InputTextView: UIView {
             borderColor: UIColor = .clear,
             borderWidth: CGFloat = 0
         ) {
-            self.title = title
+            self.header = header
             self.textField = textField
             self.rightViews = rightViews
             self.hint = hint
@@ -39,7 +39,7 @@ public class InputTextView: UIView {
     
     private var viewProperties: ViewProperties = .init()
     
-    private let titleLabel = UILabel()
+    private let headerView = LabelView()
     
     private lazy var fieldContainer: UIView = {
         let view = UIView()
@@ -66,17 +66,8 @@ public class InputTextView: UIView {
     private let hintView = HintView()
     
     private lazy var vStack: UIStackView = {
-        
-        func divider(height: CGFloat) -> UIView {
-            let divider = DividerView()
-            divider.update(with: .init(size: .height(height)))
-            return divider
-        }
-        
         let stack = UIStackView(arrangedSubviews: [
-            divider(height: 4),
-            titleLabel,
-            divider(height: 4),
+            headerView,
             fieldContainer,
             hintView
         ])
@@ -104,19 +95,19 @@ public class InputTextView: UIView {
     // MARK: - public methods
     
     public func update(with viewProperties: ViewProperties) {
-        updateTitle(title: viewProperties.title)
+        updateHeader(with: viewProperties.header)
         updateFieldContainer(with: viewProperties)
         textField.update(with: viewProperties.textField)
         hintView.update(with: viewProperties.hint)
         self.viewProperties = viewProperties
     }
     
-    private func updateTitle(title: NSMutableAttributedString?) {
-        if let title {
-            titleLabel.attributedText = title
-            titleLabel.isHidden = false
+    private func updateHeader(with header: LabelView.ViewProperties?) {
+        if let header {
+            headerView.update(with: header)
+            headerView.isHidden = false
         } else {
-            titleLabel.isHidden = true
+            headerView.isHidden = true
         }
     }
     

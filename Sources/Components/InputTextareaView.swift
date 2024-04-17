@@ -18,11 +18,11 @@ public final class InputTextareaView: UIView {
     }
     
     public struct ViewProperties {
-        public var header: NSMutableAttributedString?
+        public var header: LabelView.ViewProperties?
         public var text: NSMutableAttributedString?
         public var typingText: NSMutableAttributedString
         public var placeholder: NSMutableAttributedString
-        public var hintViewViewProperties: HintView.ViewProperties
+        public var hint: HintView.ViewProperties
         public var textViewHeight: TextViewHeight
         public var backgroundColor: UIColor
         public var border: Border
@@ -44,11 +44,11 @@ public final class InputTextareaView: UIView {
         }
         
         public init(
-            header: NSMutableAttributedString? = nil,
+            header: LabelView.ViewProperties? = nil,
             text: NSMutableAttributedString = .init(string: ""),
             typingText: NSMutableAttributedString = .init(string: " "),
             placeholder: NSMutableAttributedString = .init(string: ""),
-            hintViewViewProperties: HintView.ViewProperties = .init(),
+            hint: HintView.ViewProperties = .init(),
             textViewHeight: TextViewHeight = .custom(lines: 4, autoResizeHeight: false),
             backgroundColor: UIColor = .clear,
             border: Border = .init(),
@@ -60,7 +60,7 @@ public final class InputTextareaView: UIView {
             self.text = text
             self.typingText = typingText
             self.placeholder = placeholder
-            self.hintViewViewProperties = hintViewViewProperties
+            self.hint = hint
             self.textViewHeight = textViewHeight
             self.backgroundColor = backgroundColor
             self.border = border
@@ -74,17 +74,8 @@ public final class InputTextareaView: UIView {
     
     // MARK: - UI
     
-    private lazy var headerLabel: UILabel = {
-        let label = UILabel()
-        return label
-    }()
-    
-    private lazy var headerView: UIView = {
-        let view = UIView()
-        view.addSubview(headerLabel)
-        headerLabel.snp.makeConstraints {
-            $0.edges.equalToSuperview().inset(Constants.headerInset)
-        }
+    private lazy var headerView: LabelView = {
+        let view = LabelView()
         return view
     }()
     
@@ -144,16 +135,20 @@ public final class InputTextareaView: UIView {
         updateHeader(with: viewProperties.header)
         updatePlaceholder(with: viewProperties.placeholder, text: viewProperties.text)
         updateTextView(with: viewProperties)
-        updateHintView(with: viewProperties.hintViewViewProperties)
+        updateHintView(with: viewProperties.hint)
         updateTextViewHeight(with: viewProperties)
         self.viewProperties = viewProperties
     }
     
     // MARK: - Private methods
     
-    private func updateHeader(with header: NSAttributedString?) {
-        headerLabel.attributedText = header
-        headerView.isHidden = header?.string.isEmpty == true
+    private func updateHeader(with header: LabelView.ViewProperties?) {
+        if let header {
+            headerView.update(with: header)
+            headerView.isHidden = false
+        } else {
+            headerView.isHidden = true
+        }
     }
     
     private func updatePlaceholder(
@@ -175,8 +170,8 @@ public final class InputTextareaView: UIView {
         viewProperties.delegateAssigningClosure(textView)
     }
     
-    private func updateHintView(with hintViewProperties: HintView.ViewProperties) {
-        hintView.update(with: hintViewProperties)
+    private func updateHintView(with hint: HintView.ViewProperties) {
+        hintView.update(with: hint)
     }
     
     private func updateTextViewHeight(with viewProperties: ViewProperties) {
@@ -240,7 +235,6 @@ public final class InputTextareaView: UIView {
 }
 
 private enum Constants {
-    static let headerInset = UIEdgeInsets(top: 4, left: 0, bottom: 4, right: 0)
     static let textViewContainerInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
     static let textViewVerticalPadding: CGFloat = 16
     static let placeholderHorizontalOffset: CGFloat = 5

@@ -11,12 +11,12 @@ import SnapKit
 public final class InputSelectView: UIView {
     
     public struct ViewProperties {
-        public var header: NSMutableAttributedString?
+        public var header: LabelView.ViewProperties?
         public var text: NSMutableAttributedString
         public var placeholder: NSMutableAttributedString
         public var clearButtonIcon: UIImage
         public var disclosureIcon: UIImage
-        public var hintViewViewProperties: HintView.ViewProperties
+        public var hint: HintView.ViewProperties
         public var border: Border
         public var backgroundColor: UIColor
         public var isUserInteractionEnabled: Bool
@@ -40,12 +40,12 @@ public final class InputSelectView: UIView {
         }
         
         public init(
-            header: NSMutableAttributedString? = nil,
+            header: LabelView.ViewProperties? = nil,
             text: NSMutableAttributedString = .init(string: ""),
             placeholder: NSMutableAttributedString = .init(string: ""),
             clearButtonIcon: UIImage = .init(),
             disclosureIcon: UIImage = .init(),
-            hintViewViewProperties: HintView.ViewProperties = .init(),
+            hint: HintView.ViewProperties = .init(),
             border: Border = .init(),
             backgroundColor: UIColor = .clear,
             isUserInteractionEnabled: Bool = true,
@@ -57,7 +57,7 @@ public final class InputSelectView: UIView {
             self.placeholder = placeholder
             self.clearButtonIcon = clearButtonIcon
             self.disclosureIcon = disclosureIcon
-            self.hintViewViewProperties = hintViewViewProperties
+            self.hint = hint
             self.isUserInteractionEnabled = isUserInteractionEnabled
             self.border = border
             self.backgroundColor = backgroundColor
@@ -68,17 +68,8 @@ public final class InputSelectView: UIView {
     
     // MARK: - UI
     
-    private lazy var headerLabel: UILabel = {
-        let label = UILabel()
-        return label
-    }()
-    
-    private lazy var headerView: UIView = {
-        let view = UIView()
-        view.addSubview(headerLabel)
-        headerLabel.snp.makeConstraints {
-            $0.edges.equalToSuperview().inset(UIEdgeInsets(top: 4, left: 0, bottom: 4, right: 0))
-        }
+    private lazy var headerView: LabelView = {
+        let view = LabelView()
         return view
     }()
     
@@ -178,7 +169,7 @@ public final class InputSelectView: UIView {
         updateTextField(with: viewProperties)
         updateClearButton(with: viewProperties)
         updateBorder(with: viewProperties.border)
-        updateHintView(with: viewProperties.hintViewViewProperties)
+        updateHintView(with: viewProperties.hint)
         disclosureImageView.image = viewProperties.disclosureIcon
         inputContainerView.backgroundColor = viewProperties.backgroundColor
         isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
@@ -187,9 +178,9 @@ public final class InputSelectView: UIView {
     
     // MARK: - Private Methods
     
-    private func updateHeader(with header: NSAttributedString?) {
-        if let headerText = header, !headerText.string.isEmpty {
-            headerLabel.attributedText = headerText
+    private func updateHeader(with header: LabelView.ViewProperties?) {
+        if let header {
+            headerView.update(with: header)
             headerView.isHidden = false
         } else {
             headerView.isHidden = true
@@ -214,8 +205,8 @@ public final class InputSelectView: UIView {
         inputContainerView.layer.cornerRadius = border.cornerRadius
     }
     
-    private func updateHintView(with hintViewProperties: HintView.ViewProperties) {
-        hintView.update(with: hintViewProperties)
+    private func updateHintView(with hint: HintView.ViewProperties) {
+        hintView.update(with: hint)
     }
     
     // MARK: - Actions
