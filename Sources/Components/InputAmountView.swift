@@ -4,34 +4,34 @@ import SnapKit
 public final class InputAmountView: UIView {
     
     public struct ViewProperties {
-        public var title: NSMutableAttributedString
-        public var hintViewProperties: HintView.ViewProperties
+        public var header: LabelView.ViewProperties?
         public var textFieldProperties: InputAmountTextField.ViewProperties
         public var amountSymbol: NSMutableAttributedString
+        public var hint: HintView.ViewProperties
         public var isUserInteractionEnabled: Bool
         
         public init(
-            title: NSMutableAttributedString = .init(string: ""),
-            hintViewProperties: HintView.ViewProperties = .init(),
+            header: LabelView.ViewProperties? = nil,
             textFieldProperties: InputAmountTextField.ViewProperties = .init(),
             amountSymbol: NSMutableAttributedString = .init(string: ""),
+            hint: HintView.ViewProperties = .init(),
             isUserInteractionEnabled: Bool = true
         ) {
-            self.title = title
-            self.hintViewProperties = hintViewProperties
+            self.header = header
             self.textFieldProperties = textFieldProperties
             self.amountSymbol = amountSymbol
+            self.hint = hint
             self.isUserInteractionEnabled = isUserInteractionEnabled
         }
     }
     
     private var viewProperties: ViewProperties = .init()
     
-    private var titleLabel: UILabel = {
-        let label = UILabel()
-        label.numberOfLines = 0
-        return label
+    private lazy var headerView: LabelView = {
+        let view = LabelView()
+        return view
     }()
+    
     private var amountTextField: InputAmountTextField = {
         let textField = InputAmountTextField()
         // Для кликабельности всей вьюхи
@@ -46,21 +46,10 @@ public final class InputAmountView: UIView {
     }()
     
     private lazy var vStack: UIStackView = {
-        
-        func spacer(size: CGFloat) -> UIView {
-            let spacer = SpacerView()
-            spacer.update(with: .init(size: .init(width: size, height: size)))
-            return spacer
-        }
-        
         let stack = UIStackView(arrangedSubviews: [
-            spacer(size: 4),
-            titleLabel,
-            spacer(size: 4),
+            headerView,
             amountCurrencyStack,
-            spacer(size: 4),
-            hintView,
-            spacer(size: 4)
+            hintView
         ])
         stack.axis = .vertical
         stack.alignment = .leading
@@ -87,8 +76,9 @@ public final class InputAmountView: UIView {
     required init?(coder: NSCoder) { fatalError() }
     
     public func update(with viewProperties: ViewProperties) {
+        updateHeader(with: viewProperties.header)
         amountTextField.update(with: viewProperties.textFieldProperties)
-        hintView.update(with: viewProperties.hintViewProperties)
+        hintView.update(with: viewProperties.hint)
         updateView(viewProperties: viewProperties)
         self.viewProperties = viewProperties
     }
@@ -104,9 +94,13 @@ public final class InputAmountView: UIView {
         }
     }
     
+    private func updateHeader(with header: LabelView.ViewProperties?) {
+        guard let header else { return }
+        headerView.update(with: header)
+    }
+    
     private func updateView(viewProperties: ViewProperties) {
         isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
-        titleLabel.attributedText = viewProperties.title
         currencyLabel.attributedText = viewProperties.amountSymbol
         addGestureRecognizer(UITapGestureRecognizer(
             target: self,
