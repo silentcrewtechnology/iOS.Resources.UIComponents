@@ -11,18 +11,18 @@ import UIKit
 public final class PayCell: UITableViewCell {
    
     public struct ViewProperties {
-        public var title: NSAttributedString?
-        public var subtitle: NSAttributedString?
-        public var rightInfo: NSAttributedString?
+        public var title: NSMutableAttributedString?
+        public var subtitle: NSMutableAttributedString?
+        public var rightInfo: NSMutableAttributedString?
         public var iconImage: UIImage?
         public var backgroundColor: UIColor?
         public var cornerRadius: CGFloat = 12
         public var action: (() -> Void)?
         
         public init(
-            title: NSAttributedString? = nil,
-            subtitle: NSAttributedString? = nil,
-            rightInfo: NSAttributedString? = nil,
+            title: NSMutableAttributedString? = nil,
+            subtitle: NSMutableAttributedString? = nil,
+            rightInfo: NSMutableAttributedString? = nil,
             iconImage: UIImage? = nil,
             backgroundColor: UIColor? = nil,
             cornerRadius: CGFloat = 12,
