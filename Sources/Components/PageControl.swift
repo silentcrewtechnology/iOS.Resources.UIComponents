@@ -2,44 +2,30 @@ import UIKit
 import SnapKit
 
 public final class PageControl: UIView {
-    
     public struct ViewProperties {
         public var numberOfPages: Int
         public var currentPage: Float
-        public var dotSize: CGSize
-        public var selectedBackgroundColor: UIColor
-        public var notSelectedBackgroundColor: UIColor
-        public var selectedDotWidth: CGFloat
+        public var dotView: DotView.ViewProperties
         public var maxNumberOfVisiblePages: Int
-        // разница уменьшения pageItemo'в при скролле
-        public var pageItemSizeDifference: CGFloat
 
         public init(
             numberOfPages: Int = 0,
             currentPage: Float = 0,
-            dotSize: CGSize = CGSize(width: 8, height: 8),
-            selectedBackgroundColor: UIColor = .white,
-            notSelectedBackgroundColor: UIColor = .lightGray,
-            selectedDotWidth: CGFloat = 24,
-            maxNumberOfVisiblePages: Int = 5,
-            pageItemSizeDifference: CGFloat = 2
+            dotView: DotView.ViewProperties = .init(),
+            maxNumberOfVisiblePages: Int = 5
         ) {
             self.numberOfPages = numberOfPages
             self.currentPage = currentPage
-            self.dotSize = dotSize
-            self.selectedBackgroundColor = selectedBackgroundColor
-            self.notSelectedBackgroundColor = notSelectedBackgroundColor
-            self.selectedDotWidth = selectedDotWidth
+            self.dotView = dotView
             self.maxNumberOfVisiblePages = maxNumberOfVisiblePages
-            self.pageItemSizeDifference = pageItemSizeDifference
         }
     }
-    
+
     // MARK: - Private properties
     private var viewProperties: ViewProperties = .init()
-    
-    private var dotViews: [UIView] = []
-    
+
+    private var dotViews: [DotView] = []
+
     private let containerView: UIView = {
         let view = UIView()
         view.clipsToBounds = true
@@ -49,6 +35,36 @@ public final class PageControl: UIView {
     private var currentPropertyAnimator: UIViewPropertyAnimator?
     private var currentPropertyAnimatorPage: Int?
     private var isBackward = true
+    
+    fileprivate enum DotPosition: Int {
+        case zero
+        case one
+        case two
+        case three
+        case fore
+        case other
+
+        var isSelected: Bool {
+            return self == .zero
+        }
+
+        func multiplier(edgeOffset: Int) -> CGFloat {
+            switch self {
+            case .zero:
+                return 0
+            case .one:
+                return edgeOffset <= 1 ? 0 : 1
+            case .two:
+                return edgeOffset <= 1 ? 0 : 2
+            case .three:
+                return edgeOffset <= 1 ? 1 : -1
+            case .fore:
+                return edgeOffset <= 1 ? (edgeOffset == 0 ? 2 : -1) : -1
+            default:
+                return -1
+            }
+        }
+    }
 
     // MARK: - Init
     public override init(frame: CGRect) {
@@ -57,18 +73,20 @@ public final class PageControl: UIView {
         configure()
         setCurrentPage(animated: false)
     }
-    
+
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError() }
-    
+
     public override var intrinsicContentSize: CGSize {
         .init(
-            width: viewProperties.selectedDotWidth + (viewProperties.dotSize.width * 2) * CGFloat(max(viewProperties.maxNumberOfVisiblePages, self.viewProperties.numberOfPages - 1)),
-            height: viewProperties.dotSize.height
+            width: viewProperties.dotView.selectedDotWidth + (viewProperties.dotView.dotSize.width * 2) * CGFloat(
+                max(viewProperties.maxNumberOfVisiblePages - 1, self.viewProperties.numberOfPages - 1)
+            ),
+            height: viewProperties.dotView.dotSize.height
         )
     }
 
-    
+
     // MARK: - Public methods
     public func update(with viewProperties: ViewProperties) {
         let needReconfigured = self.viewProperties.numberOfPages != viewProperties.numberOfPages
@@ -77,7 +95,7 @@ public final class PageControl: UIView {
         if needReconfigured { configure() }
         setCurrentPage(animated: !needReconfigured)
     }
-    
+
     // MARK: - Private methods
     private func layout() {
         addSubview(containerView)
@@ -87,48 +105,58 @@ public final class PageControl: UIView {
             $0.size.equalTo(intrinsicContentSize)
         }
     }
-    
+
     private func configure() {
         containerView.subviews.forEach({ $0.removeFromSuperview() })
-        
+
         for index in 0..<viewProperties.numberOfPages {
-            let dotView = UIView()
-            dotView.translatesAutoresizingMaskIntoConstraints = false
+            let dotView = DotView()
+            dotView.update(with: viewProperties.dotView)
             dotViews.append(dotView)
             containerView.addSubview(dotView)
 
-
-            let xOffset = CGFloat(index) * (viewProperties.dotSize.width * 2)
-            + CGFloat(max(0, viewProperties.maxNumberOfVisiblePages - viewProperties.numberOfPages)) * viewProperties.dotSize.width
-            dotView.frame = .init(origin: .init(x: xOffset, y: 0), size: viewProperties.dotSize)
-            dotView.layer.cornerRadius = dotView.frame.height / 2
+            let xOffset = CGFloat(index) * (viewProperties.dotView.dotSize.width * 2) + CGFloat(
+                max(0, viewProperties.maxNumberOfVisiblePages - viewProperties.numberOfPages)
+            ) * viewProperties.dotView.dotSize.width
+            dotView.frame.origin = .init(x: xOffset, y: 0)
 
         }
     }
-    
+
     private func setCurrentPage(animated: Bool = true) {
-        guard viewProperties.currentPage >= 0, viewProperties.currentPage < Float(viewProperties.numberOfPages)
+        guard viewProperties.currentPage >= 0,
+              viewProperties.currentPage < Float(viewProperties.numberOfPages)
                 && viewProperties.numberOfPages > 0 else { return }
 
-        var integralCurrentPage = Int(viewProperties.currentPage)
+        let integralCurrentPage = Int(viewProperties.currentPage)
 
         // анимированный переход при прямой смене currentPage
         guard animated,
               viewProperties.currentPage.truncatingRemainder(dividingBy: 1) != 0.0
         else {
-            currentPropertyAnimator?.stopAnimation(true)
-            currentPropertyAnimator = nil
-            currentPropertyAnimatorPage = nil
-            UIView.animate(withDuration: 1) {
-                self.updateDots(integralCurrentPage)
-            }
+            usualTransition(integralCurrentPage, animated: animated)
             return
         }
 
         // анимированный переход при смене currentPage при прокрутке коллекции
+        animatedTransition(integralCurrentPage + 1)
+    }
+    
+    private func usualTransition(_ integralCurrentPage: Int, animated: Bool) {
+        currentPropertyAnimator?.stopAnimation(true)
+        currentPropertyAnimator = nil
+        currentPropertyAnimatorPage = nil
+        if !animated {
+            self.updateDots(integralCurrentPage)
+        } else {
+            UIView.animate(withDuration: 1) {
+                self.updateDots(integralCurrentPage)
+            }
+        }
+    }
+    
+    private func animatedTransition(_ integralCurrentPage: Int) {
         let currentPageOffset = viewProperties.currentPage - floor(viewProperties.currentPage)
-        
-        integralCurrentPage = integralCurrentPage + 1
 
         guard currentPropertyAnimatorPage != integralCurrentPage else {
             currentPropertyAnimator?.fractionComplete = isBackward ? CGFloat(1 - currentPageOffset) : CGFloat(currentPageOffset)
@@ -142,10 +170,10 @@ public final class PageControl: UIView {
         let propertyAnimator = UIViewPropertyAnimator(
             duration: 0.1,
             curve: .easeInOut,
-            animations: { 
+            animations: { [weak self] in
+                guard let self else { return }
                 self.updateDots(integralCurrentPage - (self.isBackward ? 1 : 0))
             })
-        
         propertyAnimator.fractionComplete = isBackward ? CGFloat(1 - currentPageOffset) : CGFloat(currentPageOffset)
 
         currentPropertyAnimator = propertyAnimator
@@ -153,73 +181,42 @@ public final class PageControl: UIView {
     }
 
     private func updateDots(_ currentPage: Int) {
-        if self.viewProperties.numberOfPages > self.viewProperties.maxNumberOfVisiblePages {
-            self.dotViews.enumerated().forEach { index, view in
-                view.transform = .init(translationX: index > currentPage ? self.viewProperties.selectedDotWidth - self.viewProperties.dotSize.width : 0, y: 0)
+        if viewProperties.numberOfPages > viewProperties.maxNumberOfVisiblePages {
+            dotViews.enumerated().forEach { index, view in
+                view.transform = .init(
+                    translationX: index > currentPage ? viewProperties.dotView.selectedDotWidth - viewProperties.dotView.dotSize.width : 0,
+                    y: 0
+                )
                     .translatedBy(
-                        x: -CGFloat(max(0, min(currentPage, self.viewProperties.numberOfPages - 3) - 2)) * (self.viewProperties.dotSize.width * 2),
+                        x: -CGFloat(max(0, min(currentPage, viewProperties.numberOfPages - 3) - 2)) * (viewProperties.dotView.dotSize.width * 2),
                         y: 0
                     )
 
+                let edgeOffset = min(currentPage, viewProperties.numberOfPages - currentPage - 1)
 
-                let isCurrentPageIsOutside = currentPage <= 1 || currentPage >= self.viewProperties.numberOfPages - 2
-
-                switch abs(index - currentPage) {
-                case 0:
-                    self.updateDotView(view, multiplier: 0, isSelected: true)
-                case 1:
-                    let multiplier: CGFloat = isCurrentPageIsOutside ? 0 : 1
-                    self.updateDotView(view, multiplier: multiplier, isSelected: false)
-                case 2:
-                    let multiplier: CGFloat = isCurrentPageIsOutside ? 0 : 2
-                    self.updateDotView(view, multiplier: multiplier, isSelected: false)
-                case 3:
-                    let multiplier: CGFloat = isCurrentPageIsOutside ? 1 : -1
-                    self.updateDotView(view, multiplier: multiplier, isSelected: false)
-                case 4:
-                    let multiplier: CGFloat = isCurrentPageIsOutside ? 2 : -1
-                    self.updateDotView(view, multiplier: multiplier, isSelected: false)
-                default:
-                    self.updateDotView(view, multiplier: -1, isSelected: false)
-                }
+                guard let state = abs(index - currentPage).state else { return }
+           
+                viewProperties.dotView.multiplier = state.multiplier(edgeOffset: edgeOffset)
+                viewProperties.dotView.isSelected = state.isSelected
+                
+                view.update(with: viewProperties.dotView)
             }
         } else {
-            self.dotViews.enumerated().forEach { index, view in
-                view.transform = .init(translationX: index > currentPage ? self.viewProperties.selectedDotWidth - self.viewProperties.dotSize.width : 0, y: 0)
-                if index == currentPage {
-                    self.updateDotView(view, multiplier: 0, isSelected: true)
-                } else {
-                    self.updateDotView(view, multiplier: 0, isSelected: false)
-                }
+            dotViews.enumerated().forEach { index, view in
+                view.transform = .init(
+                    translationX: index > currentPage ? viewProperties.dotView.selectedDotWidth - viewProperties.dotView.dotSize.width : 0,
+                    y: 0
+                )
+                viewProperties.dotView.multiplier = 0
+                viewProperties.dotView.isSelected = index == currentPage
+                view.update(with: viewProperties.dotView)
             }
         }
-    }
-
-private func updateDotView(_ view: UIView, multiplier: CGFloat, isSelected: Bool) {
-        if multiplier < 0 {
-            view.frame.size = .zero
-            return
-        }
-
-        let sizeDifference = viewProperties.pageItemSizeDifference * multiplier
-        var newSize = CGSize(
-            width: viewProperties.dotSize.width - sizeDifference,
-            height: viewProperties.dotSize.height - sizeDifference
-        )
-
-        if newSize == .zero {
-            newSize = CGSize(width: 1, height: 1)
-        }
-
-        if isSelected {
-            newSize.width = viewProperties.selectedDotWidth
-        }
-
-        view.transform = view.transform.concatenating(.init(translationX: multiplier, y: multiplier))
-        view.frame.size = newSize
-        view.layer.cornerRadius = view.frame.size.height / 2
-
-        view.backgroundColor = isSelected ? viewProperties.selectedBackgroundColor : viewProperties.notSelectedBackgroundColor
     }
 }
 
+private extension Int {
+    var state: PageControl.DotPosition? {
+        PageControl.DotPosition(rawValue: self) ?? .other
+    }
+}
