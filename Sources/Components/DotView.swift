@@ -47,8 +47,8 @@ public final class DotView: UIView {
     
     // MARK: - Public methods
     public func update(with viewProperties: ViewProperties) {
+        updateView(viewProperties: viewProperties)
         self.viewProperties = viewProperties
-        updateView()
     }
     
     // MARK: - Private methods
@@ -57,9 +57,21 @@ public final class DotView: UIView {
         frame = .init(origin: .zero, size: viewProperties.dotSize)
         layer.cornerRadius = self.frame.height / 2
     }
+    
+    private func updateView(viewProperties: ViewProperties) {
+        updateSize(viewProperties: viewProperties)
+        layer.cornerRadius = frame.size.height / 2
+   
+        let sizeDifference = viewProperties.pageItemSizeDifference * viewProperties.multiplier
+        transform = transform.translatedBy(x: sizeDifference / 2, y: sizeDifference / 2)
 
-    private func updateView() {
-        if viewProperties.multiplier < 0 {
+        backgroundColor = viewProperties.isSelected
+            ? viewProperties.selectedBackgroundColor
+            : viewProperties.notSelectedBackgroundColor
+    }
+    
+    private func updateSize(viewProperties: ViewProperties) {
+        guard viewProperties.multiplier >= 0 else {
             frame.size = .zero
             return
         }
@@ -77,14 +89,8 @@ public final class DotView: UIView {
         if viewProperties.isSelected {
             newSize.width = viewProperties.selectedDotWidth
         }
-
-        transform = transform.translatedBy(x: sizeDifference / 2, y: sizeDifference / 2)
+        
         frame.size = newSize
-        layer.cornerRadius = frame.size.height / 2
-
-        backgroundColor = viewProperties.isSelected
-            ? viewProperties.selectedBackgroundColor
-            : viewProperties.notSelectedBackgroundColor
     }
 }
 

@@ -183,19 +183,11 @@ public final class PageControl: UIView {
     private func updateDots(_ currentPage: Int) {
         if viewProperties.numberOfPages > viewProperties.maxNumberOfVisiblePages {
             dotViews.enumerated().forEach { index, view in
-                view.transform = .init(
-                    translationX: index > currentPage ? viewProperties.dotView.selectedDotWidth - viewProperties.dotView.dotSize.width : 0,
-                    y: 0
-                )
-                    .translatedBy(
-                        x: -CGFloat(max(0, min(currentPage, viewProperties.numberOfPages - 3) - 2)) * (viewProperties.dotView.dotSize.width * 2),
-                        y: 0
-                    )
-
-                let edgeOffset = min(currentPage, viewProperties.numberOfPages - currentPage - 1)
-
+                setViewTransform(index: index, view: view, currentPage: currentPage)
+                
                 guard let state = abs(index - currentPage).state else { return }
            
+                let edgeOffset = min(currentPage, viewProperties.numberOfPages - currentPage - 1)
                 viewProperties.dotView.multiplier = state.multiplier(edgeOffset: edgeOffset)
                 viewProperties.dotView.isSelected = state.isSelected
                 
@@ -203,15 +195,25 @@ public final class PageControl: UIView {
             }
         } else {
             dotViews.enumerated().forEach { index, view in
-                view.transform = .init(
-                    translationX: index > currentPage ? viewProperties.dotView.selectedDotWidth - viewProperties.dotView.dotSize.width : 0,
-                    y: 0
-                )
+                setViewTransform(index: index, view: view, currentPage: currentPage)
+                
                 viewProperties.dotView.multiplier = 0
                 viewProperties.dotView.isSelected = index == currentPage
+                
                 view.update(with: viewProperties.dotView)
             }
         }
+    }
+    
+    private func setViewTransform(index: Int, view: DotView, currentPage: Int) {
+        view.transform = .init(
+            translationX: index > currentPage ? viewProperties.dotView.selectedDotWidth - viewProperties.dotView.dotSize.width : 0,
+            y: 0
+        )
+            .translatedBy(
+                x: -CGFloat(max(0, min(currentPage, viewProperties.numberOfPages - 3) - 2)) * (viewProperties.dotView.dotSize.width * 2),
+                y: 0
+            )
     }
 }
 
