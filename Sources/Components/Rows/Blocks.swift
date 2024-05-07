@@ -8,31 +8,28 @@
 import UIKit
 
 public enum Atom {
-    case title(NSAttributedString)
-    case subtitle(NSAttributedString)
-    case image(UIImage)
-    case index(NSAttributedString)
+    case title(LabelView.ViewProperties)
+    case subtitle(LabelView.ViewProperties)
+    case image40(UIImage)
+    case image40x48(UIImage)
+    case index(LabelView.ViewProperties)
     case icon24(UIImage)
     case icon20(UIImage)
-    case `switch`(() -> Bool)
-    case chips(() -> Void)
-    case amountText(NSAttributedString)
-    case checkbox(() -> Bool)
-    case radio(() -> Bool)
-    case textButton(NSAttributedString, () -> Void)
-    case coloredPrefix(NSAttributedString)
-    case copyText(NSAttributedString)
+    case `switch`
+    case amountText(LabelView.ViewProperties)
+    case checkbox(CheckboxView.ViewProperties)
+    case radio(RadioView.ViewProperties)
+    case button(ButtonView.ViewProperties)
+    case copyText(LabelView.ViewProperties)
 }
 
 public enum Molecule {
-    case titleWithSubtitle(NSAttributedString, NSAttributedString)
-    case subtitleWithTitle(NSAttributedString, NSAttributedString)
+    case titleWithSubtitle(LabelView.ViewProperties, LabelView.ViewProperties)
+    case subtitleWithTitle(LabelView.ViewProperties, LabelView.ViewProperties)
     case icons20([UIImage])
-    case indexWithcIcon24(NSAttributedString, UIImage)
-    case indexWithIcons20(NSAttributedString, [UIImage])
-    case indexWithSwitch(NSAttributedString, () -> Bool)
-    case amountTextWithColoredPrefix(NSAttributedString, NSAttributedString)
-    case amountTextWithTextButton(NSAttributedString, NSAttributedString, () -> Void)
+    case indexWithcIcon24(LabelView.ViewProperties, UIImage)
+    case indexWithIcons20(LabelView.ViewProperties, [UIImage])
+    case indexWithSwitch(LabelView.ViewProperties)
 }
 
 public enum RowBlocks {

@@ -8,51 +8,48 @@
 import UIKit
 
 public final class AtomService {
-    
     public func createAtom(_ atom: Atom) -> UIView {
         switch atom {
-        case .title(let text):
-            return createTitle(text)
-        case .subtitle(let text):
-            return createSubtitle(text)
-        case .image(let image):
+        case .title(let viewProperties):
+            return createTitle(viewProperties)
+        case .subtitle(let viewProperties):
+            return createSubtitle(viewProperties)
+        case .image40(let image):
             return createImage(image)
-        case .index(let text):
-            return createIndex(text)
+        case .image40x48(let image):
+            return createImage(image)
+        case .index(let viewProperties):
+            return createIndex(viewProperties)
         case .icon24(let image):
             return createIcon24(image)
         case .icon20(let image):
             return createIcon20(image)
-        case .switch(let action):
-            return createSwitch(action)
-        case .chips(let action):
-            return createChips(action)
-        case .amountText(let text):
-            return createAmountText(text)
-        case .checkbox(let action):
-            return createCheckbox(action)
-        case .radio(let action):
-            return createRadio(action)
-        case .textButton(let text, let action):
-            return createTextButton(text, action)
-        case .coloredPrefix(let text):
-            return createColoredPrefix(text)
-        case .copyText(let text):
-            return createCopyText(text)
+        case .switch:
+            return createSwitch()
+        case .amountText(let viewProperties):
+            return createAmountText(viewProperties)
+        case .checkbox(let viewProperties):
+            return createCheckbox(viewProperties)
+        case .radio(let viewProperties):
+            return createRadio(viewProperties)
+        case .button(let text):
+            return createButton(text)
+        case .copyText(let viewProperties):
+            return createCopyText(viewProperties)
         }
     }
 }
 
 private extension AtomService {
-    private func createTitle(_ text: NSAttributedString) -> UIView {
-        let label = UILabel()
-        label.attributedText = text
+    private func createTitle(_ viewProperties: LabelView.ViewProperties) -> UIView {
+        let label = LabelView()
+        label.update(with: viewProperties)
         return label
     }
     
-    private func createSubtitle(_ text: NSAttributedString) -> UIView {
-        let label = UILabel()
-        label.attributedText = text
+    private func createSubtitle(_ viewProperties: LabelView.ViewProperties) -> UIView {
+        let label = LabelView()
+        label.update(with: viewProperties)
         return label
     }
     
@@ -62,9 +59,9 @@ private extension AtomService {
         return imageView
     }
     
-    private func createIndex(_ text: NSAttributedString) -> UIView {
-        let label = UILabel()
-        label.attributedText = text
+    private func createIndex(_ viewProperties: LabelView.ViewProperties) -> UIView {
+        let label = LabelView()
+        label.update(with: viewProperties)
         return label
     }
     
@@ -80,54 +77,38 @@ private extension AtomService {
         return imageView
     }
     
-    private func createSwitch(_ action: () -> Bool) -> UIView {
+    private func createSwitch() -> UIView {
         let switchButton = UISwitch()
-        // TODO: add Action
-        // switchButton.target(forAction: <#T##Selector#>, withSender: <#T##Any?#>)
         return switchButton
     }
     
-    private func createChips(_ action: () -> Void) -> UIView {
-        let chips = ChipsView()
-        // TODO: add Action
-        return chips
-    }
-    
-    private func createAmountText(_ text: NSAttributedString) -> UIView {
-        let label = UILabel()
-        label.attributedText = text
+    private func createAmountText(_ viewProperties: LabelView.ViewProperties) -> UIView {
+        let label = LabelView()
+        label.update(with: viewProperties)
         return label
     }
     
-    private func createCheckbox(_ action: () -> Bool) -> UIView {
+    private func createCheckbox(_ viewProperties: CheckboxView.ViewProperties) -> UIView {
         let checkbox = CheckboxView()
-        // TODO: add Action
+        checkbox.update(with: viewProperties)
         return checkbox
     }
     
-    private func createRadio(_ action: () -> Bool) -> UIView {
+    private func createRadio(_ viewProperties: RadioView.ViewProperties) -> UIView {
         let radio = RadioView()
-        // TODO: add Action
+        radio.update(with: viewProperties)
         return radio
     }
     
-    private func createTextButton(_ text: NSAttributedString,
-                                  _ action: () -> Void) -> UIView {
-        let label = UILabel()
-        label.attributedText = text
-        // TODO: add Action
-        return label
+    private func createButton(_ viewProperties: ButtonView.ViewProperties) -> UIView {
+        let button = ButtonView()
+        button.update(with: viewProperties)
+        return button
     }
     
-    private func createColoredPrefix(_ text: NSAttributedString) -> UIView {
-        let label = UILabel()
-        label.attributedText = text
-        return label
-    }
-    
-    private func createCopyText(_ text: NSAttributedString) -> UIView {
-        let label = UILabel()
-        label.attributedText = text
+    private func createCopyText(_ viewProperties: LabelView.ViewProperties) -> UIView {
+        let label = LabelView()
+        label.update(with: viewProperties)
         return label
     }
 }

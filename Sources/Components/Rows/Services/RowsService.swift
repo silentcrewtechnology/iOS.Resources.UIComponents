@@ -42,7 +42,6 @@ final class RowsService {
         let centerView = rowBlocksService.createRowBlock(center)
         let trailingView = rowBlocksService.createRowBlock(trailing)
         
-        
         let containerViewProperty = RowBaseContainer.ViewProperties(
             leadingView: leadingView,
             centerView: centerView,
