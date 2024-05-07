@@ -10,29 +10,27 @@ import UIKit
 public final class MoleculeService {
     public func createMolecule(_ molecule: Molecule) -> UIView {
         switch molecule {
-        case .titleWithSubtitle(let titleText, let subtitleText):
-            return createTitleWithSubtitle(titleText, subtitleText)
-        case .subtitleWithTitle(let subtitleText, let titleText):
-            return createSubtitleWithTitle(subtitleText, titleText)
+        case .titleWithSubtitle(let titleViewProperties, let subtitleViewProperties):
+            return createTitleWithSubtitle(titleViewProperties, subtitleViewProperties)
+        case .subtitleWithTitle(let subtitleViewProperties, let titleViewProperties):
+            return createSubtitleWithTitle(subtitleViewProperties, titleViewProperties)
         case .icons20(let icons):
             return createIcons20(icons)
-        case .indexWithcIcon24(let indexText, let icon):
-            return createIndexWithcIcon24(indexText, icon)
-        case .indexWithIcons20(let indexText, let icons):
-            return createIndexWithIcons20(indexText, icons)
-        case .indexWithSwitch(let indexText, let action):
-            return createIndexWithSwitch(indexText, action)
-        case .amountTextWithColoredPrefix(let amountText, let coloredText):
-            return createAmountTextWithColoredPrefix(amountText, coloredText)
-        case .amountTextWithTextButton(let amountText, let buttonText, let action):
-            return createAmountTextWithTextButton(amountText, buttonText, action)
+        case .indexWithcIcon24(let indexViewProperties, let icon):
+            return createIndexWithcIcon24(indexViewProperties, icon)
+        case .indexWithIcons20(let indexViewProperties, let icons):
+            return createIndexWithIcons20(indexViewProperties, icons)
+        case .indexWithSwitch(let indexViewProperties):
+            return createIndexWithSwitch(indexViewProperties)
         }
     }
 }
 
 private extension MoleculeService {
-    private func createTitleWithSubtitle(_ titleText: NSAttributedString,
-                                         _ subtitleText: NSAttributedString) -> UIView {
+    private func createTitleWithSubtitle(
+        _ titleText: LabelView.ViewProperties,
+        _ subtitleText: LabelView.ViewProperties
+    ) -> UIView {
         let atomService = AtomService()
         
         let titleLabel = atomService.createAtom(.title(titleText))
@@ -41,8 +39,10 @@ private extension MoleculeService {
         return connect(top: titleLabel, bottom: subtitleLabel)
     }
     
-    private func createSubtitleWithTitle(_ subtitleText: NSAttributedString,
-                                         _ titleText: NSAttributedString) -> UIView {
+    private func createSubtitleWithTitle(
+        _ subtitleText: LabelView.ViewProperties,
+        _ titleText: LabelView.ViewProperties
+    ) -> UIView {
         let atomService = AtomService()
         
         let subtitleLabel = atomService.createAtom(.subtitle(subtitleText))
@@ -64,8 +64,10 @@ private extension MoleculeService {
         return connect(horizontalyViews: atomsFromIcons)
     }
     
-    private func createIndexWithcIcon24(_ indexText: NSAttributedString,
-                                        _ icon: UIImage) -> UIView {
+    private func createIndexWithcIcon24(
+        _ indexText: LabelView.ViewProperties,
+        _ icon: UIImage
+    ) -> UIView {
         let atomService = AtomService()
         
         let indexLabel = atomService.createAtom(.index(indexText))
@@ -74,8 +76,10 @@ private extension MoleculeService {
         return connect(left: indexLabel, right: icon)
     }
     
-    private func createIndexWithIcons20(_ indexText: NSAttributedString,
-                                        _ icons: [UIImage]) -> UIView {
+    private func createIndexWithIcons20(
+        _ indexText: LabelView.ViewProperties,
+        _ icons: [UIImage]
+    ) -> UIView {
         let atomService = AtomService()
         
         let indexLabel = atomService.createAtom(.index(indexText))
@@ -90,35 +94,13 @@ private extension MoleculeService {
         return connect(top: indexLabel, bottom: iconsResult)
     }
     
-    private func createIndexWithSwitch(_ indexText: NSAttributedString,
-                                       _ action: @escaping () -> Bool) -> UIView {
+    private func createIndexWithSwitch(_ indexText: LabelView.ViewProperties) -> UIView {
         let atomService = AtomService()
         
         let indexLabel = atomService.createAtom(.index(indexText))
-        let switchView = atomService.createAtom(.switch(action))
+        let switchView = atomService.createAtom(.switch)
         
         return connect(left: indexLabel, right: switchView)
-    }
-    
-    private func createAmountTextWithColoredPrefix(_ amountText: NSAttributedString,
-                                                   _ coloredText: NSAttributedString) -> UIView {
-        let atomService = AtomService()
-        
-        let amountLabel = atomService.createAtom(.amountText(amountText))
-        let coloredLabel = atomService.createAtom(.coloredPrefix(coloredText))
-        
-        return connect(top: amountLabel, bottom: coloredLabel)
-    }
-    
-    private func createAmountTextWithTextButton(_ amountText: NSAttributedString,
-                                                _ buttonText: NSAttributedString,
-                                                _ action: @escaping () -> Void) -> UIView {
-        let atomService = AtomService()
-        
-        let amountLabel = atomService.createAtom(.amountText(amountText))
-        let textButton = atomService.createAtom(.textButton(buttonText, action))
-        
-        return connect(top: amountLabel, bottom: textButton)
     }
 }
 
