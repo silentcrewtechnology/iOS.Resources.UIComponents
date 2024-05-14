@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-public class Label: UIView {
+public class LabelView: UIView {
     
     // MARK: - ViewProperties
     
