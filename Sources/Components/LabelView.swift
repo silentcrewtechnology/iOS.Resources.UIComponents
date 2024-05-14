@@ -13,7 +13,7 @@ public class LabelView: UIView {
     // MARK: - ViewProperties
     
     public struct ViewProperties {
-        public var text: NSMutableAttributedString?
+        public var text: NSMutableAttributedString
         public var size: Size
         
         public struct Size: Equatable {
@@ -30,7 +30,7 @@ public class LabelView: UIView {
         }
         
         public init(
-            text: NSMutableAttributedString? = nil,
+            text: NSMutableAttributedString = .init(string: ""),
             size: Size = .init()
         ) {
             self.text = text
@@ -38,42 +38,39 @@ public class LabelView: UIView {
         }
     }
     
+    // MARK: - Private properties
+    
     private var viewProperties: ViewProperties = .init()
     
     // MARK: - UI
     
     private lazy var textLabel: UILabel = {
         let label = UILabel()
-        label.numberOfLines = 0
+        label.numberOfLines = .zero
+        
         return label
     }()
     
-    // MARK: - Init
+    // MARK: - Life cycle
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
+        
         setupView()
     }
     
     required init?(coder: NSCoder) { fatalError() }
     
-    private func setupView() {
-        addSubview(textLabel)
-        textLabel.snp.makeConstraints {
-            $0.height.greaterThanOrEqualTo(0) // будет обновлено
-            $0.edges.equalToSuperview().inset(0) // будет обновлено
-        }
-    }
-    
-    // MARK: - Public Method
+    // MARK: - Public methods
     
     public func update(with viewProperties: ViewProperties) {
         updateLabel(with: viewProperties.text)
         updateSize(with: viewProperties.size)
+        
         self.viewProperties = viewProperties
     }
     
-    // MARK: - Private Methods
+    // MARK: - Private methods
     
     private func updateLabel(with text: NSMutableAttributedString?) {
         textLabel.attributedText = text
@@ -82,9 +79,18 @@ public class LabelView: UIView {
     
     private func updateSize(with size: ViewProperties.Size) {
         guard self.viewProperties.size != size else { return }
+        
         textLabel.snp.updateConstraints {
             $0.height.greaterThanOrEqualTo(size.lineHeight)
             $0.edges.equalToSuperview().inset(size.inset)
+        }
+    }
+    
+    private func setupView() {
+        addSubview(textLabel)
+        textLabel.snp.makeConstraints {
+            $0.height.greaterThanOrEqualTo(0) // будет обновлено
+            $0.edges.equalToSuperview().inset(0) // будет обновлено
         }
     }
 }
