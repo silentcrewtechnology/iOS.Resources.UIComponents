@@ -1,27 +1,21 @@
-//
-//  MoleculeService.swift
-//
-//
-//  Created by Омельченко Юлия on 18.04.2024.
-//
-
 import UIKit
 
-public final class MoleculeService {
+public struct MoleculeService {
+    public init() { }
     public func createMolecule(_ molecule: Molecule) -> UIView {
         switch molecule {
         case .titleWithSubtitle(let titleViewProperties, let subtitleViewProperties):
             return createTitleWithSubtitle(titleViewProperties, subtitleViewProperties)
         case .subtitleWithTitle(let subtitleViewProperties, let titleViewProperties):
             return createSubtitleWithTitle(subtitleViewProperties, titleViewProperties)
-        case .icons20(let icons):
-            return createIcons20(icons)
-        case .indexWithcIcon24(let indexViewProperties, let icon):
-            return createIndexWithcIcon24(indexViewProperties, icon)
-        case .indexWithIcons20(let indexViewProperties, let icons):
-            return createIndexWithIcons20(indexViewProperties, icons)
-        case .indexWithSwitch(let indexViewProperties):
-            return createIndexWithSwitch(indexViewProperties)
+        case .icons20(let iconsViewProperties):
+            return createIcons20(iconsViewProperties)
+        case .indexWithcIcon24(let indexViewProperties, let iconViewProperties):
+            return createIndexWithcIcon24(indexViewProperties, iconViewProperties)
+        case .indexWithIcons20(let indexViewProperties, let iconsViewProperties):
+            return createIndexWithIcons20(indexViewProperties, iconsViewProperties)
+        case .indexWithToggle(let indexViewProperties, let toggleViewProperties):
+            return createIndexWithToggle(indexViewProperties, toggleViewProperties)
         }
     }
 }
@@ -36,7 +30,7 @@ private extension MoleculeService {
         let titleLabel = atomService.createAtom(.title(titleText))
         let subtitleLabel = atomService.createAtom(.subtitle(titleText))
         
-        return connect(top: titleLabel, bottom: subtitleLabel)
+        return connect(topView: titleLabel, bottomView: subtitleLabel)
     }
     
     private func createSubtitleWithTitle(
@@ -48,10 +42,12 @@ private extension MoleculeService {
         let subtitleLabel = atomService.createAtom(.subtitle(subtitleText))
         let titleLabel = atomService.createAtom(.title(titleText))
         
-        return connect(top: subtitleLabel, bottom: titleLabel)
+        return connect(topView: subtitleLabel, bottomView: titleLabel)
     }
     
-    private func createIcons20(_ icons: [UIImage]) -> UIView {
+    private func createIcons20(
+        _ icons: [ImageView.ViewProperties]
+    ) -> UIView {
         let atomService = AtomService()
         
         var atomsFromIcons: [UIView] = []
@@ -66,19 +62,19 @@ private extension MoleculeService {
     
     private func createIndexWithcIcon24(
         _ indexText: LabelView.ViewProperties,
-        _ icon: UIImage
+        _ icon: ImageView.ViewProperties
     ) -> UIView {
         let atomService = AtomService()
         
         let indexLabel = atomService.createAtom(.index(indexText))
         let icon = atomService.createAtom(.icon24(icon))
         
-        return connect(left: indexLabel, right: icon)
+        return connect(leftView: indexLabel, rightView: icon)
     }
     
     private func createIndexWithIcons20(
         _ indexText: LabelView.ViewProperties,
-        _ icons: [UIImage]
+        _ icons: [ImageView.ViewProperties]
     ) -> UIView {
         let atomService = AtomService()
         
@@ -91,29 +87,93 @@ private extension MoleculeService {
         }
         let iconsResult = connect(horizontalyViews: atomsFromIcons)
         
-        return connect(top: indexLabel, bottom: iconsResult)
+        return connect(topView: indexLabel, bottomView: iconsResult)
     }
     
-    private func createIndexWithSwitch(_ indexText: LabelView.ViewProperties) -> UIView {
+    private func createIndexWithToggle(
+        _ indexText: LabelView.ViewProperties,
+        _ toggle: ToggleView.ViewProperties
+    ) -> UIView {
         let atomService = AtomService()
         
         let indexLabel = atomService.createAtom(.index(indexText))
-        let switchView = atomService.createAtom(.switch)
+        let switchView = atomService.createAtom(.toggle(toggle))
         
-        return connect(left: indexLabel, right: switchView)
+        return connect(leftView: indexLabel, rightView: switchView)
     }
 }
 
 private extension MoleculeService {
-    private func connect(top: UIView, bottom: UIView) -> UIView {
-        return UIView()
+    private func connect(topView: UIView, bottomView: UIView) -> UIView {
+        let containerView = UIView()
+        
+        containerView.addSubview(topView)
+        containerView.addSubview(bottomView)
+        
+        topView.snp.makeConstraints { make in
+            make.top.equalToSuperview()
+            make.left.equalToSuperview()
+            make.right.equalToSuperview()
+        }
+        
+        bottomView.snp.makeConstraints { make in
+            make.top.equalTo(topView.snp.bottom)
+            make.left.equalToSuperview()
+            make.right.equalToSuperview()
+            make.bottom.equalToSuperview()
+        }
+        
+        return containerView
     }
     
-    private func connect(left: UIView, right: UIView) -> UIView {
-        return UIView()
+    private func connect(leftView: UIView, rightView: UIView) -> UIView {
+        let containerView = UIView()
+        
+        containerView.addSubview(leftView)
+        containerView.addSubview(rightView)
+        
+        leftView.snp.makeConstraints { make in
+            make.top.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.left.equalToSuperview()
+        }
+        
+        rightView.snp.makeConstraints { make in
+            make.top.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.left.equalTo(leftView.snp.right)
+            make.right.equalToSuperview()
+        }
+        
+        return containerView
     }
     
     private func connect(horizontalyViews: [UIView]) -> UIView {
-        return UIView()
+        let containerView = UIView()
+        
+        guard !horizontalyViews.isEmpty else {
+            return containerView
+        }
+        
+        for (index, view) in horizontalyViews.enumerated() {
+            containerView.addSubview(view)
+            
+            view.snp.makeConstraints { make in
+                make.top.equalToSuperview()
+                make.bottom.equalToSuperview()
+                
+                if index == 0 {
+                    make.left.equalToSuperview()
+                } else {
+                    make.left.equalTo(horizontalyViews[index - 1].snp.right)
+                }
+                
+                if index == horizontalyViews.count - 1 {
+                    make.right.equalToSuperview()
+                }
+            }
+        }
+        
+        return containerView
     }
 }

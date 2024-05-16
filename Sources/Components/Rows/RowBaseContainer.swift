@@ -128,7 +128,7 @@ public final class RowBaseContainer: UIView {
             $0.top.equalToSuperview().offset(viewProperties.margins.top)
             $0.bottom.equalToSuperview().offset(-viewProperties.margins.bottom)
             $0.width.equalTo(viewProperties.trailingView?.snp.width ?? 0).priority(.high)
-            $0.leading.greaterThanOrEqualTo(centralContainer.snp.trailing).offset(viewProperties.margins.spacing)
+            $0.leading.greaterThanOrEqualTo(centralContainer.snp.trailing).offset(viewProperties.margins.spacing).priority(.low)
         }
     }
     
