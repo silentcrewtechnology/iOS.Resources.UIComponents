@@ -1,10 +1,3 @@
-//
-//  RowCell.swift
-//
-//
-//  Created by Омельченко Юлия on 03.05.2024.
-//
-
 import UIKit
 
 public final class RowCell: UITableViewCell {

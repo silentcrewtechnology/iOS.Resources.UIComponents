@@ -1,91 +1,63 @@
-//
-//  AtomService.swift
-//
-//
-//  Created by Омельченко Юлия on 18.04.2024.
-//
-
 import UIKit
 
-public final class AtomService {
+public struct AtomService {
     public func createAtom(_ atom: Atom) -> UIView {
         switch atom {
         case .title(let viewProperties):
-            return createTitle(viewProperties)
+            return createLabel(viewProperties)
         case .subtitle(let viewProperties):
-            return createSubtitle(viewProperties)
-        case .image40(let image):
-            return createImage(image)
-        case .image40x48(let image):
-            return createImage(image)
+            return createLabel(viewProperties)
+        case .image40(let viewProperties):
+            return createImage(viewProperties)
+        case .card(let image):
+            //TODO: ждем элемент ДС - PCABO3-10607
+            return createCard(image)
         case .index(let viewProperties):
-            return createIndex(viewProperties)
-        case .icon24(let image):
-            return createIcon24(image)
-        case .icon20(let image):
-            return createIcon20(image)
-        case .switch:
-            return createSwitch()
+            return createLabel(viewProperties)
+        case .icon24(let viewProperties):
+            return createImage(viewProperties)
+        case .icon20(let viewProperties):
+            return createImage(viewProperties)
+        case .toggle(let viewProperties):
+            return createToggle(viewProperties)
         case .amountText(let viewProperties):
-            return createAmountText(viewProperties)
+            return createLabel(viewProperties)
         case .checkbox(let viewProperties):
             return createCheckbox(viewProperties)
         case .radio(let viewProperties):
             return createRadio(viewProperties)
-        case .button(let text):
-            return createButton(text)
+        case .button(let viewProperties):
+            return createButton(viewProperties)
         case .copyText(let viewProperties):
-            return createCopyText(viewProperties)
+            return createLabel(viewProperties)
         }
     }
 }
 
 private extension AtomService {
-    private func createTitle(_ viewProperties: LabelView.ViewProperties) -> UIView {
+    private func createLabel(_ viewProperties: LabelView.ViewProperties) -> UIView {
         let label = LabelView()
         label.update(with: viewProperties)
         return label
     }
     
-    private func createSubtitle(_ viewProperties: LabelView.ViewProperties) -> UIView {
-        let label = LabelView()
-        label.update(with: viewProperties)
-        return label
+    private func createImage(_ viewProperties: ImageView.ViewProperties) -> UIView {
+        let imageView = ImageView()
+        imageView.update(with: viewProperties)
+        return imageView
     }
     
-    private func createImage(_ image: UIImage) -> UIView {
+    // TODO: заменить на элемент ДС - PCABO3-10607
+    private func createCard(_ image: UIImage) -> UIView {
         let imageView = UIImageView()
         imageView.image = image
         return imageView
     }
     
-    private func createIndex(_ viewProperties: LabelView.ViewProperties) -> UIView {
-        let label = LabelView()
-        label.update(with: viewProperties)
-        return label
-    }
-    
-    private func createIcon24(_ image: UIImage) -> UIView {
-        let imageView = UIImageView()
-        imageView.image = image
-        return imageView
-    }
-    
-    private func createIcon20(_ image: UIImage) -> UIView {
-        let imageView = UIImageView()
-        imageView.image = image
-        return imageView
-    }
-    
-    private func createSwitch() -> UIView {
-        let switchButton = UISwitch()
-        return switchButton
-    }
-    
-    private func createAmountText(_ viewProperties: LabelView.ViewProperties) -> UIView {
-        let label = LabelView()
-        label.update(with: viewProperties)
-        return label
+    private func createToggle(_ viewProperties: ToggleView.ViewProperties) -> UIView {
+        let toggle = ToggleView()
+        toggle.update(with: viewProperties)
+        return toggle
     }
     
     private func createCheckbox(_ viewProperties: CheckboxView.ViewProperties) -> UIView {
@@ -104,11 +76,5 @@ private extension AtomService {
         let button = ButtonView()
         button.update(with: viewProperties)
         return button
-    }
-    
-    private func createCopyText(_ viewProperties: LabelView.ViewProperties) -> UIView {
-        let label = LabelView()
-        label.update(with: viewProperties)
-        return label
     }
 }

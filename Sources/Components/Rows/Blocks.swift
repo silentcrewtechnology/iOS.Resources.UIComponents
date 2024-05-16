@@ -1,21 +1,15 @@
 //
-//  Blocks.swift
-//  
-//
-//  Created by Омельченко Юлия on 18.04.2024.
-//
-
 import UIKit
 
 public enum Atom {
     case title(LabelView.ViewProperties)
     case subtitle(LabelView.ViewProperties)
-    case image40(UIImage)
-    case image40x48(UIImage)
+    case image40(ImageView.ViewProperties)
+    case card(UIImage)
     case index(LabelView.ViewProperties)
-    case icon24(UIImage)
-    case icon20(UIImage)
-    case `switch`
+    case icon24(ImageView.ViewProperties)
+    case icon20(ImageView.ViewProperties)
+    case toggle(ToggleView.ViewProperties)
     case amountText(LabelView.ViewProperties)
     case checkbox(CheckboxView.ViewProperties)
     case radio(RadioView.ViewProperties)
@@ -26,10 +20,10 @@ public enum Atom {
 public enum Molecule {
     case titleWithSubtitle(LabelView.ViewProperties, LabelView.ViewProperties)
     case subtitleWithTitle(LabelView.ViewProperties, LabelView.ViewProperties)
-    case icons20([UIImage])
-    case indexWithcIcon24(LabelView.ViewProperties, UIImage)
-    case indexWithIcons20(LabelView.ViewProperties, [UIImage])
-    case indexWithSwitch(LabelView.ViewProperties)
+    case icons20([ImageView.ViewProperties])
+    case indexWithcIcon24(LabelView.ViewProperties, ImageView.ViewProperties)
+    case indexWithIcons20(LabelView.ViewProperties, [ImageView.ViewProperties])
+    case indexWithToggle(LabelView.ViewProperties, ToggleView.ViewProperties)
 }
 
 public enum RowBlocks {
