@@ -43,7 +43,6 @@ public class ChipsView: PressableView {
         let stack = UIStackView()
         stack.axis = .horizontal
         stack.alignment = .center
-        stack.spacing = 8
         return stack
     }()
     
