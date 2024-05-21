@@ -43,6 +43,7 @@ public class ChipsView: PressableView {
     
     private let textLabel: UILabel = {
         let label = UILabel()
+        label.lineBreakMode = .byTruncatingTail
         return label
     }()
     
@@ -57,6 +58,9 @@ public class ChipsView: PressableView {
         addSubview(hStack)
         hStack.snp.makeConstraints {
             $0.edges.equalToSuperview() // будет обновлено
+        }
+        textLabel.snp.makeConstraints {
+            $0.width.lessThanOrEqualTo(200)
         }
     }
     
