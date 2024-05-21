@@ -9,6 +9,7 @@ public class ChipsView: PressableView {
         public var text: NSMutableAttributedString
         public var rightView: UIView?
         public var insets: UIEdgeInsets
+        public var isUserInteractionEnabled: Bool
         public var onPressChange: (State) -> Void
         
         public init(
@@ -17,6 +18,7 @@ public class ChipsView: PressableView {
             text: NSMutableAttributedString = .init(string: ""),
             rightView: UIView? = nil,
             insets: UIEdgeInsets = .zero,
+            isUserInteractionEnabled: Bool = true,
             onPressChange: @escaping (State) -> Void = { _ in }
         ) {
             self.backgroundColor = backgroundColor
@@ -24,6 +26,7 @@ public class ChipsView: PressableView {
             self.text = text
             self.rightView = rightView
             self.insets = insets
+            self.isUserInteractionEnabled = isUserInteractionEnabled
             self.onPressChange = onPressChange
         }
     }
@@ -60,6 +63,7 @@ public class ChipsView: PressableView {
     public func update(with viewProperties: ViewProperties) {
         backgroundColor = viewProperties.backgroundColor
         textLabel.attributedText = viewProperties.text
+        isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
         updateStack(with: viewProperties)
         updateInsets(with: viewProperties)
         self.viewProperties = viewProperties
