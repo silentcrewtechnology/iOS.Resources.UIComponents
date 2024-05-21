@@ -96,6 +96,8 @@ public class ChipsView: PressableView {
     }
     
     public override func handlePress(state: State) {
-        viewProperties.onPressChange(state)
+        UIView.animate(withDuration: 0.2) {
+            self.viewProperties.onPressChange(state)
+        }
     }
 }
