@@ -14,7 +14,10 @@ public class PressableView: UIView {
         _ touches: Set<UITouch>,
         with event: UIEvent?
     ) {
-        super.touchesBegan(touches, with: event)
+        guard touches.first?.nilIfHandledBySubview(of: self) != nil else {
+            super.touchesBegan(touches, with: event)
+            return
+        }
         handlePress(state: .pressed)
     }
     
@@ -22,9 +25,11 @@ public class PressableView: UIView {
         _ touches: Set<UITouch>,
         with event: UIEvent?
     ) {
-        super.touchesEnded(touches, with: event)
-        guard let location = touches.first?.location(in: self) else { return }
-        if bounds.contains(location) {
+        guard let touch = touches.first?.nilIfHandledBySubview(of: self) else {
+            super.touchesBegan(touches, with: event)
+            return
+        }
+        if bounds.contains(touch.location(in: self)) {
             handlePress(state: .unpressed)
         } else {
             // перетянули палец за пределы вью
@@ -36,7 +41,27 @@ public class PressableView: UIView {
         _ touches: Set<UITouch>,
         with event: UIEvent?
     ) {
-        super.touchesCancelled(touches, with: event)
+        guard touches.first?.nilIfHandledBySubview(of: self) != nil else {
+            super.touchesBegan(touches, with: event)
+            return
+        }
         handlePress(state: .cancelled)
+    }
+}
+
+private extension UITouch {
+    
+    /// Returns `nil` if the `touch` will be handled by a subview
+    func nilIfHandledBySubview(of view: UIView) -> UITouch? {
+        for subview in view.subviews {
+            if subview.isUserInteractionEnabled
+            && subview.gestureRecognizers?.isEmpty == false
+            && subview.bounds.contains(location(in: subview))
+            || nilIfHandledBySubview(of: subview) == nil
+            {
+                return nil
+            }
+        }
+        return self
     }
 }
