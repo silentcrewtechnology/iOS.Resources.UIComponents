@@ -1,7 +1,7 @@
 import UIKit
 import SnapKit
 
-public class ImageCardView: UIView {
+public class CardImageView: UIView {
     
     public struct ViewProperties {
         public var backgroundImage: UIImage?
