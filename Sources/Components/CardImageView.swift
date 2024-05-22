@@ -33,11 +33,20 @@ public class CardImageView: UIView {
     public override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
+        setupGradientColor()
     }
+   
+    private lazy var gradientView: GradientView = {
+        let gradientView = GradientView(frame: bounds)
+        gradientView.gradientLayer.startPoint = CGPoint(x: 0, y: 0)
+        gradientView.gradientLayer.endPoint = CGPoint(x: 0, y: 1)
+        return gradientView
+    }()
     
     private func setupView() {
-        
         addSubview(imageView)
+        imageView.layer.cornerRadius = 4
+        imageView.layer.masksToBounds = true
         imageView.snp.makeConstraints() {
             $0.size.equalTo(CGSize(width: 48, height: 32))
             $0.top.equalToSuperview().offset(4)
@@ -48,7 +57,13 @@ public class CardImageView: UIView {
         paymentSystemImageView.snp.makeConstraints() {
             $0.size.equalTo(CGSize(width: 24, height: 24))
             $0.top.equalToSuperview().offset(16)
-            $0.trailing.equalToSuperview().offset(4)
+            $0.trailing.equalToSuperview().inset(4)
+        }
+        
+        addSubview(gradientView)
+        gradientView.snp.makeConstraints{
+            $0.top.equalToSuperview().offset(16)
+            $0.leading.trailing.bottom.equalToSuperview()
         }
         
         snp.makeConstraints {
@@ -57,6 +72,10 @@ public class CardImageView: UIView {
         clipsToBounds = true
     }
     
+    private func setupGradientColor() {
+        gradientView.gradientLayer.colors = [UIColor.black.withAlphaComponent(0).cgColor,
+                                             UIColor.black.withAlphaComponent(0.25).cgColor]
+    }
     required init?(coder: NSCoder) { fatalError() }
     
     public func update(with viewProperties: ViewProperties) {
@@ -67,5 +86,19 @@ public class CardImageView: UIView {
     private func updateImage(with viewProperties: ViewProperties) {
         imageView.image = viewProperties.backgroundImage
         paymentSystemImageView.image = viewProperties.paymentSystemImage
+    }
+}
+
+class GradientView: UIView {
+
+     lazy var gradientLayer: CAGradientLayer = {
+        let result = CAGradientLayer()
+        self.layer.addSublayer(result)
+        return result
+    }()
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        self.gradientLayer.frame = self.bounds
     }
 }
