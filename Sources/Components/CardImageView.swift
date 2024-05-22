@@ -33,13 +33,14 @@ public class CardImageView: UIView {
     public override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
-        setupGradientColor()
     }
    
     private lazy var gradientView: GradientView = {
         let gradientView = GradientView(frame: bounds)
         gradientView.gradientLayer.startPoint = CGPoint(x: 0, y: 0)
         gradientView.gradientLayer.endPoint = CGPoint(x: 0, y: 1)
+        gradientView.gradientLayer.colors = [UIColor.black.withAlphaComponent(0).cgColor,
+                                             UIColor.black.withAlphaComponent(0.25).cgColor]
         return gradientView
     }()
     
@@ -60,7 +61,7 @@ public class CardImageView: UIView {
             $0.trailing.equalToSuperview().inset(4)
         }
         
-        addSubview(gradientView)
+        imageView.addSubview(gradientView)
         gradientView.snp.makeConstraints{
             $0.top.equalToSuperview().offset(16)
             $0.leading.trailing.bottom.equalToSuperview()
@@ -72,10 +73,6 @@ public class CardImageView: UIView {
         clipsToBounds = true
     }
     
-    private func setupGradientColor() {
-        gradientView.gradientLayer.colors = [UIColor.black.withAlphaComponent(0).cgColor,
-                                             UIColor.black.withAlphaComponent(0.25).cgColor]
-    }
     required init?(coder: NSCoder) { fatalError() }
     
     public func update(with viewProperties: ViewProperties) {
