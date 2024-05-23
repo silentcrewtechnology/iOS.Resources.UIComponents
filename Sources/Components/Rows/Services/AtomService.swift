@@ -9,9 +9,8 @@ public struct AtomService {
             return createLabel(viewProperties)
         case .image40(let viewProperties):
             return createImage(viewProperties)
-        case .card(let image):
-            //TODO: ждем элемент ДС - PCABO3-10607
-            return createCard(image)
+        case .card(let viewProperties):
+            return createCard(viewProperties)
         case .index(let viewProperties):
             return createLabel(viewProperties)
         case .icon24(let viewProperties):
@@ -47,11 +46,10 @@ private extension AtomService {
         return imageView
     }
     
-    // TODO: заменить на элемент ДС - PCABO3-10607
-    private func createCard(_ image: UIImage) -> UIView {
-        let imageView = UIImageView()
-        imageView.image = image
-        return imageView
+    private func createCard(_ viewProperties: CardImageView.ViewProperties) -> UIView {
+        let cardView = CardImageView()
+        cardView.update(with: viewProperties)
+        return cardView
     }
     
     private func createToggle(_ viewProperties: ToggleView.ViewProperties) -> UIView {
