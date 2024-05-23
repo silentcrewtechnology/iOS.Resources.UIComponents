@@ -1,11 +1,10 @@
-//
 import UIKit
 
 public enum Atom {
     case title(LabelView.ViewProperties)
     case subtitle(LabelView.ViewProperties)
     case image40(ImageView.ViewProperties)
-    case card(UIImage)
+    case card(CardImageView.ViewProperties)
     case index(LabelView.ViewProperties)
     case icon24(ImageView.ViewProperties)
     case icon20(ImageView.ViewProperties)
