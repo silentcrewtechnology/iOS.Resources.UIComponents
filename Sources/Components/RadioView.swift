@@ -60,11 +60,13 @@ public final class RadioView: PressableView {
     }
     
     public func update(with viewProperties: ViewProperties) {
-        isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
-        setupBackground(with: viewProperties)
-        setupBorder(with: viewProperties)
-        setupIndicator(with: viewProperties)
-        self.viewProperties = viewProperties
+        UIView.transition(with: self, duration: 0.2, options: .transitionCrossDissolve) { [self] in
+            isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
+            setupBackground(with: viewProperties)
+            setupBorder(with: viewProperties)
+            setupIndicator(with: viewProperties)
+            self.viewProperties = viewProperties
+        }
     }
     
     private func setupBackground(with viewProperties: ViewProperties) {
@@ -87,8 +89,6 @@ public final class RadioView: PressableView {
     }
     
     public override func handlePress(state: State) {
-        UIView.animate(withDuration: 0.2) {
-            self.viewProperties.onPressChange(state)
-        }
+        viewProperties.onPressChange(state)
     }
 }
