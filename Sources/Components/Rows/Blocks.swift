@@ -20,7 +20,7 @@ public enum Molecule {
     case titleWithSubtitle(LabelView.ViewProperties, LabelView.ViewProperties)
     case subtitleWithTitle(LabelView.ViewProperties, LabelView.ViewProperties)
     case icons20([ImageView.ViewProperties])
-    case indexWithcIcon24(LabelView.ViewProperties, ImageView.ViewProperties)
+    case indexWithIcon24(LabelView.ViewProperties, ImageView.ViewProperties)
     case indexWithIcons20(LabelView.ViewProperties, [ImageView.ViewProperties])
     case indexWithToggle(LabelView.ViewProperties, ToggleView.ViewProperties)
 }
