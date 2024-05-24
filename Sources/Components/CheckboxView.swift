@@ -1,53 +1,36 @@
 import UIKit
 import SnapKit
 
-public final class CheckboxView: UIView {
+public final class CheckboxView: PressableView {
     
     public struct ViewProperties {
-        public var background: Background
-        public var indicator: Indicator
+        public var backgroundColor: UIColor
+        public var size: CGSize
+        public var cornerRadius: CGFloat
+        public var borderColor: UIColor
+        public var borderWidth: CGFloat
+        public var checkIcon: UIImage?
+        public var isUserInteractionEnabled: Bool
+        public var onPressChange: (State) -> Void
         
         public init(
-            background: Background = .init(),
-            indicator: Indicator = .init()
+            backgroundColor: UIColor = .clear,
+            size: CGSize = .zero,
+            cornerRadius: CGFloat = 0,
+            borderColor: UIColor = .clear,
+            borderWidth: CGFloat = 0,
+            checkIcon: UIImage? = nil,
+            isUserInteractionEnabled: Bool = true,
+            onPressChange: @escaping (State) -> Void = { _ in }
         ) {
-            self.background = background
-            self.indicator = indicator
-        }
-        
-        public struct Background {
-            public var color: UIColor
-            public var size: CGFloat
-            public var cornerRadius: CGFloat
-            
-            public init(
-                color: UIColor = .clear,
-                size: CGFloat = .zero,
-                cornerRadius: CGFloat = .zero
-            ) {
-                self.color = color
-                self.size = size
-                self.cornerRadius = cornerRadius
-            }
-        }
-        
-        public struct Indicator {
-            public var backgroundColor: UIColor
-            public var size: CGFloat
-            public var cornerRadius: CGFloat
-            public var image: UIImage?
-            
-            public init(
-                backgroundColor: UIColor = .clear,
-                size: CGFloat = .zero,
-                cornerRadius: CGFloat = .zero,
-                image: UIImage? = nil
-            ) {
-                self.backgroundColor = backgroundColor
-                self.size = size
-                self.cornerRadius = cornerRadius
-                self.image = image
-            }
+            self.backgroundColor = backgroundColor
+            self.size = size
+            self.cornerRadius = cornerRadius
+            self.borderColor = borderColor
+            self.borderWidth = borderWidth
+            self.checkIcon = checkIcon
+            self.isUserInteractionEnabled = isUserInteractionEnabled
+            self.onPressChange = onPressChange
         }
     }
     
@@ -55,7 +38,6 @@ public final class CheckboxView: UIView {
     
     private let checkView: UIImageView = {
         let view = UIImageView()
-        view.contentMode = .center
         return view
     }()
     
@@ -74,34 +56,39 @@ public final class CheckboxView: UIView {
         addSubview(checkView)
         checkView.snp.makeConstraints {
             $0.center.equalToSuperview()
-            $0.size.equalTo(0) // будет обновляться
         }
     }
     
     public func update(with viewProperties: ViewProperties) {
-        setupBackground(background: viewProperties.background)
-        setupIndicator(indicator: viewProperties.indicator)
-        self.viewProperties = viewProperties
+        UIView.transition(with: self, duration: 0.2, options: .transitionCrossDissolve) { [self] in
+            isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
+            setupBackground(with: viewProperties)
+            setupBorder(with: viewProperties)
+            setupIndicator(with: viewProperties)
+            self.viewProperties = viewProperties
+        }
     }
     
-    private func setupBackground(background: ViewProperties.Background) {
-        backgroundColor = background.color
-        if self.viewProperties.background.size != background.size {
+    private func setupBackground(with viewProperties: ViewProperties) {
+        backgroundColor = viewProperties.backgroundColor
+        if self.viewProperties.size != viewProperties.size {
             snp.updateConstraints {
-                $0.size.equalTo(background.size)
+                $0.size.equalTo(viewProperties.size)
             }
         }
-        layer.cornerRadius = background.cornerRadius
+        layer.cornerRadius = viewProperties.cornerRadius
     }
     
-    private func setupIndicator(indicator: ViewProperties.Indicator) {
-        checkView.layer.cornerRadius = indicator.cornerRadius
-        checkView.image = indicator.image
-        checkView.backgroundColor = indicator.backgroundColor
-        if self.viewProperties.indicator.size != indicator.size {
-            checkView.snp.updateConstraints {
-                $0.size.equalTo(indicator.size)
-            }
-        }
+    private func setupBorder(with viewProperties: ViewProperties) {
+        layer.borderColor = viewProperties.borderColor.cgColor
+        layer.borderWidth = viewProperties.borderWidth
+    }
+    
+    private func setupIndicator(with viewProperties: ViewProperties) {
+        checkView.image = viewProperties.checkIcon
+    }
+    
+    public override func handlePress(state: State) {
+        viewProperties.onPressChange(state)
     }
 }
