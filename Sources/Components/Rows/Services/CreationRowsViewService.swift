@@ -3,7 +3,7 @@ import UIKit
 public struct CreationRowsViewService {
     public init() { }
     
-    public func createCellRowWithBloks(
+    public func createCellRowWithBlocks(
         tableView: UITableView,
         indexPath: IndexPath,
         leading: RowBlocks? = nil,
@@ -12,7 +12,7 @@ public struct CreationRowsViewService {
     ) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "RowCell", for: indexPath) as? RowCell
         
-        let rowView = createViewRowWithBloks(leading: leading,
+        let rowView = createViewRowWithBlocks(leading: leading,
                                              center: center,
                                              trailing: trailing)
         
@@ -21,7 +21,7 @@ public struct CreationRowsViewService {
         return cell ?? UITableViewCell()
     }
     
-    public func createViewRowWithBloks(
+    public func createViewRowWithBlocks(
         leading: RowBlocks? = nil,
         center: RowBlocks? = nil,
         trailing: RowBlocks? = nil,

@@ -11,8 +11,8 @@ public struct MoleculeService {
             return createSubtitleWithTitle(subtitleViewProperties, titleViewProperties)
         case .icons20(let iconsViewProperties):
             return createIcons20(iconsViewProperties)
-        case .indexWithcIcon24(let indexViewProperties, let iconViewProperties):
-            return createIndexWithcIcon24(indexViewProperties, iconViewProperties)
+        case .indexWithIcon24(let indexViewProperties, let iconViewProperties):
+            return createIndexWithIcon24(indexViewProperties, iconViewProperties)
         case .indexWithIcons20(let indexViewProperties, let iconsViewProperties):
             return createIndexWithIcons20(indexViewProperties, iconsViewProperties)
         case .indexWithToggle(let indexViewProperties, let toggleViewProperties):
@@ -61,7 +61,7 @@ private extension MoleculeService {
         return connect(horizontalyViews: atomsFromIcons)
     }
     
-    private func createIndexWithcIcon24(
+    private func createIndexWithIcon24(
         _ indexText: LabelView.ViewProperties,
         _ icon: ImageView.ViewProperties
     ) -> UIView {
