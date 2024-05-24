@@ -1,7 +1,9 @@
 import UIKit
 
 public struct CreationRowsViewService {
-    public static func createCellRowWithBloks(
+    public init() { }
+    
+    public func createCellRowWithBloks(
         tableView: UITableView,
         indexPath: IndexPath,
         leading: RowBlocks? = nil,
@@ -19,7 +21,7 @@ public struct CreationRowsViewService {
         return cell ?? UITableViewCell()
     }
     
-    public static func createViewRowWithBloks(
+    public func createViewRowWithBloks(
         leading: RowBlocks? = nil,
         center: RowBlocks? = nil,
         trailing: RowBlocks? = nil,
@@ -36,9 +38,9 @@ public struct CreationRowsViewService {
             spacing: 16
         )
         
-        let leadingView = RowBlocksService.createRowBlock(leading)
-        let centerView = RowBlocksService.createRowBlock(center)
-        let trailingView = RowBlocksService.createRowBlock(trailing)
+        let leadingView = RowBlocksService().createRowBlock(leading)
+        let centerView = RowBlocksService().createRowBlock(center)
+        let trailingView = RowBlocksService().createRowBlock(trailing)
         
         let containerViewProperty = RowBaseContainer.ViewProperties(
             leadingView: leadingView,

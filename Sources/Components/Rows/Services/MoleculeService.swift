@@ -2,6 +2,7 @@ import UIKit
 
 public struct MoleculeService {
     public init() { }
+    
     public func createMolecule(_ molecule: Molecule) -> UIView {
         switch molecule {
         case .titleWithSubtitle(let titleViewProperties, let subtitleViewProperties):
