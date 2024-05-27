@@ -5,6 +5,9 @@ import PackageDescription
 
 let package = Package(
     name: "iOS.Resources.UiComponents",
+    platforms: [
+        .iOS(.v15)
+    ],
     products: [
         .library(
             name: "iOS.Resources.UiComponents",

@@ -15,6 +15,7 @@ public class LabelView: UIView {
     public struct ViewProperties {
         public var text: NSMutableAttributedString
         public var size: Size
+        public var isCopied: Bool
         
         public struct Size: Equatable {
             public var inset: UIEdgeInsets
@@ -31,24 +32,34 @@ public class LabelView: UIView {
         
         public init(
             text: NSMutableAttributedString = .init(string: ""),
-            size: Size = .init()
+            size: Size = .init(),
+            isCopied: Bool = false
         ) {
             self.text = text
             self.size = size
+            self.isCopied = isCopied
         }
     }
     
     // MARK: - Private properties
     
     private var viewProperties: ViewProperties = .init()
-    
-    // MARK: - UI
+    private var textToCopy: String?
     
     private lazy var textLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = .zero
         
         return label
+    }()
+    
+    private lazy var longPressGesture: UILongPressGestureRecognizer = {
+        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
+        gesture.minimumPressDuration = 0.3
+        gesture.cancelsTouchesInView = false
+        gesture.numberOfTouchesRequired = 1
+        
+        return gesture
     }()
     
     // MARK: - Life cycle
@@ -66,6 +77,7 @@ public class LabelView: UIView {
     public func update(with viewProperties: ViewProperties) {
         updateLabel(with: viewProperties.text)
         updateSize(with: viewProperties.size)
+        updateCopy(with: viewProperties.isCopied)
         
         self.viewProperties = viewProperties
     }
@@ -86,6 +98,12 @@ public class LabelView: UIView {
         }
     }
     
+    private func updateCopy(with isCopied: Bool) {
+        isCopied
+            ? addGestureRecognizer(longPressGesture)
+            : removeGestureRecognizer(longPressGesture)
+    }
+    
     private func setupView() {
         addSubview(textLabel)
         textLabel.snp.makeConstraints {
@@ -93,4 +111,31 @@ public class LabelView: UIView {
             $0.edges.equalToSuperview().inset(0) // будет обновлено
         }
     }
+    
+    @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
+        if gesture.state == .began {
+            becomeFirstResponder()
+            
+            let copyItem = UIMenuItem(title: Constants.copyTitle, action: #selector(copyText))
+            UIMenuController.shared.menuItems?.removeAll()
+            UIMenuController.shared.menuItems = [copyItem]
+            UIMenuController.shared.update()
+
+            let location = gesture.location(in: gesture.view)
+            let menuLocation = CGRect(x: location.x, y: location.y, width: 0, height: 0)
+            UIMenuController.shared.showMenu(from: gesture.view!, rect: menuLocation)
+          
+            textToCopy = viewProperties.text.string
+        }
+    }
+    
+    @objc private func copyText() {
+        UIPasteboard.general.string = textToCopy
+    }
+}
+
+// MARK: - Constants
+
+private enum Constants {
+    static let copyTitle = "Скопировать"
 }
