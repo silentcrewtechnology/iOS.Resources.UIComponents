@@ -8,13 +8,19 @@ public struct CreationRowsViewService {
         indexPath: IndexPath,
         leading: RowBlocks? = nil,
         center: RowBlocks? = nil,
-        trailing: RowBlocks? = nil
+        trailing: RowBlocks? = nil,
+        cellIdentifier: String = "RowCell"
     ) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "RowCell", for: indexPath) as? RowCell
+        // Проверяем, зарегистрирована ли ячейка
+        if tableView.dequeueReusableCell(withIdentifier: cellIdentifier) == nil {
+            tableView.register(RowCell.self, forCellReuseIdentifier: cellIdentifier)
+        }
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as? RowCell
         
         let rowView = createViewRowWithBlocks(leading: leading,
-                                             center: center,
-                                             trailing: trailing)
+                                              center: center,
+                                              trailing: trailing)
         
         cell?.customView = rowView
         
