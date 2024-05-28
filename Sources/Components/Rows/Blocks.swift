@@ -3,17 +3,18 @@ import UIKit
 public enum Atom {
     case title(LabelView.ViewProperties)
     case subtitle(LabelView.ViewProperties)
-    case image40(ImageView.ViewProperties)
-    case card(CardImageView.ViewProperties)
+    case copyText(LabelView.ViewProperties)
     case index(LabelView.ViewProperties)
+    case amountText(LabelView.ViewProperties)
+    case subindex(LabelView.ViewProperties)
+    case image40(ImageView.ViewProperties)
     case icon24(ImageView.ViewProperties)
     case icon20(ImageView.ViewProperties)
+    case card(CardImageView.ViewProperties)
     case toggle(ToggleView.ViewProperties)
-    case amountText(LabelView.ViewProperties)
     case checkbox(CheckboxView.ViewProperties)
     case radio(RadioView.ViewProperties)
     case button(ButtonView.ViewProperties)
-    case copyText(LabelView.ViewProperties)
 }
 
 public enum Molecule {
@@ -23,6 +24,7 @@ public enum Molecule {
     case indexWithIcon24(LabelView.ViewProperties, ImageView.ViewProperties)
     case indexWithIcons20(LabelView.ViewProperties, [ImageView.ViewProperties])
     case indexWithToggle(LabelView.ViewProperties, ToggleView.ViewProperties)
+    case buttonWithSubindex(ButtonView.ViewProperties, LabelView.ViewProperties)
 }
 
 public enum RowBlocks {

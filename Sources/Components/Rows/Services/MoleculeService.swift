@@ -1,7 +1,16 @@
 import UIKit
 
 public struct MoleculeService {
+    
+    // MARK: - Private properties
+    
+    private let atomService = AtomService()
+    
+    // MARK: - Life cycle
+    
     public init() { }
+    
+    // MARK: - Methods
     
     public func createMolecule(_ molecule: Molecule) -> UIView {
         switch molecule {
@@ -17,17 +26,19 @@ public struct MoleculeService {
             return createIndexWithIcons20(indexViewProperties, iconsViewProperties)
         case .indexWithToggle(let indexViewProperties, let toggleViewProperties):
             return createIndexWithToggle(indexViewProperties, toggleViewProperties)
+        case .buttonWithSubindex(let buttonViewPropeties, let labelViewProperties):
+            return createButtonWithSubindex(buttonViewPropeties, labelViewProperties)
         }
     }
 }
+
+// MARK: - Molecules creation
 
 private extension MoleculeService {
     private func createTitleWithSubtitle(
         _ titleText: LabelView.ViewProperties,
         _ subtitleText: LabelView.ViewProperties
     ) -> UIView {
-        let atomService = AtomService()
-        
         let titleLabel = atomService.createAtom(.title(titleText))
         let subtitleLabel = atomService.createAtom(.subtitle(titleText))
         
@@ -38,8 +49,6 @@ private extension MoleculeService {
         _ subtitleText: LabelView.ViewProperties,
         _ titleText: LabelView.ViewProperties
     ) -> UIView {
-        let atomService = AtomService()
-        
         let subtitleLabel = atomService.createAtom(.subtitle(subtitleText))
         let titleLabel = atomService.createAtom(.title(titleText))
         
@@ -49,8 +58,6 @@ private extension MoleculeService {
     private func createIcons20(
         _ icons: [ImageView.ViewProperties]
     ) -> UIView {
-        let atomService = AtomService()
-        
         var atomsFromIcons: [UIView] = []
         
         for icon in icons {
@@ -65,8 +72,6 @@ private extension MoleculeService {
         _ indexText: LabelView.ViewProperties,
         _ icon: ImageView.ViewProperties
     ) -> UIView {
-        let atomService = AtomService()
-        
         let indexLabel = atomService.createAtom(.index(indexText))
         let icon = atomService.createAtom(.icon24(icon))
         
@@ -77,8 +82,6 @@ private extension MoleculeService {
         _ indexText: LabelView.ViewProperties,
         _ icons: [ImageView.ViewProperties]
     ) -> UIView {
-        let atomService = AtomService()
-        
         let indexLabel = atomService.createAtom(.index(indexText))
         
         var atomsFromIcons: [UIView] = []
@@ -95,14 +98,24 @@ private extension MoleculeService {
         _ indexText: LabelView.ViewProperties,
         _ toggle: ToggleView.ViewProperties
     ) -> UIView {
-        let atomService = AtomService()
-        
         let indexLabel = atomService.createAtom(.index(indexText))
         let switchView = atomService.createAtom(.toggle(toggle))
         
         return connect(leftView: indexLabel, rightView: switchView)
     }
+    
+    private func createButtonWithSubindex(
+        _ button: ButtonView.ViewProperties,
+        _ subindexText: LabelView.ViewProperties
+    ) -> UIView {
+        let buttonView = atomService.createAtom(.button(button))
+        let subindexLabel = atomService.createAtom(.subindex(subindexText))
+        
+        return connect(topView: buttonView, bottomView: subindexLabel)
+    }
 }
+
+// MARK: - Views connection
 
 private extension MoleculeService {
     private func connect(topView: UIView, bottomView: UIView) -> UIView {
