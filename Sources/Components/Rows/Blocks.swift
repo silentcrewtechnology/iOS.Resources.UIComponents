@@ -24,7 +24,7 @@ public enum Molecule {
     case indexWithIcon24(LabelView.ViewProperties, ImageView.ViewProperties)
     case indexWithIcons20(LabelView.ViewProperties, [ImageView.ViewProperties])
     case indexWithToggle(LabelView.ViewProperties, ToggleView.ViewProperties)
-    case disabledButtonWithSubindex(ButtonView.ViewProperties, LabelView.ViewProperties)
+    case buttonWithSubindex(ButtonView.ViewProperties, LabelView.ViewProperties)
 }
 
 public enum RowBlocks {

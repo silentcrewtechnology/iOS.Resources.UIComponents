@@ -26,8 +26,8 @@ public struct MoleculeService {
             return createIndexWithIcons20(indexViewProperties, iconsViewProperties)
         case .indexWithToggle(let indexViewProperties, let toggleViewProperties):
             return createIndexWithToggle(indexViewProperties, toggleViewProperties)
-        case .disabledButtonWithSubindex(let buttonViewPropeties, let labelViewProperties):
-            return createDisabledButtonWithSubindex(buttonViewPropeties, labelViewProperties)
+        case .buttonWithSubindex(let buttonViewPropeties, let labelViewProperties):
+            return createButtonWithSubindex(buttonViewPropeties, labelViewProperties)
         }
     }
 }
@@ -104,7 +104,7 @@ private extension MoleculeService {
         return connect(leftView: indexLabel, rightView: switchView)
     }
     
-    private func createDisabledButtonWithSubindex(
+    private func createButtonWithSubindex(
         _ button: ButtonView.ViewProperties,
         _ subindexText: LabelView.ViewProperties
     ) -> UIView {
