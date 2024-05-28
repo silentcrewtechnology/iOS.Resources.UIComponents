@@ -29,6 +29,8 @@ public struct AtomService {
             return createButton(viewProperties)
         case .copyText(let viewProperties):
             return createLabel(viewProperties)
+        case .subindex(let viewProperties):
+            return createLabel(viewProperties)
         }
     }
 }
