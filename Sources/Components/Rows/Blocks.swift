@@ -19,6 +19,7 @@ public enum Atom {
 
 public enum Molecule {
     case titleWithSubtitle(LabelView.ViewProperties, LabelView.ViewProperties)
+    case titleWithSubtitles(LabelView.ViewProperties, [LabelView.ViewProperties])
     case subtitleWithTitle(LabelView.ViewProperties, LabelView.ViewProperties)
     case icons20([ImageView.ViewProperties])
     case indexWithIcon24(LabelView.ViewProperties, ImageView.ViewProperties)
