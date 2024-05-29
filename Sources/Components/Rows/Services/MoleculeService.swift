@@ -16,6 +16,8 @@ public struct MoleculeService {
         switch molecule {
         case .titleWithSubtitle(let titleViewProperties, let subtitleViewProperties):
             return createTitleWithSubtitle(titleViewProperties, subtitleViewProperties)
+        case .titleWithSubtitles(let titleViewProperties, let subtitlesViewProperties):
+            return createTitleWithSubtitles(titleViewProperties, subtitlesViewProperties)
         case .subtitleWithTitle(let subtitleViewProperties, let titleViewProperties):
             return createSubtitleWithTitle(subtitleViewProperties, titleViewProperties)
         case .icons20(let iconsViewProperties):
@@ -113,6 +115,22 @@ private extension MoleculeService {
         
         return connect(topView: buttonView, bottomView: subindexLabel)
     }
+    
+    private func createTitleWithSubtitles(
+        _ titleText: LabelView.ViewProperties,
+        _ subtitlesText: [LabelView.ViewProperties]
+    ) -> UIView {
+        let titleLabel = atomService.createAtom(.title(titleText))
+        
+        var atomsFromSubtitles: [UIView] = []
+        for subtitle in subtitlesText {
+            let subtitleText = atomService.createAtom(.subtitle(subtitle))
+            atomsFromSubtitles.append(subtitleText)
+        }
+        let subtitlesResult = connect(verticalyViews: atomsFromSubtitles)
+        
+        return connect(topView: titleLabel, bottomView: subtitlesResult)
+    }
 }
 
 // MARK: - Views connection
@@ -125,16 +143,12 @@ private extension MoleculeService {
         containerView.addSubview(bottomView)
         
         topView.snp.makeConstraints { make in
-            make.top.equalToSuperview()
-            make.left.equalToSuperview()
-            make.right.equalToSuperview()
+            make.top.right.left.equalToSuperview()
         }
         
         bottomView.snp.makeConstraints { make in
             make.top.equalTo(topView.snp.bottom)
-            make.left.equalToSuperview()
-            make.right.equalToSuperview()
-            make.bottom.equalToSuperview()
+            make.left.right.bottom.equalToSuperview()
         }
         
         return containerView
@@ -147,16 +161,12 @@ private extension MoleculeService {
         containerView.addSubview(rightView)
         
         leftView.snp.makeConstraints { make in
-            make.top.equalToSuperview()
-            make.bottom.equalToSuperview()
-            make.left.equalToSuperview()
+            make.top.bottom.left.equalToSuperview()
         }
         
         rightView.snp.makeConstraints { make in
-            make.top.equalToSuperview()
-            make.bottom.equalToSuperview()
+            make.top.bottom.right.equalToSuperview()
             make.left.equalTo(leftView.snp.right)
-            make.right.equalToSuperview()
         }
         
         return containerView
@@ -173,8 +183,7 @@ private extension MoleculeService {
             containerView.addSubview(view)
             
             view.snp.makeConstraints { make in
-                make.top.equalToSuperview()
-                make.bottom.equalToSuperview()
+                make.top.bottom.equalToSuperview()
                 
                 if index == 0 {
                     make.left.equalToSuperview()
@@ -184,6 +193,34 @@ private extension MoleculeService {
                 
                 if index == horizontalyViews.count - 1 {
                     make.right.equalToSuperview()
+                }
+            }
+        }
+        
+        return containerView
+    }
+    
+    private func connect(verticalyViews: [UIView]) -> UIView {
+        let containerView = UIView()
+        
+        guard !verticalyViews.isEmpty else {
+            return containerView
+        }
+        
+        for (index, view) in verticalyViews.enumerated() {
+            containerView.addSubview(view)
+            
+            view.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview()
+                
+                if index == 0 {
+                    make.top.equalToSuperview()
+                } else {
+                    make.top.equalTo(verticalyViews[index - 1].snp.bottom)
+                }
+                
+                if index == verticalyViews.count - 1 {
+                    make.bottom.equalToSuperview()
                 }
             }
         }
