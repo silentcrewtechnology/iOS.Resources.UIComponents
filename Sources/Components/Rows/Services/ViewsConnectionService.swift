@@ -34,7 +34,7 @@ public struct ViewsConnectionService {
         return containerView
     }
     
-    public func connect(leftView: UIView, rightView: UIView) -> UIView {
+    public func connect(leftView: UIView, rightView: UIView, spacing: Int = .zero) -> UIView {
         let containerView = UIView()
         
         containerView.addSubview(leftView)
@@ -46,7 +46,7 @@ public struct ViewsConnectionService {
         
         rightView.snp.makeConstraints { make in
             make.top.bottom.right.equalToSuperview()
-            make.left.equalTo(leftView.snp.right)
+            make.left.equalTo(leftView.snp.right).offset(spacing)
         }
         
         return containerView
