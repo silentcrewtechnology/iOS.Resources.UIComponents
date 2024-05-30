@@ -5,6 +5,7 @@ public struct MoleculeService {
     // MARK: - Private properties
     
     private let atomService = AtomService()
+    private let connectionService = ViewsConnectionService()
     
     // MARK: - Life cycle
     
@@ -44,7 +45,7 @@ private extension MoleculeService {
         let titleLabel = atomService.createAtom(.title(titleText))
         let subtitleLabel = atomService.createAtom(.subtitle(titleText))
         
-        return connect(topView: titleLabel, bottomView: subtitleLabel)
+        return connectionService.connect(topView: titleLabel, bottomView: subtitleLabel)
     }
     
     private func createSubtitleWithTitle(
@@ -54,7 +55,7 @@ private extension MoleculeService {
         let subtitleLabel = atomService.createAtom(.subtitle(subtitleText))
         let titleLabel = atomService.createAtom(.title(titleText))
         
-        return connect(topView: subtitleLabel, bottomView: titleLabel)
+        return connectionService.connect(topView: subtitleLabel, bottomView: titleLabel)
     }
     
     private func createIcons20(
@@ -67,7 +68,7 @@ private extension MoleculeService {
             atomsFromIcons.append(iconAtom)
         }
         
-        return connect(horizontalyViews: atomsFromIcons)
+        return connectionService.connect(horizontalyViews: atomsFromIcons)
     }
     
     private func createIndexWithIcon24(
@@ -77,7 +78,7 @@ private extension MoleculeService {
         let indexLabel = atomService.createAtom(.index(indexText))
         let icon = atomService.createAtom(.icon24(icon))
         
-        return connect(leftView: indexLabel, rightView: icon)
+        return connectionService.connect(leftView: indexLabel, rightView: icon)
     }
     
     private func createIndexWithIcons20(
@@ -91,9 +92,9 @@ private extension MoleculeService {
             let iconAtom = atomService.createAtom(.icon20(icon))
             atomsFromIcons.append(iconAtom)
         }
-        let iconsResult = connect(horizontalyViews: atomsFromIcons)
+        let iconsResult = connectionService.connect(horizontalyViews: atomsFromIcons)
         
-        return connect(topView: indexLabel, bottomView: iconsResult)
+        return connectionService.connect(topView: indexLabel, bottomView: iconsResult)
     }
     
     private func createIndexWithToggle(
@@ -103,7 +104,7 @@ private extension MoleculeService {
         let indexLabel = atomService.createAtom(.index(indexText))
         let switchView = atomService.createAtom(.toggle(toggle))
         
-        return connect(leftView: indexLabel, rightView: switchView)
+        return connectionService.connect(leftView: indexLabel, rightView: switchView)
     }
     
     private func createButtonWithSubindex(
@@ -113,7 +114,7 @@ private extension MoleculeService {
         let buttonView = atomService.createAtom(.button(button))
         let subindexLabel = atomService.createAtom(.subindex(subindexText))
         
-        return connect(topView: buttonView, bottomView: subindexLabel)
+        return connectionService.connect(topView: buttonView, bottomView: subindexLabel)
     }
     
     private func createTitleWithSubtitles(
@@ -127,104 +128,8 @@ private extension MoleculeService {
             let subtitleText = atomService.createAtom(.subtitle(subtitle))
             atomsFromSubtitles.append(subtitleText)
         }
-        let subtitlesResult = connect(verticalyViews: atomsFromSubtitles)
+        let subtitlesResult = connectionService.connect(verticalyViews: atomsFromSubtitles)
         
-        return connect(topView: titleLabel, bottomView: subtitlesResult)
-    }
-}
-
-// MARK: - Views connection
-
-private extension MoleculeService {
-    private func connect(topView: UIView, bottomView: UIView) -> UIView {
-        let containerView = UIView()
-        
-        containerView.addSubview(topView)
-        containerView.addSubview(bottomView)
-        
-        topView.snp.makeConstraints { make in
-            make.top.right.left.equalToSuperview()
-        }
-        
-        bottomView.snp.makeConstraints { make in
-            make.top.equalTo(topView.snp.bottom)
-            make.left.right.bottom.equalToSuperview()
-        }
-        
-        return containerView
-    }
-    
-    private func connect(leftView: UIView, rightView: UIView) -> UIView {
-        let containerView = UIView()
-        
-        containerView.addSubview(leftView)
-        containerView.addSubview(rightView)
-        
-        leftView.snp.makeConstraints { make in
-            make.top.bottom.left.equalToSuperview()
-        }
-        
-        rightView.snp.makeConstraints { make in
-            make.top.bottom.right.equalToSuperview()
-            make.left.equalTo(leftView.snp.right)
-        }
-        
-        return containerView
-    }
-    
-    private func connect(horizontalyViews: [UIView]) -> UIView {
-        let containerView = UIView()
-        
-        guard !horizontalyViews.isEmpty else {
-            return containerView
-        }
-        
-        for (index, view) in horizontalyViews.enumerated() {
-            containerView.addSubview(view)
-            
-            view.snp.makeConstraints { make in
-                make.top.bottom.equalToSuperview()
-                
-                if index == 0 {
-                    make.left.equalToSuperview()
-                } else {
-                    make.left.equalTo(horizontalyViews[index - 1].snp.right)
-                }
-                
-                if index == horizontalyViews.count - 1 {
-                    make.right.equalToSuperview()
-                }
-            }
-        }
-        
-        return containerView
-    }
-    
-    private func connect(verticalyViews: [UIView]) -> UIView {
-        let containerView = UIView()
-        
-        guard !verticalyViews.isEmpty else {
-            return containerView
-        }
-        
-        for (index, view) in verticalyViews.enumerated() {
-            containerView.addSubview(view)
-            
-            view.snp.makeConstraints { make in
-                make.leading.trailing.equalToSuperview()
-                
-                if index == 0 {
-                    make.top.equalToSuperview()
-                } else {
-                    make.top.equalTo(verticalyViews[index - 1].snp.bottom)
-                }
-                
-                if index == verticalyViews.count - 1 {
-                    make.bottom.equalToSuperview()
-                }
-            }
-        }
-        
-        return containerView
+        return connectionService.connect(topView: titleLabel, bottomView: subtitlesResult)
     }
 }
