@@ -1,10 +1,3 @@
-//
-//  ViewsConnectionService.swift
-//
-//
-//  Created by user on 30.05.2024.
-//
-
 import UIKit
 import SnapKit
 
@@ -17,95 +10,77 @@ public struct ViewsConnectionService {
     // MARK: - Methods
     
     public func connect(topView: UIView, bottomView: UIView) -> UIView {
-        let containerView = UIView()
+        let stackView: UIStackView = {
+            let stackView = UIStackView()
+            stackView.axis = .vertical
+            stackView.alignment = .fill
+            stackView.distribution = .fill
+            stackView.spacing = 0
+            return stackView
+        }()
         
-        containerView.addSubview(topView)
-        containerView.addSubview(bottomView)
+        stackView.addArrangedSubview(topView)
+        stackView.addArrangedSubview(bottomView)
         
-        topView.snp.makeConstraints { make in
-            make.top.right.left.equalToSuperview()
-        }
-        
-        bottomView.snp.makeConstraints { make in
-            make.top.equalTo(topView.snp.bottom)
-            make.left.right.bottom.equalToSuperview()
-        }
-        
-        return containerView
+        return stackView
     }
     
     public func connect(leftView: UIView, rightView: UIView, spacing: Int = .zero) -> UIView {
-        let containerView = UIView()
+        let stackView: UIStackView = {
+            let stackView = UIStackView()
+            stackView.axis = .horizontal
+            stackView.alignment = .fill
+            stackView.distribution = .fill
+            stackView.spacing = CGFloat(spacing)
+            return stackView
+        }()
         
-        containerView.addSubview(leftView)
-        containerView.addSubview(rightView)
+        stackView.addArrangedSubview(leftView)
+        stackView.addArrangedSubview(rightView)
         
-        leftView.snp.makeConstraints { make in
-            make.top.bottom.left.equalToSuperview()
-        }
-        
-        rightView.snp.makeConstraints { make in
-            make.top.bottom.right.equalToSuperview()
-            make.left.equalTo(leftView.snp.right).offset(spacing)
-        }
-        
-        return containerView
+        return stackView
     }
     
     public func connect(horizontalyViews: [UIView]) -> UIView {
-        let containerView = UIView()
+        let stackView: UIStackView = {
+            let stackView = UIStackView()
+            stackView.axis = .horizontal
+            stackView.alignment = .fill
+            stackView.distribution = .fill
+            stackView.spacing = 0
+            return stackView
+        }()
         
         guard !horizontalyViews.isEmpty else {
-            return containerView
+            return stackView
         }
         
-        for (index, view) in horizontalyViews.enumerated() {
-            containerView.addSubview(view)
-            
-            view.snp.makeConstraints { make in
-                make.top.bottom.equalToSuperview()
-                
-                if index == 0 {
-                    make.left.equalToSuperview()
-                } else {
-                    make.left.equalTo(horizontalyViews[index - 1].snp.right)
-                }
-                
-                if index == horizontalyViews.count - 1 {
-                    make.right.equalToSuperview()
-                }
-            }
+        for view in horizontalyViews {
+            stackView.addArrangedSubview(view)
         }
         
-        return containerView
+        return stackView
     }
     
     public func connect(verticalyViews: [UIView]) -> UIView {
-        let containerView = UIView()
+        let stackView: UIStackView = {
+            let stackView = UIStackView()
+            stackView.axis = .vertical
+            stackView.alignment = .fill
+            stackView.distribution = .fill
+            stackView.spacing = 0
+            return stackView
+        }()
         
         guard !verticalyViews.isEmpty else {
-            return containerView
+            return stackView
         }
         
-        for (index, view) in verticalyViews.enumerated() {
-            containerView.addSubview(view)
-            
-            view.snp.makeConstraints { make in
-                make.leading.trailing.equalToSuperview()
-                
-                if index == 0 {
-                    make.top.equalToSuperview()
-                } else {
-                    make.top.equalTo(verticalyViews[index - 1].snp.bottom)
-                }
-                
-                if index == verticalyViews.count - 1 {
-                    make.bottom.equalToSuperview()
-                }
-            }
+        for view in verticalyViews {
+            stackView.addArrangedSubview(view)
         }
         
-        return containerView
+        return stackView
     }
 }
 
