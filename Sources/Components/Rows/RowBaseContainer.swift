@@ -57,6 +57,13 @@ public final class RowBaseContainer: UIView {
     public var centerView: UIView?
     public var trailingView: UIView?
     
+    private var isLeadingViewNil: Bool = false
+    private var isCenterViewNil: Bool = false
+    private var isTrailingViewNil: Bool = false
+    
+    private var leadingOffsetOfCenterView: CGFloat = 0
+    private var leadingOffsetOfTrailingView: CGFloat = 0
+    
     public init() {
         super.init(frame: .zero)
     }
@@ -71,6 +78,8 @@ public final class RowBaseContainer: UIView {
         self.leadingView = viewProperties.leadingView
         self.centerView = viewProperties.centerView
         self.trailingView = viewProperties.trailingView
+        emptyViewDetection()
+        emptyConstraintsDetection()
         setConstraints()
     }
     
@@ -80,14 +89,44 @@ public final class RowBaseContainer: UIView {
         trailingView?.removeFromSuperview()
     }
     
+    private func emptyViewDetection() {
+        checkAndInitializeView(&leadingView, flag: &isLeadingViewNil)
+        checkAndInitializeView(&centerView, flag: &isCenterViewNil)
+        checkAndInitializeView(&trailingView, flag: &isTrailingViewNil)
+    }
+    
+    private func checkAndInitializeView(_ view: inout UIView?, flag: inout Bool) {
+        if view == nil {
+            view = UIView()
+            flag = true
+        }
+    }
+    
+    private func emptyConstraintsDetection() {
+        leadingOffsetOfCenterView = viewProperties.margins.spacing
+        leadingOffsetOfTrailingView = viewProperties.margins.spacing
+        
+        if isLeadingViewNil || isCenterViewNil {
+            leadingOffsetOfCenterView = 0
+        }
+        
+        if isTrailingViewNil {
+            leadingOffsetOfTrailingView = 0
+        }
+    }
+    
     private func setConstraints() {
         guard let leadingView = leadingView else { return }
         
         addSubview(leadingView)
         leadingView.snp.makeConstraints {
             $0.top.greaterThanOrEqualToSuperview().offset(viewProperties.margins.top)
+            $0.centerY.equalToSuperview()
             $0.leading.equalToSuperview().offset(viewProperties.margins.leading)
-            $0.bottom.equalToSuperview().offset(-viewProperties.margins.bottom)
+            $0.bottom.lessThanOrEqualToSuperview().offset(-viewProperties.margins.bottom)
+            if isLeadingViewNil {
+                $0.height.width.equalTo(0)
+            }
         }
         
         switch viewProperties.centralBlockAlignment {
@@ -106,16 +145,24 @@ public final class RowBaseContainer: UIView {
         addSubview(centerView)
         centerView.snp.makeConstraints {
             $0.top.greaterThanOrEqualToSuperview().offset(viewProperties.margins.top)
-            $0.leading.equalTo(leadingView.snp.trailing).offset(viewProperties.margins.spacing)
-            $0.bottom.equalToSuperview().offset(-viewProperties.margins.bottom)
+            $0.centerY.equalToSuperview()
+            $0.bottom.lessThanOrEqualToSuperview().offset(-viewProperties.margins.bottom)
+            $0.leading.equalTo(leadingView.snp.trailing).offset(leadingOffsetOfCenterView)
+            if isCenterViewNil {
+                $0.height.width.equalTo(0)
+            }
         }
         
         addSubview(trailingView)
         trailingView.snp.makeConstraints {
-            $0.leading.greaterThanOrEqualTo(centerView.snp.trailing).offset(viewProperties.margins.spacing)
+            $0.leading.greaterThanOrEqualTo(centerView.snp.trailing).offset(leadingOffsetOfTrailingView)
             $0.top.greaterThanOrEqualToSuperview().offset(viewProperties.margins.top)
+            $0.centerY.equalToSuperview()
             $0.trailing.equalToSuperview().offset(-viewProperties.margins.trailing)
-            $0.bottom.equalToSuperview().offset(-viewProperties.margins.bottom)
+            $0.bottom.lessThanOrEqualToSuperview().offset(-viewProperties.margins.bottom)
+            if isTrailingViewNil {
+                $0.height.width.equalTo(0)
+            }
         }
     }
     
@@ -127,16 +174,24 @@ public final class RowBaseContainer: UIView {
         addSubview(centerView)
         centerView.snp.makeConstraints {
             $0.top.greaterThanOrEqualToSuperview().offset(viewProperties.margins.top)
-            $0.leading.greaterThanOrEqualTo(leadingView.snp.trailing).offset(viewProperties.margins.spacing)
-            $0.bottom.equalToSuperview().offset(-viewProperties.margins.bottom)
+            $0.centerY.equalToSuperview()
+            $0.leading.greaterThanOrEqualTo(leadingView.snp.trailing).offset(leadingOffsetOfCenterView)
+            $0.bottom.lessThanOrEqualToSuperview().offset(-viewProperties.margins.bottom)
+            if isCenterViewNil {
+                $0.height.width.equalTo(0)
+            }
         }
         
         addSubview(trailingView)
         trailingView.snp.makeConstraints {
-            $0.leading.equalTo(centerView.snp.trailing).offset(viewProperties.margins.spacing)
+            $0.leading.equalTo(centerView.snp.trailing).offset(leadingOffsetOfTrailingView)
             $0.top.greaterThanOrEqualToSuperview().offset(viewProperties.margins.top)
+            $0.centerY.equalToSuperview()
             $0.trailing.equalToSuperview().offset(-viewProperties.margins.trailing)
-            $0.bottom.equalToSuperview().offset(-viewProperties.margins.bottom)
+            $0.bottom.lessThanOrEqualToSuperview().offset(-viewProperties.margins.bottom)
+            if isTrailingViewNil {
+                $0.height.width.equalTo(0)
+            }
         }
     }
 }
