@@ -110,6 +110,11 @@ public final class RowBaseContainer: UIView {
             leadingOffsetOfCenterView = 0
         }
         
+        if isLeadingViewNil && isCenterViewNil || isCenterViewNil && isTrailingViewNil {
+            leadingOffsetOfCenterView = 0
+            leadingOffsetOfTrailingView = 0
+        }
+        
         if isTrailingViewNil {
             leadingOffsetOfTrailingView = 0
         }
