@@ -53,9 +53,9 @@ public final class RowBaseContainer: UIView {
         }
     }
     
-    public var leadingView: UIView?
-    public var centerView: UIView?
-    public var trailingView: UIView?
+    public var leadingView = UIView()
+    public var centerView = UIView()
+    public var trailingView = UIView()
     
     private var isLeadingViewNil: Bool = false
     private var isCenterViewNil: Bool = false
@@ -75,31 +75,26 @@ public final class RowBaseContainer: UIView {
     public func update(with viewProperties: ViewProperties) {
         self.viewProperties = viewProperties
         removeSubviewsFromContainers()
-        self.leadingView = viewProperties.leadingView
-        self.centerView = viewProperties.centerView
-        self.trailingView = viewProperties.trailingView
         emptyViewDetection()
         emptyConstraintsDetection()
         setConstraints()
+        
     }
     
     private func removeSubviewsFromContainers() {
-        leadingView?.removeFromSuperview()
-        centerView?.removeFromSuperview()
-        trailingView?.removeFromSuperview()
+        leadingView.removeFromSuperview()
+        centerView.removeFromSuperview()
+        trailingView.removeFromSuperview()
     }
     
     private func emptyViewDetection() {
-        checkAndInitializeView(&leadingView, flag: &isLeadingViewNil)
-        checkAndInitializeView(&centerView, flag: &isCenterViewNil)
-        checkAndInitializeView(&trailingView, flag: &isTrailingViewNil)
-    }
-    
-    private func checkAndInitializeView(_ view: inout UIView?, flag: inout Bool) {
-        if view == nil {
-            view = UIView()
-            flag = true
-        }
+        isLeadingViewNil = viewProperties.leadingView == nil
+        isCenterViewNil = viewProperties.centerView == nil
+        isTrailingViewNil = viewProperties.trailingView == nil
+        
+        leadingView = viewProperties.leadingView ?? .init()
+        centerView = viewProperties.centerView ?? .init()
+        trailingView = viewProperties.trailingView ?? .init()
     }
     
     private func emptyConstraintsDetection() {
@@ -121,8 +116,6 @@ public final class RowBaseContainer: UIView {
     }
     
     private func setConstraints() {
-        guard let leadingView = leadingView else { return }
-        
         addSubview(leadingView)
         leadingView.snp.makeConstraints {
             $0.top.greaterThanOrEqualToSuperview().offset(viewProperties.margins.top)
@@ -134,53 +127,16 @@ public final class RowBaseContainer: UIView {
             }
         }
         
-        switch viewProperties.centralBlockAlignment {
-        case .leading:
-            setCentralLeadingConstraints()
-        case .trailing:
-            setCentralTrailingConstraints()
-        }
-    }
-    
-    private func setCentralLeadingConstraints() {
-        guard let leadingView = leadingView,
-              let centerView = centerView,
-              let trailingView = trailingView else { return }
-        
         addSubview(centerView)
         centerView.snp.makeConstraints {
-            $0.top.greaterThanOrEqualToSuperview().offset(viewProperties.margins.top)
-            $0.centerY.equalToSuperview()
-            $0.bottom.lessThanOrEqualToSuperview().offset(-viewProperties.margins.bottom)
-            $0.leading.equalTo(leadingView.snp.trailing).offset(leadingOffsetOfCenterView)
-            if isCenterViewNil {
-                $0.height.width.equalTo(0)
+            switch viewProperties.centralBlockAlignment {
+            case .leading:
+                $0.leading.equalTo(leadingView.snp.trailing).offset(leadingOffsetOfCenterView)
+            case .trailing:
+                $0.leading.greaterThanOrEqualTo(leadingView.snp.trailing).offset(leadingOffsetOfCenterView)
             }
-        }
-        
-        addSubview(trailingView)
-        trailingView.snp.makeConstraints {
-            $0.leading.greaterThanOrEqualTo(centerView.snp.trailing).offset(leadingOffsetOfTrailingView)
             $0.top.greaterThanOrEqualToSuperview().offset(viewProperties.margins.top)
             $0.centerY.equalToSuperview()
-            $0.trailing.equalToSuperview().offset(-viewProperties.margins.trailing)
-            $0.bottom.lessThanOrEqualToSuperview().offset(-viewProperties.margins.bottom)
-            if isTrailingViewNil {
-                $0.height.width.equalTo(0)
-            }
-        }
-    }
-    
-    private func setCentralTrailingConstraints() {
-        guard let leadingView = leadingView,
-              let centerView = centerView,
-              let trailingView = trailingView else { return }
-        
-        addSubview(centerView)
-        centerView.snp.makeConstraints {
-            $0.top.greaterThanOrEqualToSuperview().offset(viewProperties.margins.top)
-            $0.centerY.equalToSuperview()
-            $0.leading.greaterThanOrEqualTo(leadingView.snp.trailing).offset(leadingOffsetOfCenterView)
             $0.bottom.lessThanOrEqualToSuperview().offset(-viewProperties.margins.bottom)
             if isCenterViewNil {
                 $0.height.width.equalTo(0)
@@ -189,7 +145,12 @@ public final class RowBaseContainer: UIView {
         
         addSubview(trailingView)
         trailingView.snp.makeConstraints {
-            $0.leading.equalTo(centerView.snp.trailing).offset(leadingOffsetOfTrailingView)
+            switch viewProperties.centralBlockAlignment {
+            case .leading:
+                $0.leading.greaterThanOrEqualTo(centerView.snp.trailing).offset(leadingOffsetOfTrailingView)
+            case .trailing:
+                $0.leading.equalTo(centerView.snp.trailing).offset(leadingOffsetOfTrailingView)
+            }
             $0.top.greaterThanOrEqualToSuperview().offset(viewProperties.margins.top)
             $0.centerY.equalToSuperview()
             $0.trailing.equalToSuperview().offset(-viewProperties.margins.trailing)
