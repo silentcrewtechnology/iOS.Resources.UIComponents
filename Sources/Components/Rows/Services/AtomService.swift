@@ -31,6 +31,8 @@ public struct AtomService {
             return createLabel(viewProperties)
         case .subindex(let viewProperties):
             return createLabel(viewProperties)
+        case .input(let viewProperties):
+            return createInput(viewProperties)
         }
     }
 }
@@ -76,5 +78,11 @@ private extension AtomService {
         let button = ButtonView()
         button.update(with: viewProperties)
         return button
+    }
+    
+    private func createInput(_ viewProperties: InputTextField.ViewProperties) -> UIView {
+        let input = InputTextField()
+        input.update(with: viewProperties)
+        return input
     }
 }
