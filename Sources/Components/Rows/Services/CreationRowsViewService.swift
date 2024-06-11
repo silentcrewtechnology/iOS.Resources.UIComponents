@@ -31,8 +31,7 @@ public struct CreationRowsViewService {
         leading: RowBlocks? = nil,
         center: RowBlocks? = nil,
         trailing: RowBlocks? = nil,
-        margins: RowBaseContainer.ViewProperties.Margins? = nil,
-        viewsHeight: CGFloat = 44
+        margins: RowBaseContainer.ViewProperties.Margins? = nil
     ) -> UIView {
         let container = RowBaseContainer()
         
@@ -52,7 +51,6 @@ public struct CreationRowsViewService {
             leadingView: leadingView,
             centerView: centerView,
             trailingView: trailingView,
-            viewsHeight: viewsHeight,
             margins: newMargins)
         
         container.update(with: containerViewProperty)
