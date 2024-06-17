@@ -7,15 +7,18 @@ public class ActivityIndicatorView: UIView {
         public var icon: UIImage
         public var size: CGSize
         public var isAnimating: Bool
+        public let accessibilityId: String?
         
         public init(
             icon: UIImage = .init(),
             size: CGSize = .zero,
-            isAnimating: Bool = false
+            isAnimating: Bool = false,
+            accessibilityId: String? = nil
         ) {
             self.icon = icon
             self.size = size
             self.isAnimating = isAnimating
+            self.accessibilityId = accessibilityId
         }
     }
     
@@ -48,6 +51,7 @@ public class ActivityIndicatorView: UIView {
         indicatorView.image = viewProperties.icon
         updateSize(with: viewProperties)
         updateAnimating(with: viewProperties)
+        accessibilityIdentifier = viewProperties.accessibilityId
         self.viewProperties = viewProperties
     }
     
