@@ -20,6 +20,29 @@ public final class BadgeView: UIView {
         public var image: UIImage?
         public var height: CGFloat
         public var cornerRadius: CGFloat
+        public var margins: Margins
+        
+        public struct Margins {
+            public var leading: CGFloat
+            public var trailing: CGFloat
+            public var top: CGFloat
+            public var bottom: CGFloat
+            public var spacing: CGFloat
+            
+            public init(
+                leading: CGFloat = 0,
+                trailing: CGFloat = 0,
+                top: CGFloat = 0,
+                bottom: CGFloat = 0,
+                spacing: CGFloat = 0
+            ) {
+                self.leading = leading
+                self.trailing = trailing
+                self.top = top
+                self.bottom = bottom
+                self.spacing = spacing
+            }
+        }
         
         public init(
             text: NSAttributedString? = nil,
@@ -27,7 +50,8 @@ public final class BadgeView: UIView {
             textColor: UIColor? = nil,
             image: UIImage? = nil,
             height: CGFloat = 0,
-            cornerRadius: CGFloat = 0
+            cornerRadius: CGFloat = 0,
+            margins: Margins = .init()
         ) {
             self.text = text
             self.backgroundColor = backgroundColor
@@ -35,15 +59,14 @@ public final class BadgeView: UIView {
             self.image = image
             self.height = height
             self.cornerRadius = cornerRadius
+            self.margins = margins
         }
     }
     
+    private var isTextNil: Bool = false
+    private var isImageNil: Bool = false
+
     private var viewProperties: ViewProperties = .init()
-    
-    private var titleVerticalConstraints: Constraint?
-    private var titleLeadingConstraints: Constraint?
-    private var titleTrailingConstraints: Constraint?
-    private var imageEdgesConstraints: Constraint?
     
     // MARK: - UI
     
@@ -69,26 +92,21 @@ public final class BadgeView: UIView {
     // MARK: - public methods
     
     public func update(with viewProperties: ViewProperties) {
-        setHidden(with: viewProperties)
+        self.viewProperties = viewProperties
         setText(with: viewProperties)
         setBackgroundColor(with: viewProperties)
         setImage(with: viewProperties)
         setCornerRadius(with: viewProperties)
+        emptyParamsDetection()
         updateConstraints(with: viewProperties)
-        self.viewProperties = viewProperties
     }
     
     // MARK: - private methods
     
-    private func setHidden(with viewProperties: ViewProperties) {
-        if viewProperties.text == nil && viewProperties.image == nil {
-            isHidden = true
-            return
-        }
-        isHidden = false
-        
-        imageView.isHidden = isItText(with: viewProperties) ? true : false
-        titleLabel.isHidden = isItText(with: viewProperties) ? false : true
+    private func emptyParamsDetection() {
+        isTextNil = viewProperties.text == nil
+        isImageNil = viewProperties.image == nil
+
     }
     
     private func setText(with viewProperties: ViewProperties) {
@@ -112,54 +130,45 @@ public final class BadgeView: UIView {
             clipsToBounds: true
         )
     }
-    
     private func updateConstraints(with viewProperties: ViewProperties) {
+        imageView.snp.updateConstraints {
+            $0.top.equalToSuperview().offset(viewProperties.margins.top)
+            $0.leading.equalToSuperview().offset(viewProperties.margins.leading)
+            $0.bottom.equalToSuperview().offset(-viewProperties.margins.bottom)
+        }
+        
+        let spacing = isTextNil || isImageNil ? 0 : viewProperties.margins.spacing
+        
+        titleLabel.snp.updateConstraints {
+            $0.top.equalToSuperview().offset(viewProperties.margins.top)
+            $0.leading.equalTo(imageView.snp.trailing).offset(spacing)
+            $0.trailing.equalToSuperview().offset(-viewProperties.margins.trailing)
+            $0.bottom.equalToSuperview().offset(-viewProperties.margins.bottom)
+        }
+        
         snp.updateConstraints {
             $0.height.equalTo(viewProperties.height)
         }
-        
-        let isItText = isItText(with: viewProperties)
-        isActiveConstraints(isItText: isItText)
-        
-        if !isItText {
-            imageView.snp.updateConstraints {
-                $0.height.width.equalTo(viewProperties.height)
-            }
-        }
-    }
-    
-    private func isItText(with viewProperties: ViewProperties) -> Bool {
-        return !(viewProperties.image != nil && viewProperties.text == nil)
-    }
-    
-    private func isActiveConstraints(isItText: Bool) {
-        titleVerticalConstraints?.isActive = isItText
-        titleLeadingConstraints?.isActive = isItText
-        titleTrailingConstraints?.isActive = isItText
-        imageEdgesConstraints?.isActive = !isItText
     }
     
     private func setupView() {
-        addSubview(titleLabel)
-        titleLabel.snp.makeConstraints {
-            titleVerticalConstraints = $0.top.bottom.equalToSuperview().constraint
-            titleLeadingConstraints = $0.leading.equalToSuperview().offset(Constants.labelPadding).constraint
-            titleTrailingConstraints = $0.trailing.equalToSuperview().offset(-Constants.labelPadding).constraint
-        }
-        
         addSubview(imageView)
         imageView.snp.makeConstraints() {
-            imageEdgesConstraints = $0.edges.equalToSuperview().constraint
-            $0.height.width.equalTo(0) // будет обновлено
+            $0.top.equalToSuperview().offset(0)
+            $0.leading.equalToSuperview().offset(0)
+            $0.bottom.equalToSuperview().offset(0)
+        }
+        
+        addSubview(titleLabel)
+        titleLabel.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(0)
+            $0.leading.equalTo(imageView.snp.trailing).offset(0)
+            $0.trailing.equalToSuperview().offset(0)
+            $0.bottom.equalToSuperview().offset(0)
         }
         
         snp.makeConstraints {
-            $0.height.equalTo(0) // будет обновлено
+            $0.height.equalTo(0)
         }
     }
-}
-
-private struct Constants {
-    static let imagePadding = 2
-    static let labelPadding = 6
 }
