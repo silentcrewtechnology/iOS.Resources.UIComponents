@@ -16,6 +16,7 @@ public class LabelView: UIView {
         public var text: NSMutableAttributedString
         public var size: Size
         public var isCopied: Bool
+        public var accessibilityIds: AccessibilityIds?
         
         public struct Size: Equatable {
             public var inset: UIEdgeInsets
@@ -30,14 +31,26 @@ public class LabelView: UIView {
             }
         }
         
+        public struct AccessibilityIds {
+            public var id: String
+            public var labelViewId: String
+            
+            public init(id: String, labelViewId: String) {
+                self.id = id
+                self.labelViewId = labelViewId
+            }
+        }
+        
         public init(
             text: NSMutableAttributedString = .init(string: ""),
             size: Size = .init(),
+            accessibilityIds: AccessibilityIds? = nil,
             isCopied: Bool = false
         ) {
             self.text = text
             self.size = size
             self.isCopied = isCopied
+            self.accessibilityIds = accessibilityIds
         }
     }
     
@@ -78,6 +91,7 @@ public class LabelView: UIView {
         updateLabel(with: viewProperties.text)
         updateSize(with: viewProperties.size)
         updateCopy(with: viewProperties.isCopied)
+        setupAccessibilityIds(with: viewProperties.accessibilityIds)
         
         self.viewProperties = viewProperties
     }
@@ -110,6 +124,12 @@ public class LabelView: UIView {
             $0.height.greaterThanOrEqualTo(0) // будет обновлено
             $0.edges.equalToSuperview().inset(0) // будет обновлено
         }
+    }
+    
+    private func setupAccessibilityIds(with accessibilityIds: ViewProperties.AccessibilityIds?) {
+        isAccessibilityElement = true
+        accessibilityIdentifier = accessibilityIds?.id
+        textLabel.accessibilityIdentifier = accessibilityIds?.labelViewId
     }
     
     @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
