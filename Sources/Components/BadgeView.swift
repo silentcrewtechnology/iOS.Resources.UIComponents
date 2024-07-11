@@ -19,6 +19,7 @@ public final class BadgeView: UIView {
         public var textColor: UIColor?
         public var image: UIImage?
         public var height: CGFloat
+        public var width: CGFloat?
         public var cornerRadius: CGFloat
         public var margins: Margins
         
@@ -50,6 +51,7 @@ public final class BadgeView: UIView {
             textColor: UIColor? = nil,
             image: UIImage? = nil,
             height: CGFloat = 0,
+            width: CGFloat? = nil,
             cornerRadius: CGFloat = 0,
             margins: Margins = .init()
         ) {
@@ -58,6 +60,7 @@ public final class BadgeView: UIView {
             self.textColor = textColor
             self.image = image
             self.height = height
+            self.width = width
             self.cornerRadius = cornerRadius
             self.margins = margins
         }
@@ -131,6 +134,15 @@ public final class BadgeView: UIView {
         )
     }
     private func updateConstraints(with viewProperties: ViewProperties) {
+        snp.removeConstraints()
+        
+        snp.makeConstraints {
+            $0.height.equalTo(viewProperties.height)
+            if let width = viewProperties.width {
+                $0.width.equalTo(width)
+            }
+        }
+        
         imageView.snp.updateConstraints {
             $0.top.equalToSuperview().offset(viewProperties.margins.top)
             $0.leading.equalToSuperview().offset(viewProperties.margins.leading)
@@ -144,10 +156,6 @@ public final class BadgeView: UIView {
             $0.leading.equalTo(imageView.snp.trailing).offset(spacing)
             $0.trailing.equalToSuperview().offset(-viewProperties.margins.trailing)
             $0.bottom.equalToSuperview().offset(-viewProperties.margins.bottom)
-        }
-        
-        snp.updateConstraints {
-            $0.height.equalTo(viewProperties.height)
         }
     }
     
@@ -165,10 +173,6 @@ public final class BadgeView: UIView {
             $0.leading.equalTo(imageView.snp.trailing).offset(0)
             $0.trailing.equalToSuperview().offset(0)
             $0.bottom.equalToSuperview().offset(0)
-        }
-        
-        snp.makeConstraints {
-            $0.height.equalTo(0)
         }
     }
 }
