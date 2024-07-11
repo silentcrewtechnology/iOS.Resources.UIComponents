@@ -62,6 +62,7 @@ public final class ButtonView: UIButton {
     
     private let textLabel: UILabel = {
         let label = UILabel()
+        label.setContentCompressionResistancePriority(.required, for: .horizontal)
         return label
     }()
     

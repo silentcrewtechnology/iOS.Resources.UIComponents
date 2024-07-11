@@ -3,10 +3,8 @@ import UIKit
 public enum Atom {
     case title(LabelView.ViewProperties)
     case subtitle(LabelView.ViewProperties)
-    case copyText(LabelView.ViewProperties)
     case index(LabelView.ViewProperties)
     case amountText(LabelView.ViewProperties)
-    case subindex(LabelView.ViewProperties)
     case image40(ImageView.ViewProperties)
     case icon24(ImageView.ViewProperties)
     case icon20(ImageView.ViewProperties)
@@ -15,6 +13,9 @@ public enum Atom {
     case checkbox(CheckboxView.ViewProperties)
     case radio(RadioView.ViewProperties)
     case button(ButtonView.ViewProperties)
+    case copyText(LabelView.ViewProperties)
+    case subindex(LabelView.ViewProperties)
+    case input(InputTextField.ViewProperties)
 }
 
 public enum Molecule {
