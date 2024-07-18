@@ -15,7 +15,7 @@ public class TitleView: UIView {
     public struct ViewProperties {
         public var title: NSMutableAttributedString
         public var description: NSMutableAttributedString?
-        public var iconButtonViewProperties: IconButton.ViewProperties?
+        public var iconButtonViewProperties: ButtonIcon.ViewProperties?
         public var backgroundColor: UIColor
         public var insets: UIEdgeInsets
         public var space: CGFloat
@@ -23,7 +23,7 @@ public class TitleView: UIView {
         public init(
             title: NSMutableAttributedString = .init(string: ""),
             description: NSMutableAttributedString? = nil,
-            iconButtonViewProperties: IconButton.ViewProperties? = nil,
+            iconButtonViewProperties: ButtonIcon.ViewProperties? = nil,
             backgroundColor: UIColor = .clear,
             insets: UIEdgeInsets = .zero,
             space: CGFloat = .zero
@@ -53,8 +53,8 @@ public class TitleView: UIView {
         return label
     }()
     
-    private lazy var iconButton: IconButton = {
-        let button = IconButton()
+    private lazy var iconButton: ButtonIcon = {
+        let button = ButtonIcon()
         return button
     }()
     
@@ -118,7 +118,7 @@ public class TitleView: UIView {
         }
     }
     
-    private func updateIconButton(_ iconButtonViewProperties: IconButton.ViewProperties?) {
+    private func updateIconButton(_ iconButtonViewProperties: ButtonIcon.ViewProperties?) {
         if let iconButtonViewProperties {
             iconButton.update(with: iconButtonViewProperties)
             iconButton.isHidden = false

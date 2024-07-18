@@ -1,7 +1,7 @@
 import UIKit
 import SnapKit
 
-public class IconButton: UIButton {
+public class ButtonIcon: UIButton {
     
     public struct ViewProperties {
         public var isEnabled: Bool
@@ -10,6 +10,7 @@ public class IconButton: UIButton {
         public var backgroundColor: UIColor
         public var image: UIImage
         public var isLoading: Bool
+        public var activityIndicator: ActivityIndicatorView.ViewProperties
         public var onHighlighted: (Bool) -> Void
         public var onTap: () -> Void
         
@@ -21,7 +22,8 @@ public class IconButton: UIButton {
             icon: Icon = .image(.init()),
             image: UIImage = .init(),
             isLoading: Bool = false,
-            onHighlighted: @escaping (Bool) -> Void = { _ in }, 
+            activityIndicator: ActivityIndicatorView.ViewProperties = .init(),
+            onHighlighted: @escaping (Bool) -> Void = { _ in },
             onTap: @escaping () -> Void = { }
         ) {
             self.isEnabled = isEnabled
@@ -30,6 +32,7 @@ public class IconButton: UIButton {
             self.backgroundColor = backgroundColor
             self.image = image
             self.isLoading = isLoading
+            self.activityIndicator = activityIndicator
             self.onHighlighted = onHighlighted
             self.onTap = onTap
         }
@@ -48,11 +51,7 @@ public class IconButton: UIButton {
     
     private var viewProperties: ViewProperties = .init()
     
-    private let loadingIndicator: UIActivityIndicatorView = {
-        let indicator = UIActivityIndicatorView(style: .gray)
-        indicator.hidesWhenStopped = true
-        return indicator
-    }()
+    private let activityIndicator = ActivityIndicatorView()
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
@@ -65,8 +64,8 @@ public class IconButton: UIButton {
         contentMode = .center
         imageView?.contentMode = .center
         layer.masksToBounds = true
-        addSubview(loadingIndicator)
-        loadingIndicator.snp.makeConstraints {
+        addSubview(activityIndicator)
+        activityIndicator.snp.makeConstraints {
             $0.center.equalToSuperview()
         }
         snp.makeConstraints {
@@ -81,6 +80,7 @@ public class IconButton: UIButton {
         isEnabled = viewProperties.isEnabled
         backgroundColor = viewProperties.backgroundColor
         updateIcon(with: viewProperties)
+        updateIndicator(indicator: viewProperties.activityIndicator)
         self.viewProperties = viewProperties
     }
     
@@ -94,9 +94,7 @@ public class IconButton: UIButton {
     private func updateIcon(with viewProperties: ViewProperties) {
         if viewProperties.isLoading {
             updateButtonImage(image: nil)
-            loadingIndicator.startAnimating()
         } else {
-            loadingIndicator.stopAnimating()
             updateButtonImage(image: viewProperties.image)
         }
     }
@@ -109,5 +107,10 @@ public class IconButton: UIButton {
     
     @objc private func buttonTapped() {
         viewProperties.onTap()
+    }
+    
+    private func updateIndicator(indicator: ActivityIndicatorView.ViewProperties) {
+        imageView?.isHidden = indicator.isAnimating
+        activityIndicator.update(with: indicator)
     }
 }
