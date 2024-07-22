@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NavigationBar.swift
 //  
 //
 //  Created by user on 22.07.2024.
