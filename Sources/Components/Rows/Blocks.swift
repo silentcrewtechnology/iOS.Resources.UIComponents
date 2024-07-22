@@ -16,6 +16,8 @@ public enum Atom {
     case copyText(LabelView.ViewProperties)
     case subindex(LabelView.ViewProperties)
     case input(InputTextField.ViewProperties)
+    case buttonIcon(ButtonIcon.ViewProperties)
+    case titleView(TitleView.ViewProperties)
 }
 
 public enum Molecule {
