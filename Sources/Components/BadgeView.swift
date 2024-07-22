@@ -14,42 +14,56 @@ public final class BadgeView: UIView {
     // MARK: - ViewProperties
     
     public struct ViewProperties {
-        public var text: NSAttributedString?
+        public var text: NSMutableAttributedString?
         public var backgroundColor: UIColor?
         public var textColor: UIColor?
         public var image: UIImage?
-        public var height: CGFloat
         public var cornerRadius: CGFloat
         public var margins: Margins
+        public var height: CGFloat
+        public var width: CGFloat
         
         public struct Margins {
+            public var imageTop: CGFloat
+            public var imageBottom: CGFloat
             public var leading: CGFloat
             public var trailing: CGFloat
             public var top: CGFloat
             public var bottom: CGFloat
             public var spacing: CGFloat
+            public var height: CGFloat
+            public var width: CGFloat
             
             public init(
+                imageTop: CGFloat = 0,
+                imageBottom: CGFloat = 0,
                 leading: CGFloat = 0,
                 trailing: CGFloat = 0,
                 top: CGFloat = 0,
                 bottom: CGFloat = 0,
-                spacing: CGFloat = 0
+                spacing: CGFloat = 0,
+                height: CGFloat = 0,
+                width: CGFloat = 0
             ) {
+                self.imageTop = imageTop
+                self.imageBottom = imageBottom
                 self.leading = leading
                 self.trailing = trailing
                 self.top = top
                 self.bottom = bottom
                 self.spacing = spacing
+                self.height = height
+                self.width = width
             }
         }
         
         public init(
-            text: NSAttributedString? = nil,
+            text: NSMutableAttributedString? = nil,
             backgroundColor: UIColor? = nil,
             textColor: UIColor? = nil,
             image: UIImage? = nil,
             height: CGFloat = 0,
+            width: CGFloat = 0,
             cornerRadius: CGFloat = 0,
             margins: Margins = .init()
         ) {
@@ -58,6 +72,7 @@ public final class BadgeView: UIView {
             self.textColor = textColor
             self.image = image
             self.height = height
+            self.width = width
             self.cornerRadius = cornerRadius
             self.margins = margins
         }
@@ -84,7 +99,6 @@ public final class BadgeView: UIView {
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
-        self.setupView()
     }
     
     required init?(coder: NSCoder) { fatalError() }
@@ -106,7 +120,6 @@ public final class BadgeView: UIView {
     private func emptyParamsDetection() {
         isTextNil = viewProperties.text == nil
         isImageNil = viewProperties.image == nil
-
     }
     
     private func setText(with viewProperties: ViewProperties) {
@@ -130,45 +143,62 @@ public final class BadgeView: UIView {
             clipsToBounds: true
         )
     }
+    
     private func updateConstraints(with viewProperties: ViewProperties) {
-        imageView.snp.updateConstraints {
-            $0.top.equalToSuperview().offset(viewProperties.margins.top)
+        removeConstraintsAndSubviews()
+        
+        if !isTextNil && !isImageNil {
+            setupFullView()
+        } else if !isTextNil {
+            setupBasicView()
+        } else {
+            setupSimpleView()
+        }
+    }
+    
+    private func removeConstraintsAndSubviews() {
+        snp.removeConstraints()
+        self.subviews.forEach { subview in
+            subview.snp.removeConstraints()
+            subview.removeFromSuperview()
+        }
+    }
+    
+    private func setupSimpleView() {
+        let view = UIView()
+        addSubview(view)
+        view.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+            $0.height.width.equalTo(viewProperties.height)
+        }
+    }
+    
+    private func setupBasicView() {
+        addSubview(titleLabel)
+        titleLabel.snp.makeConstraints {
+            $0.top.equalToSuperview()
             $0.leading.equalToSuperview().offset(viewProperties.margins.leading)
-            $0.bottom.equalToSuperview().offset(-viewProperties.margins.bottom)
-        }
-        
-        let spacing = isTextNil || isImageNil ? 0 : viewProperties.margins.spacing
-        
-        titleLabel.snp.updateConstraints {
-            $0.top.equalToSuperview().offset(viewProperties.margins.top)
-            $0.leading.equalTo(imageView.snp.trailing).offset(spacing)
             $0.trailing.equalToSuperview().offset(-viewProperties.margins.trailing)
-            $0.bottom.equalToSuperview().offset(-viewProperties.margins.bottom)
-        }
-        
-        snp.updateConstraints {
+            $0.bottom.equalToSuperview()
             $0.height.equalTo(viewProperties.height)
         }
     }
     
-    private func setupView() {
+    private func setupFullView() {
         addSubview(imageView)
         imageView.snp.makeConstraints() {
-            $0.top.equalToSuperview().offset(0)
-            $0.leading.equalToSuperview().offset(0)
-            $0.bottom.equalToSuperview().offset(0)
+            $0.top.equalToSuperview().offset(viewProperties.margins.imageTop)
+            $0.leading.equalToSuperview().offset(viewProperties.margins.leading)
+            $0.bottom.equalToSuperview().offset(-viewProperties.margins.imageBottom)
         }
         
         addSubview(titleLabel)
         titleLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(0)
-            $0.leading.equalTo(imageView.snp.trailing).offset(0)
-            $0.trailing.equalToSuperview().offset(0)
-            $0.bottom.equalToSuperview().offset(0)
-        }
-        
-        snp.makeConstraints {
-            $0.height.equalTo(0)
+            $0.top.equalToSuperview().offset(viewProperties.margins.top)
+            $0.leading.equalTo(imageView.snp.trailing).offset(viewProperties.margins.spacing)
+            $0.trailing.equalToSuperview().offset(-viewProperties.margins.trailing)
+            $0.bottom.equalToSuperview().offset(-viewProperties.margins.bottom)
+            $0.height.equalTo(viewProperties.height)
         }
     }
 }
