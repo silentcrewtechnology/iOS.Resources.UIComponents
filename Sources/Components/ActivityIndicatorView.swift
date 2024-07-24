@@ -31,10 +31,18 @@ public class ActivityIndicatorView: UIView {
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
-        setupView()
     }
     
     required init?(coder: NSCoder) { fatalError() }
+    
+    public func update(with viewProperties: ViewProperties) {
+        self.viewProperties = viewProperties
+        removeConstraintsAndSubviews()
+        setupView()
+        indicatorView.image = viewProperties.icon
+        updateAnimating(with: viewProperties)
+        accessibilityIdentifier = viewProperties.accessibilityId
+    }
     
     private func setupView() {
         isHidden = true
@@ -43,27 +51,18 @@ public class ActivityIndicatorView: UIView {
             $0.edges.equalToSuperview()
         }
         snp.makeConstraints {
-            $0.size.equalTo(0) // будет обновлено
-        }
-    }
-    
-    public func update(with viewProperties: ViewProperties) {
-        indicatorView.image = viewProperties.icon
-        updateSize(with: viewProperties)
-        updateAnimating(with: viewProperties)
-        accessibilityIdentifier = viewProperties.accessibilityId
-        self.viewProperties = viewProperties
-    }
-    
-    private func updateSize(with viewProperties: ViewProperties) {
-        guard self.viewProperties.size != viewProperties.size else { return }
-        snp.updateConstraints {
             $0.size.equalTo(viewProperties.size)
         }
     }
     
+    private func removeConstraintsAndSubviews() {
+        self.subviews.forEach { subview in
+            subview.snp.removeConstraints()
+            subview.removeFromSuperview()
+        }
+    }
+    
     private func updateAnimating(with viewProperties: ViewProperties) {
-        guard self.viewProperties.isAnimating != viewProperties.isAnimating else { return }
         if viewProperties.isAnimating {
             startAnimating()
         } else {
