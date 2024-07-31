@@ -16,6 +16,7 @@ public final class ToggleView: UIView {
         public var isChecked: Bool
         public var offTintColor: UIColor?
         public var onTintColor: UIColor?
+        public var thumbTintColor: UIColor?
         public var checkAction: (Bool) -> Void
         
         public init(
@@ -23,12 +24,14 @@ public final class ToggleView: UIView {
             isChecked: Bool = false,
             offTintColor: UIColor? = nil,
             onTintColor: UIColor? = nil,
+            thumbTintColor: UIColor? = nil,
             checkAction: @escaping (Bool) -> Void = { _ in }
         ) {
             self.isEnabled = isEnabled
             self.isChecked = isChecked
             self.offTintColor = offTintColor
             self.onTintColor = onTintColor
+            self.thumbTintColor = thumbTintColor
             self.checkAction = checkAction
         }
     }
@@ -71,6 +74,7 @@ public final class ToggleView: UIView {
         switchView.addTarget(self, action: #selector(switchTapped), for: .valueChanged)
         switchView.isOn = viewProperties.isChecked
         switchView.isEnabled = viewProperties.isEnabled
+        switchView.thumbTintColor = viewProperties.thumbTintColor
         
         if let onTintColor = viewProperties.onTintColor {
             switchView.onTintColor = onTintColor
