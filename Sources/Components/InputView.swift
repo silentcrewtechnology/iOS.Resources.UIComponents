@@ -1,7 +1,7 @@
 import UIKit
 import SnapKit
 
-public class InputTextView: UIView {
+public class InputView: UIView {
     
     public struct ViewProperties {
         public var header: LabelView.ViewProperties?
