@@ -182,6 +182,7 @@ public final class BannerView: UIView {
     }
     
     private func updateBottomButton(button: ViewProperties.BottomButton?) {
+        bottomButton.isHidden = button == nil
         bottomButton.setAttributedTitle(viewProperties.bottomButton?.text, for: .normal)
         bottomButton.addTarget(self, action: #selector(bottomButtonTapped), for: .touchUpInside)
     }
