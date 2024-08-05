@@ -1,7 +1,7 @@
 import UIKit
 import SnapKit
 
-public class ButtonIcon: UIButton {
+public final class ButtonIcon: UIButton {
     
     // MARK: - ViewProperties
     
