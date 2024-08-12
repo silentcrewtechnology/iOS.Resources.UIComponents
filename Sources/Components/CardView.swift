@@ -120,22 +120,24 @@ public class CardView: UIView {
     // MARK: - Methods
     
     public func update(with viewProperties: ViewProperties) {
-        self.viewProperties = viewProperties
-       
-        setupContainerView(viewProperties: viewProperties)
-        
-        if let centerImage = viewProperties.centerImage {
-            setupWithCenterImageView(centerImage: centerImage)
-        } else if let emptyBand = viewProperties.emptyBand {
-            setupWithEmptyBand(emptyBand: emptyBand)
-        } else if viewProperties.maskedCardNumber != nil {
-            setupWithCardLabel(viewProperties: viewProperties)
-        } else {
-            setupWithPaymentSystemLabel(viewProperties: viewProperties)
-        }
-        
-        if let stackCardView = viewProperties.stackCardView {
-            setupStackCardView(cardView: stackCardView)
+        DispatchQueue.main.async {
+            self.viewProperties = viewProperties
+           
+            self.setupContainerView(viewProperties: viewProperties)
+            
+            if let centerImage = viewProperties.centerImage {
+                self.setupWithCenterImageView(centerImage: centerImage)
+            } else if  let emptyBand = viewProperties.emptyBand {
+                self.setupWithEmptyBand(emptyBand: emptyBand)
+            } else if viewProperties.maskedCardNumber != nil {
+                self.setupWithCardLabel(viewProperties: viewProperties)
+            } else {
+                self.setupWithPaymentSystemLabel(viewProperties: viewProperties)
+            }
+            
+            if let stackCardView = viewProperties.stackCardView {
+                self.setupStackCardView(cardView: stackCardView)
+            }
         }
     }
    
@@ -235,6 +237,11 @@ public class CardView: UIView {
     }
    
     private func removeConstraintsAndSubviews() {
+        containerView.subviews.forEach { subview in
+            subview.snp.removeConstraints()
+            subview.removeFromSuperview()
+        }
+        
         subviews.forEach { subview in
             subview.snp.removeConstraints()
             subview.removeFromSuperview()
