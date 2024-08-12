@@ -8,7 +8,7 @@ public enum Atom {
     case image40(ImageView.ViewProperties)
     case icon24(ImageView.ViewProperties)
     case icon20(ImageView.ViewProperties)
-    case card(CardImageView.ViewProperties)
+    case card(CardView.ViewProperties)
     case toggle(ToggleView.ViewProperties)
     case checkbox(CheckboxView.ViewProperties)
     case radio(RadioView.ViewProperties)

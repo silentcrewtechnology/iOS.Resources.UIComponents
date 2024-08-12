@@ -211,18 +211,20 @@ public class SnackBarView: UIView {
     // MARK: - Public methods
     
     public func update(with viewProperties: ViewProperties) {
-        self.viewProperties = viewProperties
-       
-        containerView.backgroundColor = viewProperties.backgroundColor
-        containerView.layer.cornerRadius = viewProperties.cornerRadius
-        setupView(viewProperties: viewProperties)
-        updateLabel(titleLabel, text: viewProperties.title)
-        updateLabel(subtitleLabel, text: viewProperties.subtitle)
-        updateCloseButton(viewProperties.closeButton)
-        updateBottomButton(viewProperties.bottomButton)
-        updateSpacerView(with: viewProperties)
-        updateShadow(viewProperties.shadow)
-        updateIconImageView(icon: viewProperties.icon)
+        DispatchQueue.main.async {
+            self.viewProperties = viewProperties
+           
+            self.containerView.backgroundColor = viewProperties.backgroundColor
+            self.containerView.layer.cornerRadius = viewProperties.cornerRadius
+            self.setupView(viewProperties: viewProperties)
+            self.updateLabel(self.titleLabel, text: viewProperties.title)
+            self.updateLabel(self.subtitleLabel, text: viewProperties.subtitle)
+            self.updateCloseButton(viewProperties.closeButton)
+            self.updateBottomButton(viewProperties.bottomButton)
+            self.updateSpacerView(with: viewProperties)
+            self.updateShadow(viewProperties.shadow)
+            self.updateIconImageView(icon: viewProperties.icon)
+        }
     }
     
     public func show(on view: UIView) {
@@ -332,6 +334,11 @@ public class SnackBarView: UIView {
     }
     
     private func removeConstraintsAndSubviews() {
+        containerView.subviews.forEach { subview in
+            subview.snp.removeConstraints()
+            subview.removeFromSuperview()
+        }
+        
         subviews.forEach { subview in
             subview.snp.removeConstraints()
             subview.removeFromSuperview()

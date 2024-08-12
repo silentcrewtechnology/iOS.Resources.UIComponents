@@ -59,13 +59,15 @@ public class ButtonPay: UIButton {
     // MARK: - Methods
     
     public func update(with viewProperties: ViewProperties) {
-        self.viewProperties = viewProperties
-        
-        setupView(viewProperties: viewProperties)
-        backgroundColor = viewProperties.backgroundColor
-        layer.cornerRadius = viewProperties.cornerRadius
-        textLabel.attributedText = viewProperties.text
-        logoImageView.image = viewProperties.image
+        DispatchQueue.main.async {
+            self.viewProperties = viewProperties
+            
+            self.setupView(viewProperties: viewProperties)
+            self.backgroundColor = viewProperties.backgroundColor
+            self.layer.cornerRadius = viewProperties.cornerRadius
+            self.textLabel.attributedText = viewProperties.text
+            self.logoImageView.image = viewProperties.image
+        }
     }
     
     // MARK: - Private methods
