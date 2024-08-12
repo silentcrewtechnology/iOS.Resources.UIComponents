@@ -54,8 +54,8 @@ private extension AtomService {
         return imageView
     }
     
-    private func createCard(_ viewProperties: CardImageView.ViewProperties) -> UIView {
-        let cardView = CardImageView()
+    private func createCard(_ viewProperties: CardView.ViewProperties) -> UIView {
+        let cardView = CardView()
         cardView.update(with: viewProperties)
         return cardView
     }
