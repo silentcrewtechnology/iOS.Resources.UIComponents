@@ -26,7 +26,7 @@ public class CardView: UIView {
             public var topInset: CGFloat
             public var height: CGFloat
             
-            init(
+            public init(
                 backgroundColor: UIColor = .clear,
                 topInset: CGFloat = .zero,
                 height: CGFloat = .zero
