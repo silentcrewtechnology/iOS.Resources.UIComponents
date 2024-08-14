@@ -7,7 +7,7 @@ public class InputView: UIView {
         public var header: LabelView.ViewProperties?
         public var textField: InputTextField.ViewProperties
         public var rightViews: [UIView]
-        public var hint: HintView.ViewProperties
+        public var hint: OldHintView.ViewProperties
         public var isEnabled: Bool
         public var fieldBackgroundColor: UIColor
         public var cornerRadius: CGFloat
@@ -18,7 +18,7 @@ public class InputView: UIView {
             header: LabelView.ViewProperties? = nil,
             textField: InputTextField.ViewProperties = .init(),
             rightViews: [UIView] = [],
-            hint: HintView.ViewProperties = .init(),
+            hint: OldHintView.ViewProperties = .init(),
             isEnabled: Bool = true,
             fieldBackgroundColor: UIColor = .clear,
             cornerRadius: CGFloat = 0,
@@ -63,7 +63,7 @@ public class InputView: UIView {
     
     private let textField = InputTextField()
     
-    private let hintView = HintView()
+    private let hintView = OldHintView()
     
     private lazy var vStack: UIStackView = {
         let stack = UIStackView(arrangedSubviews: [

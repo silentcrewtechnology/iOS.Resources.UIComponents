@@ -5,11 +5,11 @@ public final class InputOTPView: UIView {
     
     public struct ViewProperties {
         public var items: [InputOTPItemView.ViewProperties]
-        public var hint: HintView.ViewProperties
+        public var hint: OldHintView.ViewProperties
         
         public init(
             items: [InputOTPItemView.ViewProperties] = [],
-            hint: HintView.ViewProperties = .init()
+            hint: OldHintView.ViewProperties = .init()
         ) {
             self.items = items
             self.hint = hint
@@ -25,7 +25,7 @@ public final class InputOTPView: UIView {
         return stack
     }()
     
-    private let hintView: HintView = HintView()
+    private let hintView: OldHintView = OldHintView()
     
     public override init(frame: CGRect) {
         super.init(frame: frame)

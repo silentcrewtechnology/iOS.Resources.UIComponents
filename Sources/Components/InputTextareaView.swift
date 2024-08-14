@@ -22,7 +22,7 @@ public final class InputTextareaView: UIView {
         public var text: NSMutableAttributedString?
         public var typingText: NSMutableAttributedString
         public var placeholder: NSMutableAttributedString
-        public var hint: HintView.ViewProperties
+        public var hint: OldHintView.ViewProperties
         public var textViewHeight: TextViewHeight
         public var backgroundColor: UIColor
         public var border: Border
@@ -48,7 +48,7 @@ public final class InputTextareaView: UIView {
             text: NSMutableAttributedString = .init(string: ""),
             typingText: NSMutableAttributedString = .init(string: " "),
             placeholder: NSMutableAttributedString = .init(string: ""),
-            hint: HintView.ViewProperties = .init(),
+            hint: OldHintView.ViewProperties = .init(),
             textViewHeight: TextViewHeight = .custom(lines: 4, autoResizeHeight: false),
             backgroundColor: UIColor = .clear,
             border: Border = .init(),
@@ -94,8 +94,8 @@ public final class InputTextareaView: UIView {
         return textView
     }()
     
-    private lazy var hintView: HintView = {
-        let view = HintView()
+    private lazy var hintView: OldHintView = {
+        let view = OldHintView()
         return view
     }()
     
@@ -170,7 +170,7 @@ public final class InputTextareaView: UIView {
         viewProperties.delegateAssigningClosure(textView)
     }
     
-    private func updateHintView(with hint: HintView.ViewProperties) {
+    private func updateHintView(with hint: OldHintView.ViewProperties) {
         hintView.update(with: hint)
     }
     
