@@ -27,9 +27,7 @@ public struct AtomService {
             return createRadio(viewProperties)
         case .button(let viewProperties):
             return createButton(viewProperties)
-        case .copyText(let viewProperties):
-            return createLabel(viewProperties)
-        case .subindex(let viewProperties):
+        case .label(let viewProperties):
             return createLabel(viewProperties)
         case .input(let viewProperties):
             return createInput(viewProperties)

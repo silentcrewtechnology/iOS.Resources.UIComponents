@@ -29,8 +29,8 @@ public struct MoleculeService {
             return createIndexWithIcons20(indexViewProperties, iconsViewProperties)
         case .indexWithToggle(let indexViewProperties, let toggleViewProperties):
             return createIndexWithToggle(indexViewProperties, toggleViewProperties)
-        case .buttonWithSubindex(let buttonViewPropeties, let labelViewProperties):
-            return createButtonWithSubindex(buttonViewPropeties, labelViewProperties)
+        case .buttonWithSubtitle(let buttonViewPropeties, let labelViewProperties):
+            return createButtonWithSubtitle(buttonViewPropeties, labelViewProperties)
         }
     }
 }
@@ -107,14 +107,14 @@ private extension MoleculeService {
         return connectionService.connect(leftView: indexLabel, rightView: switchView)
     }
     
-    private func createButtonWithSubindex(
+    private func createButtonWithSubtitle(
         _ button: ButtonView.ViewProperties,
-        _ subindexText: LabelView.ViewProperties
+        _ subtitleText: LabelView.ViewProperties
     ) -> UIView {
         let buttonView = atomService.createAtom(.button(button))
-        let subindexLabel = atomService.createAtom(.subindex(subindexText))
+        let subtitleLabel = atomService.createAtom(.subtitle(subtitleText))
         
-        return connectionService.connect(topView: buttonView, bottomView: subindexLabel)
+        return connectionService.connect(topView: buttonView, bottomView: subtitleLabel)
     }
     
     private func createTitleWithSubtitles(
