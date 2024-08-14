@@ -4,101 +4,56 @@ public struct AtomService {
     public func createAtom(_ atom: Atom) -> UIView {
         switch atom {
         case .title(let viewProperties):
-            return createLabel(viewProperties)
+            return createView(of: LabelView.self, with: viewProperties)
         case .subtitle(let viewProperties):
-            return createLabel(viewProperties)
+            return createView(of: LabelView.self, with: viewProperties)
         case .image40(let viewProperties):
-            return createImage(viewProperties)
+            return createView(of: ImageView.self, with: viewProperties)
         case .card(let viewProperties):
-            return createCard(viewProperties)
+            return createView(of: CardImageView.self, with: viewProperties)
         case .index(let viewProperties):
-            return createLabel(viewProperties)
+            return createView(of: LabelView.self, with: viewProperties)
         case .icon24(let viewProperties):
-            return createImage(viewProperties)
+            return createView(of: ImageView.self, with: viewProperties)
         case .icon20(let viewProperties):
-            return createImage(viewProperties)
+            return createView(of: ImageView.self, with: viewProperties)
         case .toggle(let viewProperties):
-            return createToggle(viewProperties)
+            return createView(of: ToggleView.self, with: viewProperties)
         case .amountText(let viewProperties):
-            return createLabel(viewProperties)
+            return createView(of: LabelView.self, with: viewProperties)
         case .checkbox(let viewProperties):
-            return createCheckbox(viewProperties)
+            return createView(of: CheckboxView.self, with: viewProperties)
         case .radio(let viewProperties):
-            return createRadio(viewProperties)
+            return createView(of: RadioView.self, with: viewProperties)
         case .button(let viewProperties):
-            return createButton(viewProperties)
+            return createView(of: ButtonView.self, with: viewProperties)
         case .copyText(let viewProperties):
-            return createLabel(viewProperties)
+            return createView(of: LabelView.self, with: viewProperties)
         case .subindex(let viewProperties):
-            return createLabel(viewProperties)
+            return createView(of: LabelView.self, with: viewProperties)
         case .input(let viewProperties):
-            return createInput(viewProperties)
+            return createView(of: InputTextField.self, with: viewProperties)
         case .buttonIcon(let viewProperties):
-            return createButtonIcon(viewProperties)
+            return createView(of: ButtonIcon.self, with: viewProperties)
         case .titleView(let viewProperties):
-            return createTitleView(viewProperties)
+            return createView(of: TitleView.self, with: viewProperties)
+            
+        // Элементы Дизайн системы
+            
+        case .badgeView(let viewProperties):
+            return createView(of: BadgeView.self, with: viewProperties)
+        case .inputView(let viewProperties):
+            return createView(of: InputView.self, with: viewProperties)
+        case .chipsView(let viewProperties):
+            return createView(of: ChipsView.self, with: viewProperties)
         }
     }
 }
 
 private extension AtomService {
-    private func createLabel(_ viewProperties: LabelView.ViewProperties) -> UIView {
-        let label = LabelView()
-        label.update(with: viewProperties)
-        return label
-    }
-    
-    private func createImage(_ viewProperties: ImageView.ViewProperties) -> UIView {
-        let imageView = ImageView()
-        imageView.update(with: viewProperties)
-        return imageView
-    }
-    
-    private func createCard(_ viewProperties: CardImageView.ViewProperties) -> UIView {
-        let cardView = CardImageView()
-        cardView.update(with: viewProperties)
-        return cardView
-    }
-    
-    private func createToggle(_ viewProperties: ToggleView.ViewProperties) -> UIView {
-        let toggle = ToggleView()
-        toggle.update(with: viewProperties)
-        return toggle
-    }
-    
-    private func createCheckbox(_ viewProperties: CheckboxView.ViewProperties) -> UIView {
-        let checkbox = CheckboxView()
-        checkbox.update(with: viewProperties)
-        return checkbox
-    }
-    
-    private func createRadio(_ viewProperties: RadioView.ViewProperties) -> UIView {
-        let radio = RadioView()
-        radio.update(with: viewProperties)
-        return radio
-    }
-    
-    private func createButton(_ viewProperties: ButtonView.ViewProperties) -> UIView {
-        let button = ButtonView()
-        button.update(with: viewProperties)
-        return button
-    }
-    
-    private func createInput(_ viewProperties: InputTextField.ViewProperties) -> UIView {
-        let input = InputTextField()
-        input.update(with: viewProperties)
-        return input
-    }
-    
-    private func createButtonIcon(_ viewProperties: ButtonIcon.ViewProperties) -> UIView {
-        let buttonIcon = ButtonIcon()
-        buttonIcon.update(with: viewProperties)
-        return buttonIcon
-    }
-    
-    private func createTitleView(_ viewProperties: TitleView.ViewProperties) -> UIView {
-        let titleView = TitleView()
-        titleView.update(with: viewProperties)
-        return titleView
+    private func createView<T: UIView & ComponentProtocol>(of type: T.Type, with properties: T.ViewProperties) -> UIView {
+        let view = T()
+        view.update(with: properties)
+        return view
     }
 }

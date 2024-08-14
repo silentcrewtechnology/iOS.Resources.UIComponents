@@ -18,6 +18,11 @@ public enum Atom {
     case input(InputTextField.ViewProperties)
     case buttonIcon(ButtonIcon.ViewProperties)
     case titleView(TitleView.ViewProperties)
+    
+    // Элементы Дизайн Системы
+    case badgeView(BadgeView.ViewProperties)
+    case inputView(InputView.ViewProperties)
+    case chipsView(ChipsView.ViewProperties)
 }
 
 public enum Molecule {
