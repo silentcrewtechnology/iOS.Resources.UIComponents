@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-public class LabelView: UIView {
+public final class LabelView: UIView {
     
     // MARK: - ViewProperties
     
@@ -16,7 +16,7 @@ public class LabelView: UIView {
         public var text: NSMutableAttributedString
         public var size: Size
         public var accessibilityIds: AccessibilityIds?
-        public var longPressGestureViewProperties: LongPressGestureViewProperties?
+        public var longPressGestureRecognizer: UILongPressGestureRecognizer?
         
         public struct Size: Equatable {
             public var inset: UIEdgeInsets
@@ -45,39 +45,15 @@ public class LabelView: UIView {
             text: NSMutableAttributedString = .init(string: ""),
             size: Size = .init(),
             accessibilityIds: AccessibilityIds? = nil,
-            longPressGestureViewProperties: LongPressGestureViewProperties? = nil
+            longPressGestureRecognizer: UILongPressGestureRecognizer? = nil
         ) {
             self.text = text
             self.size = size
-            self.longPressGestureViewProperties = longPressGestureViewProperties
+            self.longPressGestureRecognizer = longPressGestureRecognizer
             self.accessibilityIds = accessibilityIds
         }
-        
-        public struct LongPressGestureViewProperties {
-            public var minimumPressDuration: CGFloat
-            public var menuWidth: CGFloat
-            public var menuHeight: CGFloat
-            public var menuTitle: String
-            public var numberOfTouchesRequired: Int
-            public var cancelsTouchesInView: Bool
-            
-            public init(
-                minimumPressDuration: CGFloat = .zero,
-                menuWidth: CGFloat = .zero,
-                menuHeight: CGFloat = .zero,
-                menuTitle: String = "",
-                numberOfTouchesRequired: Int = .zero,
-                cancelsTouchesInView: Bool = false
-            ) {
-                self.minimumPressDuration = minimumPressDuration
-                self.menuWidth = menuWidth
-                self.menuHeight = menuHeight
-                self.menuTitle = menuTitle
-                self.numberOfTouchesRequired = numberOfTouchesRequired
-                self.cancelsTouchesInView = cancelsTouchesInView
-            }
-        }
     }
+    
     // MARK: - Properties
     
     public override var canBecomeFirstResponder: Bool {
@@ -106,8 +82,9 @@ public class LabelView: UIView {
             self.updateLabel(with: viewProperties.text)
             self.setupAccessibilityIds(with: viewProperties.accessibilityIds)
             
-            if let longPressGestureViewProperties = viewProperties.longPressGestureViewProperties {
-                self.updateLongGesture(longGestureViewProperties: longPressGestureViewProperties)
+            if let longPressGestureRecognizer = viewProperties.longPressGestureRecognizer {
+                self.addGestureRecognizer(longPressGestureRecognizer)
+                self.longPressGesture = longPressGestureRecognizer
             } else {
                 self.removeGestureRecognizer(self.longPressGesture)
             }
@@ -131,16 +108,6 @@ public class LabelView: UIView {
         textLabel.isHidden = text == nil
     }
     
-    private func updateLongGesture(
-        longGestureViewProperties: ViewProperties.LongPressGestureViewProperties
-    ) {
-        longPressGesture = .init(target: self, action: #selector(handleLongPress(_:)))
-        longPressGesture.minimumPressDuration = longGestureViewProperties.minimumPressDuration
-        longPressGesture.numberOfTouchesRequired = longGestureViewProperties.numberOfTouchesRequired
-        longPressGesture.cancelsTouchesInView = longGestureViewProperties.cancelsTouchesInView
-        addGestureRecognizer(longPressGesture)
-    }
-    
     private func removeConstraintsAndSubviews() {
         subviews.forEach { subview in
             subview.snp.removeConstraints()
@@ -152,29 +119,5 @@ public class LabelView: UIView {
         isAccessibilityElement = true
         accessibilityIdentifier = accessibilityIds?.id
         textLabel.accessibilityIdentifier = accessibilityIds?.labelViewId
-    }
-    
-    @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
-        if gesture.state == .began, let gestureViewProperties = viewProperties.longPressGestureViewProperties {
-            becomeFirstResponder()
-            
-            let copyItem = UIMenuItem(title: gestureViewProperties.menuTitle, action: #selector(copyText))
-            UIMenuController.shared.menuItems?.removeAll()
-            UIMenuController.shared.menuItems = [copyItem]
-            UIMenuController.shared.update()
-        
-            let location = gesture.location(in: gesture.view)
-            let menuLocation = CGRect(
-                x: location.x,
-                y: location.y,
-                width: gestureViewProperties.menuWidth,
-                height: gestureViewProperties.menuHeight
-            )
-            UIMenuController.shared.showMenu(from: gesture.view!, rect: menuLocation)
-        }
-    }
-    
-    @objc private func copyText() {
-        UIPasteboard.general.string = viewProperties.text.string
     }
 }
