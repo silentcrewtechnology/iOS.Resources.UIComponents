@@ -7,14 +7,14 @@ public final class InputAmountView: UIView {
         public var header: LabelView.ViewProperties?
         public var textFieldProperties: InputAmountTextField.ViewProperties
         public var amountSymbol: NSMutableAttributedString
-        public var hint: HintView.ViewProperties
+        public var hint: OldHintView.ViewProperties
         public var isUserInteractionEnabled: Bool
         
         public init(
             header: LabelView.ViewProperties? = nil,
             textFieldProperties: InputAmountTextField.ViewProperties = .init(),
             amountSymbol: NSMutableAttributedString = .init(string: ""),
-            hint: HintView.ViewProperties = .init(),
+            hint: OldHintView.ViewProperties = .init(),
             isUserInteractionEnabled: Bool = true
         ) {
             self.header = header
@@ -40,8 +40,8 @@ public final class InputAmountView: UIView {
     }()
     private var currencyLabel = UILabel()
     
-    private lazy var hintView: HintView = {
-        let view = HintView()
+    private lazy var hintView: OldHintView = {
+        let view = OldHintView()
         return view
     }()
     

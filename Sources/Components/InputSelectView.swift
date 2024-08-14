@@ -16,7 +16,7 @@ public final class InputSelectView: UIView {
         public var placeholder: NSMutableAttributedString
         public var clearButtonIcon: UIImage
         public var disclosureIcon: UIImage
-        public var hint: HintView.ViewProperties
+        public var hint: OldHintView.ViewProperties
         public var border: Border
         public var backgroundColor: UIColor
         public var isUserInteractionEnabled: Bool
@@ -45,7 +45,7 @@ public final class InputSelectView: UIView {
             placeholder: NSMutableAttributedString = .init(string: ""),
             clearButtonIcon: UIImage = .init(),
             disclosureIcon: UIImage = .init(),
-            hint: HintView.ViewProperties = .init(),
+            hint: OldHintView.ViewProperties = .init(),
             border: Border = .init(),
             backgroundColor: UIColor = .clear,
             isUserInteractionEnabled: Bool = true,
@@ -126,8 +126,8 @@ public final class InputSelectView: UIView {
         return view
     }()
     
-    private lazy var hintView: HintView = {
-        let view = HintView()
+    private lazy var hintView: OldHintView = {
+        let view = OldHintView()
         return view
     }()
     
@@ -205,7 +205,7 @@ public final class InputSelectView: UIView {
         inputContainerView.layer.cornerRadius = border.cornerRadius
     }
     
-    private func updateHintView(with hint: HintView.ViewProperties) {
+    private func updateHintView(with hint: OldHintView.ViewProperties) {
         hintView.update(with: hint)
     }
     

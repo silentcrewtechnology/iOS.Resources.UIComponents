@@ -1,20 +1,26 @@
 import UIKit
 import SnapKit
 
-public class HintView: UIView {
+public final class HintView: UIView {
     
     public struct ViewProperties {
-        public var leftText: NSMutableAttributedString?
-        public var rightText: NSMutableAttributedString?
+        public var text: NSMutableAttributedString?
+        public var textIsHidden: Bool
+        public var additionalText: NSMutableAttributedString?
+        public var additionalTextIsHidden: Bool
         public var minHeight: CGFloat
         
         public init(
-            leftText: NSMutableAttributedString? = nil,
-            rightText: NSMutableAttributedString? = nil,
+            text: NSMutableAttributedString? = nil,
+            textIsHidden: Bool = false,
+            additionalText: NSMutableAttributedString? = nil,
+            additionalTextIsHidden: Bool = false,
             minHeight: CGFloat = 0
         ) {
-            self.leftText = leftText
-            self.rightText = rightText
+            self.text = text
+            self.textIsHidden = textIsHidden
+            self.additionalText = additionalText
+            self.additionalTextIsHidden = additionalTextIsHidden
             self.minHeight = minHeight
         }
     }
@@ -23,8 +29,8 @@ public class HintView: UIView {
     
     private lazy var hStack: UIStackView = {
         let stack = UIStackView(arrangedSubviews: [
-            leftLabel,
-            rightLabel
+            label,
+            additionalLabel
         ])
         stack.axis = .horizontal
         stack.spacing = 16
@@ -32,13 +38,13 @@ public class HintView: UIView {
         return stack
     }()
     
-    private let leftLabel: UILabel = {
+    private let label: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
         return label
     }()
     
-    private let rightLabel: UILabel = {
+    private let additionalLabel: UILabel = {
         let label = UILabel()
         label.setContentHuggingPriority(.defaultHigh + 1, for: .horizontal)
         label.setContentCompressionResistancePriority(.defaultHigh + 1, for: .horizontal)
@@ -47,39 +53,40 @@ public class HintView: UIView {
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
-        setupView()
     }
     
     required init?(coder: NSCoder) { fatalError() }
     
-    private func setupView() {
+    
+    public func update(with viewProperties: ViewProperties) {
+        removeConstraintsAndSubviews()
+        updateLabels(with: viewProperties)
+        updateView(with: viewProperties)
+        self.viewProperties = viewProperties
+    }
+    
+    private func updateLabels(with viewProperties: ViewProperties) {
+        label.attributedText = viewProperties.text
+        label.isHidden = viewProperties.textIsHidden
+        additionalLabel.attributedText = viewProperties.additionalText
+        additionalLabel.isHidden = viewProperties.additionalTextIsHidden
+    }
+    
+    private func updateView(with viewProperties: ViewProperties) {
         addSubview(hStack)
         hStack.snp.makeConstraints {
             $0.edges.equalToSuperview().inset(UIEdgeInsets(
                 top: 4, left: 0, bottom: 4, right: 0))
         }
         snp.makeConstraints {
-            $0.height.greaterThanOrEqualTo(0) // будет обновлено
+            $0.height.equalToSuperview().offset(viewProperties.minHeight)
         }
     }
     
-    public func update(with viewProperties: ViewProperties) {
-        updateLabels(with: viewProperties)
-        updateMinHeight(minHeight: viewProperties.minHeight)
-        self.viewProperties = viewProperties
-    }
-    
-    private func updateLabels(with viewProperties: ViewProperties) {
-        leftLabel.attributedText = viewProperties.leftText
-        leftLabel.isHidden = viewProperties.leftText == nil
-        rightLabel.attributedText = viewProperties.rightText
-        rightLabel.isHidden = viewProperties.rightText == nil
-    }
-    
-    private func updateMinHeight(minHeight: CGFloat) {
-        guard self.viewProperties.minHeight != minHeight else { return }
-        snp.updateConstraints {
-            $0.height.greaterThanOrEqualTo(minHeight)
+    private func removeConstraintsAndSubviews() {
+        self.subviews.forEach { subview in
+            subview.snp.removeConstraints()
+            subview.removeFromSuperview()
         }
     }
 }
