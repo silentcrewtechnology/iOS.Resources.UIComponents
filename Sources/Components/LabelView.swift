@@ -15,8 +15,8 @@ public class LabelView: UIView {
     public struct ViewProperties {
         public var text: NSMutableAttributedString
         public var size: Size
-        public var isCopied: Bool
         public var accessibilityIds: AccessibilityIds?
+        public var longPressGestureViewProperties: LongPressGestureViewProperties?
         
         public struct Size: Equatable {
             public var inset: UIEdgeInsets
@@ -45,19 +45,46 @@ public class LabelView: UIView {
             text: NSMutableAttributedString = .init(string: ""),
             size: Size = .init(),
             accessibilityIds: AccessibilityIds? = nil,
-            isCopied: Bool = false
+            longPressGestureViewProperties: LongPressGestureViewProperties? = nil
         ) {
             self.text = text
             self.size = size
-            self.isCopied = isCopied
+            self.longPressGestureViewProperties = longPressGestureViewProperties
             self.accessibilityIds = accessibilityIds
         }
+        
+        public struct LongPressGestureViewProperties {
+            public var minimumPressDuration: CGFloat
+            public var menuWidth: CGFloat
+            public var menuHeight: CGFloat
+            public var menuTitle: String
+            public var numberOfTouchesRequired: Int
+            public var cancelsTouchesInView: Bool
+            
+            public init(
+                minimumPressDuration: CGFloat = .zero,
+                menuWidth: CGFloat = .zero,
+                menuHeight: CGFloat = .zero,
+                menuTitle: String = "",
+                numberOfTouchesRequired: Int = .zero,
+                cancelsTouchesInView: Bool = false
+            ) {
+                self.minimumPressDuration = minimumPressDuration
+                self.menuWidth = menuWidth
+                self.menuHeight = menuHeight
+                self.menuTitle = menuTitle
+                self.numberOfTouchesRequired = numberOfTouchesRequired
+                self.cancelsTouchesInView = cancelsTouchesInView
+            }
+        }
+    }
+    // MARK: - Properties
+    
+    public override var canBecomeFirstResponder: Bool {
+        return true
     }
     
     // MARK: - Private properties
-    
-    private var viewProperties: ViewProperties = .init()
-    private var textToCopy: String?
     
     private lazy var textLabel: UILabel = {
         let label = UILabel()
@@ -66,63 +93,58 @@ public class LabelView: UIView {
         return label
     }()
     
-    private lazy var longPressGesture: UILongPressGestureRecognizer = {
-        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
-        gesture.minimumPressDuration = 0.3
-        gesture.cancelsTouchesInView = false
-        gesture.numberOfTouchesRequired = 1
-        
-        return gesture
-    }()
-    
-    // MARK: - Life cycle
-    
-    public override init(frame: CGRect) {
-        super.init(frame: frame)
-        
-        setupView()
-    }
-    
-    required init?(coder: NSCoder) { fatalError() }
+    private lazy var longPressGesture = UILongPressGestureRecognizer()
+    private var viewProperties: ViewProperties = .init()
     
     // MARK: - Public methods
     
     public func update(with viewProperties: ViewProperties) {
-        updateLabel(with: viewProperties.text)
-        updateSize(with: viewProperties.size)
-        updateCopy(with: viewProperties.isCopied)
-        setupAccessibilityIds(with: viewProperties.accessibilityIds)
-        
-        self.viewProperties = viewProperties
+        DispatchQueue.main.async {
+            self.viewProperties = viewProperties
+            
+            self.setupView(size: viewProperties.size)
+            self.updateLabel(with: viewProperties.text)
+            self.setupAccessibilityIds(with: viewProperties.accessibilityIds)
+            
+            if let longPressGestureViewProperties = viewProperties.longPressGestureViewProperties {
+                self.updateLongGesture(longGestureViewProperties: longPressGestureViewProperties)
+            } else {
+                self.removeGestureRecognizer(self.longPressGesture)
+            }
+        }
     }
     
     // MARK: - Private methods
+    
+    private func setupView(size: ViewProperties.Size) {
+        removeConstraintsAndSubviews()
+        
+        addSubview(textLabel)
+        textLabel.snp.makeConstraints {
+            $0.height.greaterThanOrEqualTo(size.lineHeight)
+            $0.edges.equalToSuperview().inset(size.inset)
+        }
+    }
     
     private func updateLabel(with text: NSMutableAttributedString?) {
         textLabel.attributedText = text
         textLabel.isHidden = text == nil
     }
     
-    private func updateSize(with size: ViewProperties.Size) {
-        guard self.viewProperties.size != size else { return }
-        
-        textLabel.snp.updateConstraints {
-            $0.height.greaterThanOrEqualTo(size.lineHeight)
-            $0.edges.equalToSuperview().inset(size.inset)
-        }
+    private func updateLongGesture(
+        longGestureViewProperties: ViewProperties.LongPressGestureViewProperties
+    ) {
+        longPressGesture = .init(target: self, action: #selector(handleLongPress(_:)))
+        longPressGesture.minimumPressDuration = longGestureViewProperties.minimumPressDuration
+        longPressGesture.numberOfTouchesRequired = longGestureViewProperties.numberOfTouchesRequired
+        longPressGesture.cancelsTouchesInView = longGestureViewProperties.cancelsTouchesInView
+        addGestureRecognizer(longPressGesture)
     }
     
-    private func updateCopy(with isCopied: Bool) {
-        isCopied
-            ? addGestureRecognizer(longPressGesture)
-            : removeGestureRecognizer(longPressGesture)
-    }
-    
-    private func setupView() {
-        addSubview(textLabel)
-        textLabel.snp.makeConstraints {
-            $0.height.greaterThanOrEqualTo(0) // будет обновлено
-            $0.edges.equalToSuperview().inset(0) // будет обновлено
+    private func removeConstraintsAndSubviews() {
+        subviews.forEach { subview in
+            subview.snp.removeConstraints()
+            subview.removeFromSuperview()
         }
     }
     
@@ -133,29 +155,26 @@ public class LabelView: UIView {
     }
     
     @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
-        if gesture.state == .began {
+        if gesture.state == .began, let gestureViewProperties = viewProperties.longPressGestureViewProperties {
             becomeFirstResponder()
             
-            let copyItem = UIMenuItem(title: Constants.copyTitle, action: #selector(copyText))
+            let copyItem = UIMenuItem(title: gestureViewProperties.menuTitle, action: #selector(copyText))
             UIMenuController.shared.menuItems?.removeAll()
             UIMenuController.shared.menuItems = [copyItem]
             UIMenuController.shared.update()
-
+        
             let location = gesture.location(in: gesture.view)
-            let menuLocation = CGRect(x: location.x, y: location.y, width: 0, height: 0)
+            let menuLocation = CGRect(
+                x: location.x,
+                y: location.y,
+                width: gestureViewProperties.menuWidth,
+                height: gestureViewProperties.menuHeight
+            )
             UIMenuController.shared.showMenu(from: gesture.view!, rect: menuLocation)
-          
-            textToCopy = viewProperties.text.string
         }
     }
     
     @objc private func copyText() {
-        UIPasteboard.general.string = textToCopy
+        UIPasteboard.general.string = viewProperties.text.string
     }
-}
-
-// MARK: - Constants
-
-private enum Constants {
-    static let copyTitle = "Скопировать"
 }
