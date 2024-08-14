@@ -1,7 +1,7 @@
 import UIKit
 import SnapKit
 
-public final class AuthorizationButton: UIButton {
+public final class ButtonAuth: UIButton {
     
     // MARK: - ViewProperties
     
