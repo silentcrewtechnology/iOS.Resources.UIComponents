@@ -1,139 +1,156 @@
 import UIKit
 import SnapKit
 
-public class InputView: UIView {
+public final class InputView: UIView {
+    
+    // MARK: - Properties
     
     public struct ViewProperties {
-        public var header: LabelView.ViewProperties?
-        public var textField: InputTextField.ViewProperties
-        public var rightViews: [UIView]
-        public var hint: OldHintView.ViewProperties
+        public var labelViewProperties: LabelView.ViewProperties?
+        public var hintViewProperties: HintView.ViewProperties
+        public var textFieldViewProperties: InputTextField.ViewProperties
+        public var textFieldBackgroundColor: UIColor
+        public var textFieldCornerRadius: CGFloat
+        public var textFieldBorderColor: UIColor
+        public var textFieldBorderWidth: CGFloat
+        public var textFieldHeight: CGFloat
+        public var textFieldInsets: UIEdgeInsets
+        public var minHeight: CGFloat
+        public var rightView: UIView
         public var isEnabled: Bool
-        public var fieldBackgroundColor: UIColor
-        public var cornerRadius: CGFloat
-        public var borderColor: UIColor
-        public var borderWidth: CGFloat
-        
+        public var stackViewInsets: UIEdgeInsets
+        public var stackViewSpacing: CGFloat
+       
         public init(
-            header: LabelView.ViewProperties? = nil,
-            textField: InputTextField.ViewProperties = .init(),
-            rightViews: [UIView] = [],
-            hint: OldHintView.ViewProperties = .init(),
+            labelViewProperties: LabelView.ViewProperties? = nil,
+            hintViewProperties: HintView.ViewProperties = .init(),
+            textFieldViewProperties: InputTextField.ViewProperties = .init(),
+            textFieldBackgroundColor: UIColor = .clear,
+            textFieldCornerRadius: CGFloat = .zero,
+            textFieldBorderColor: UIColor = .clear,
+            textFieldBorderWidth: CGFloat = .zero,
+            textFieldHeight: CGFloat = .zero,
+            textFieldInsets: UIEdgeInsets = .zero,
+            minHeight: CGFloat = .zero,
+            rightView: UIView = .init(),
             isEnabled: Bool = true,
-            fieldBackgroundColor: UIColor = .clear,
-            cornerRadius: CGFloat = 0,
-            borderColor: UIColor = .clear,
-            borderWidth: CGFloat = 0
+            stackViewInsets: UIEdgeInsets = .zero,
+            stackViewSpacing: CGFloat = .zero
         ) {
-            self.header = header
-            self.textField = textField
-            self.rightViews = rightViews
-            self.hint = hint
+            self.labelViewProperties = labelViewProperties
+            self.hintViewProperties = hintViewProperties
+            self.textFieldViewProperties = textFieldViewProperties
+            self.textFieldBackgroundColor = textFieldBackgroundColor
+            self.textFieldCornerRadius = textFieldCornerRadius
+            self.textFieldBorderColor = textFieldBorderColor
+            self.textFieldBorderWidth = textFieldBorderWidth
+            self.textFieldHeight = textFieldHeight
+            self.textFieldInsets = textFieldInsets
+            self.minHeight = minHeight
+            self.rightView = rightView
             self.isEnabled = isEnabled
-            self.fieldBackgroundColor = fieldBackgroundColor
-            self.cornerRadius = cornerRadius
-            self.borderColor = borderColor
-            self.borderWidth = borderWidth
+            self.stackViewInsets = stackViewInsets
+            self.stackViewSpacing = stackViewSpacing
         }
     }
+    
+    // MARK: - Private properties
+    
+    private lazy var verticalStack: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+
+        return stack
+    }()
+    
+    private lazy var textFieldContainer = UIView()
+    private lazy var labelView = LabelView()
+    private lazy var textField = InputTextField()
+    private lazy var hintView = HintView()
     
     private var viewProperties: ViewProperties = .init()
     
-    private let headerView = LabelView()
-    
-    private lazy var fieldContainer: UIView = {
-        let view = UIView()
-        view.clipsToBounds = true
-        view.addSubview(hStack)
-        hStack.snp.makeConstraints {
-            $0.centerY.equalToSuperview()
-            $0.leading.trailing.equalToSuperview().inset(20)
-        }
-        view.snp.makeConstraints { $0.height.equalTo(56) }
-        return view
-    }()
-    
-    private lazy var hStack: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [textField])
-        stack.axis = .horizontal
-        stack.spacing = 12
-        stack.alignment = .top
-        return stack
-    }()
-    
-    private let textField = InputTextField()
-    
-    private let hintView = OldHintView()
-    
-    private lazy var vStack: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [
-            headerView,
-            fieldContainer,
-            hintView
-        ])
-        stack.axis = .vertical
-        stack.spacing = .zero
-        return stack
-    }()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupView()
-    }
-    
-    required init?(coder: NSCoder) { fatalError() }
-    
-    private func setupView() {
-        addSubview(vStack)
-        vStack.snp.makeConstraints { $0.edges.equalToSuperview() }
-        textField.isUserInteractionEnabled = false
-        fieldContainer.addGestureRecognizer(UITapGestureRecognizer(
-            target: self,
-            action: #selector(tapped)))
-    }
-    
-    // MARK: - public methods
+    // MARK: - Public methods
     
     public func update(with viewProperties: ViewProperties) {
-        updateHeader(with: viewProperties.header)
-        updateFieldContainer(with: viewProperties)
-        textField.update(with: viewProperties.textField)
-        hintView.update(with: viewProperties.hint)
-        self.viewProperties = viewProperties
+        DispatchQueue.main.async {
+            self.viewProperties = viewProperties
+            
+            self.setupView(viewProperties: viewProperties)
+            self.updateLabelView(with: viewProperties.labelViewProperties)
+            self.updateTextField(with: viewProperties)
+            self.hintView.update(with: viewProperties.hintViewProperties)
+        }
     }
     
-    private func updateHeader(with header: LabelView.ViewProperties?) {
-        if let header {
-            headerView.update(with: header)
-            headerView.isHidden = false
+    // MARK: - Private methods
+    
+    private func setupView(viewProperties: ViewProperties) {
+        removeConstraintsAndSubviews()
+        
+        addSubview(verticalStack)
+        verticalStack.spacing = viewProperties.stackViewSpacing
+        verticalStack.isUserInteractionEnabled = true
+        verticalStack.addArrangedSubview(labelView)
+        verticalStack.addArrangedSubview(textFieldContainer)
+        verticalStack.addArrangedSubview(hintView)
+        verticalStack.distribution = .fill
+        verticalStack.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(viewProperties.stackViewInsets)
+            make.height.greaterThanOrEqualTo(viewProperties.minHeight)
+        }
+        
+        textFieldContainer.clipsToBounds = true
+        textFieldContainer.snp.makeConstraints { make in
+            make.height.equalTo(viewProperties.textFieldHeight)
+        }
+        
+        textFieldContainer.addSubview(textField)
+        textField.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(viewProperties.textFieldInsets)
+        }
+    }
+    
+    private func updateLabelView(with labelViewProperties: LabelView.ViewProperties?) {
+        if let labelViewProperties {
+            labelView.update(with: labelViewProperties)
+            labelView.isHidden = false
         } else {
-            headerView.isHidden = true
+            labelView.isHidden = true
         }
     }
     
-    private func updateFieldContainer(with viewProperties: ViewProperties) {
-        fieldContainer.backgroundColor = viewProperties.fieldBackgroundColor
-        fieldContainer.layer.borderColor = viewProperties.borderColor.cgColor
-        fieldContainer.layer.borderWidth = viewProperties.borderWidth
-        fieldContainer.layer.cornerRadius = viewProperties.cornerRadius
-        fieldContainer.isUserInteractionEnabled = viewProperties.isEnabled
-        textField.update(with: viewProperties.textField)
-        updateRightStack(rightViews: viewProperties.rightViews)
+    private func updateTextField(with viewProperties: ViewProperties) {
+        textFieldContainer.backgroundColor = viewProperties.textFieldBackgroundColor
+        textFieldContainer.layer.borderColor = viewProperties.textFieldBorderColor.cgColor
+        textFieldContainer.layer.borderWidth = viewProperties.textFieldBorderWidth
+        textFieldContainer.layer.cornerRadius = viewProperties.textFieldCornerRadius
+        textFieldContainer.isUserInteractionEnabled = viewProperties.isEnabled
+        textFieldContainer.addGestureRecognizer(UITapGestureRecognizer(
+            target: self,
+            action: #selector(textFieldTapped))
+        )
+        
+        textField.rightViewMode = .always
+        textField.rightView = viewProperties.rightView
+        textField.update(with: viewProperties.textFieldViewProperties)
     }
     
-    private func updateRightStack(rightViews: [UIView]) {
-        hStack.arrangedSubviews.forEach {
-            guard $0 !== textField else { return }
-            $0.removeFromSuperview()
+    private func removeConstraintsAndSubviews() {
+        verticalStack.arrangedSubviews.forEach { subview in
+            subview.snp.removeConstraints()
+            subview.removeFromSuperview()
         }
-        for rightView in rightViews {
-            hStack.addArrangedSubview(rightView)
+        
+        subviews.forEach { subview in
+            subview.snp.removeConstraints()
+            subview.removeFromSuperview()
         }
     }
     
-    @objc
-    private func tapped() {
-        guard fieldContainer.isUserInteractionEnabled else { return }
+    @objc private func textFieldTapped() {
+        guard textFieldContainer.isUserInteractionEnabled else { return }
+        
         textField.becomeFirstResponder()
     }
 }
