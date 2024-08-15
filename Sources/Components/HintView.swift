@@ -79,7 +79,7 @@ public final class HintView: UIView {
                 top: 4, left: 0, bottom: 4, right: 0))
         }
         snp.makeConstraints {
-            $0.height.equalToSuperview().offset(viewProperties.minHeight)
+            $0.height.greaterThanOrEqualTo(viewProperties.minHeight)
         }
     }
     
