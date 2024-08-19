@@ -14,6 +14,8 @@ public final class BadgeView: UIView, ComponentProtocol {
     // MARK: - ViewProperties
     
     public struct ViewProperties {
+        public var isTextHidden: Bool
+        public var isImageHidden: Bool
         public var text: NSMutableAttributedString?
         public var backgroundColor: UIColor?
         public var textColor: UIColor?
@@ -53,6 +55,8 @@ public final class BadgeView: UIView, ComponentProtocol {
         }
         
         public init(
+            isTextHidden: Bool = false,
+            isImageHidden: Bool = false,
             text: NSMutableAttributedString? = nil,
             backgroundColor: UIColor? = nil,
             textColor: UIColor? = nil,
@@ -62,6 +66,8 @@ public final class BadgeView: UIView, ComponentProtocol {
             cornerRadius: CGFloat = 0,
             margins: Margins = .init()
         ) {
+            self.isTextHidden = isTextHidden
+            self.isImageHidden = isImageHidden
             self.text = text
             self.backgroundColor = backgroundColor
             self.textColor = textColor
@@ -71,12 +77,11 @@ public final class BadgeView: UIView, ComponentProtocol {
         }
     }
     
-    private var isTextNil: Bool = false
-    private var isImageNil: Bool = false
-
     private var viewProperties: ViewProperties = .init()
     
     // MARK: - UI
+    
+    private let containerView = UIView()
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -104,16 +109,10 @@ public final class BadgeView: UIView, ComponentProtocol {
         setBackgroundColor(with: viewProperties)
         setImage(with: viewProperties)
         setCornerRadius(with: viewProperties)
-        emptyParamsDetection()
         updateConstraints(with: viewProperties)
     }
     
     // MARK: - private methods
-    
-    private func emptyParamsDetection() {
-        isTextNil = viewProperties.text == nil
-        isImageNil = viewProperties.image == nil
-    }
     
     private func setText(with viewProperties: ViewProperties) {
         titleLabel.attributedText = viewProperties.text
@@ -137,64 +136,63 @@ public final class BadgeView: UIView, ComponentProtocol {
         )
     }
     
+    private func removeConstraintsAndSubviews() {
+        containerView.subviews.forEach { subview in
+            subview.snp.removeConstraints()
+            subview.removeFromSuperview()
+        }
+        containerView.snp.removeConstraints()
+        containerView.removeFromSuperview()
+    }
+    
     private func updateConstraints(with viewProperties: ViewProperties) {
         removeConstraintsAndSubviews()
         
-        if !isTextNil && !isImageNil {
-            setupFullView()
-        } else if !isTextNil {
+        addSubview(containerView)
+        containerView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+            $0.height.equalTo(viewProperties.margins.height)
+        }
+        
+        if viewProperties.isImageHidden && viewProperties.isTextHidden {
+            setupSimpleView()
+        } else if viewProperties.isImageHidden && !viewProperties.isTextHidden {
             setupBasicView()
         } else {
-            setupSimpleView()
-        }
-    }
-    
-    private func removeConstraintsAndSubviews() {
-        snp.removeConstraints()
-        self.subviews.forEach { subview in
-            subview.snp.removeConstraints()
-            subview.removeFromSuperview()
+            setupFullView()
         }
     }
     
     private func setupSimpleView() {
-        snp.makeConstraints {
-            $0.height.width.equalTo(viewProperties.margins.height)
+        containerView.snp.makeConstraints {
+            $0.width.equalTo(viewProperties.margins.height)
         }
     }
     
     private func setupBasicView() {
-        addSubview(titleLabel)
+        containerView.addSubview(titleLabel)
         titleLabel.snp.makeConstraints {
             $0.top.equalToSuperview()
             $0.leading.equalToSuperview().offset(viewProperties.margins.leading)
             $0.trailing.equalToSuperview().offset(-viewProperties.margins.trailing)
             $0.bottom.equalToSuperview()
         }
-        
-        snp.makeConstraints {
-            $0.height.equalTo(viewProperties.margins.height)
-        }
     }
     
     private func setupFullView() {
-        addSubview(imageView)
+        containerView.addSubview(imageView)
         imageView.snp.makeConstraints() {
             $0.top.equalToSuperview().offset(viewProperties.margins.imageTop)
             $0.leading.equalToSuperview().offset(viewProperties.margins.leading)
             $0.bottom.equalToSuperview().offset(-viewProperties.margins.imageBottom)
         }
         
-        addSubview(titleLabel)
+        containerView.addSubview(titleLabel)
         titleLabel.snp.makeConstraints {
             $0.top.equalToSuperview().offset(viewProperties.margins.top)
             $0.leading.equalTo(imageView.snp.trailing).offset(viewProperties.margins.spacing)
             $0.trailing.equalToSuperview().offset(-viewProperties.margins.trailing)
             $0.bottom.equalToSuperview().offset(-viewProperties.margins.bottom)
-        }
-        
-        snp.makeConstraints {
-            $0.height.equalTo(viewProperties.margins.height)
         }
     }
 }

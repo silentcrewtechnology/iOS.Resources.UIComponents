@@ -4,9 +4,7 @@ import SnapKit
 public class ChipsView: PressableView, ComponentProtocol {
     
     public struct ViewProperties {
-        public var defaultBackgroundColor: UIColor
-        public var pressedBackgroundColor: UIColor
-        public var selectedBackgroundColor: UIColor
+        public var backgroundColor: UIColor
         public var cornerRadius: CGFloat
         public var leftImage: UIImage?
         public var leftImageColor: UIColor
@@ -18,8 +16,8 @@ public class ChipsView: PressableView, ComponentProtocol {
         public var rightImageColor: UIColor
         public var isRightImageHidden: Bool?
         public var isUserInteractionEnabled: Bool
-        public var isSelected: Bool
         public var onChipsTap: (Bool) -> Void
+        public var handleTap: (PressableView.State) -> Void
         public var onIconTap: () -> Void
         public var margins: Margins
         
@@ -49,9 +47,7 @@ public class ChipsView: PressableView, ComponentProtocol {
         }
         
         public init(
-            defaultBackgroundColor: UIColor = .clear,
-            pressedBackgroundColor: UIColor = .clear,
-            selectedBackgroundColor: UIColor = .clear,
+            backgroundColor: UIColor = .clear,
             cornerRadius: CGFloat = 0,
             leftImage: UIImage? = nil,
             leftImageColor: UIColor = .clear,
@@ -63,14 +59,12 @@ public class ChipsView: PressableView, ComponentProtocol {
             rightImageColor: UIColor = .clear,
             isRightImageHidden: Bool = false,
             isUserInteractionEnabled: Bool = true,
-            isSelected: Bool = false,
             onChipsTap: @escaping (Bool) -> Void = { _ in },
+            handleTap: @escaping (PressableView.State) -> Void = { _ in },
             onIconTap: @escaping () -> Void = { },
             margins: Margins = .init()
         ) {
-            self.defaultBackgroundColor = defaultBackgroundColor
-            self.pressedBackgroundColor = pressedBackgroundColor
-            self.selectedBackgroundColor = selectedBackgroundColor
+            self.backgroundColor = backgroundColor
             self.cornerRadius = cornerRadius
             self.leftImage = leftImage
             self.leftImageColor = leftImageColor
@@ -82,15 +76,14 @@ public class ChipsView: PressableView, ComponentProtocol {
             self.rightImageColor = rightImageColor
             self.isRightImageHidden = isRightImageHidden
             self.isUserInteractionEnabled = isUserInteractionEnabled
-            self.isSelected = isSelected
             self.onChipsTap = onChipsTap
+            self.handleTap = handleTap
             self.onIconTap = onIconTap
             self.margins = margins
         }
     }
     
     private var viewProperties: ViewProperties = .init()
-    private var isSelected: Bool = false
     
     // TODO: Проверить работу на устройстве
     
@@ -127,19 +120,13 @@ public class ChipsView: PressableView, ComponentProtocol {
     
     public func update(with viewProperties: ViewProperties) {
         self.viewProperties = viewProperties
-        self.isSelected = viewProperties.isSelected
-        setBackgroundColor(with: viewProperties)
+        self.backgroundColor = viewProperties.backgroundColor
         self.setCornerRadius(with: viewProperties)
         self.updateConstraints(with: viewProperties)
         self.updateStack(with: viewProperties)
         self.textLabel.tintColor = viewProperties.textColor
         self.textLabel.attributedText = viewProperties.text
         self.isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
-    }
-    
-    private func setBackgroundColor(with viewProperties: ViewProperties) {
-        let bgcolor = isSelected ? viewProperties.selectedBackgroundColor : viewProperties.defaultBackgroundColor
-        backgroundColor = bgcolor
     }
     
     private func setCornerRadius(with viewProperties: ViewProperties) {
@@ -184,16 +171,12 @@ public class ChipsView: PressableView, ComponentProtocol {
         removeConstraintsAndSubviews()
         addSubview(hStack)
         hStack.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(viewProperties.margins.top)//.priority(.high)
-            $0.leading.equalToSuperview().offset(viewProperties.margins.leading)//.priority(.high)
-            $0.trailing.equalToSuperview().offset(-viewProperties.margins.trailing)//.priority(.high)
-            $0.bottom.equalToSuperview().offset(-viewProperties.margins.bottom)//.priority(.high)
+            $0.top.equalToSuperview().offset(viewProperties.margins.top)
+            $0.leading.equalToSuperview().offset(viewProperties.margins.leading)
+            $0.trailing.equalToSuperview().offset(-viewProperties.margins.trailing)
+            $0.bottom.equalToSuperview().offset(-viewProperties.margins.bottom)
             
         }
-        
-//        snp.makeConstraints {
-//            $0.height.equalTo(viewProperties.margins.height)//.priority(.high)
-//        }
     }
     
     private func removeConstraintsAndSubviews() {
@@ -204,36 +187,8 @@ public class ChipsView: PressableView, ComponentProtocol {
         }
     }
     
-//    private func setupGestureRecognizer() {
-//        let gr = UITapGestureRecognizer(target: self, action: #selector(chipsTapped))
-//        addGestureRecognizer(gr)
-//    }
-    
-    private func setupGestureRecognizer() {
-//        let gr = UITapGestureRecognizer(target: self, action: #selector(chipsTapped))
-//        gr.delegate = self
-//        addGestureRecognizer(gr)
-    }
-    
-//    @objc
-//    private func chipsTapped() {
-//        viewProperties.onChipsTap()
-//    }
-    
     public override func handlePress(state: State) {
-        switch state {
-        case .pressed:
-            backgroundColor = viewProperties.pressedBackgroundColor
-        case .unpressed:
-            isSelected = !isSelected
-            let bgcolor = isSelected ? viewProperties.selectedBackgroundColor : viewProperties.defaultBackgroundColor
-            backgroundColor = bgcolor
-            viewProperties.onChipsTap(isSelected)
-        case .cancelled:
-            let bgcolor = isSelected ? viewProperties.selectedBackgroundColor : viewProperties.defaultBackgroundColor
-            backgroundColor = bgcolor
-            break
-        }
+        viewProperties.handleTap(state)
     }
     
     @objc
