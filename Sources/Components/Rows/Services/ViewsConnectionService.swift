@@ -27,13 +27,29 @@ public struct ViewsConnectionService {
         return stackView
     }
     
-    public func connect(horizontalyViews: [UIView]) -> UIView {
+    public func connect(horizontalyViews: [UIView], spacing: CGFloat = 0) -> UIView {
         let stackView = UIStackView(arrangedSubviews: horizontalyViews)
         stackView.axis = .horizontal
         stackView.alignment = .fill
         stackView.distribution = .fill
-        stackView.spacing = 0
+        stackView.spacing = spacing
         return stackView
+    }
+    
+    public func connectOnScroll(horizontalyViews: [UIView], spacing: CGFloat = 0) -> UIView {
+        let scrollView = UIScrollView()
+        let stackView = UIStackView(arrangedSubviews: horizontalyViews)
+        stackView.axis = .horizontal
+        stackView.alignment = .fill
+        stackView.distribution = .fill
+        stackView.spacing = spacing
+        scrollView.addSubview(stackView)
+        stackView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+            $0.height.equalToSuperview()
+            $0.width.greaterThanOrEqualToSuperview()
+        }
+        return scrollView
     }
     
     public func connect(verticalyViews: [UIView]) -> UIView {
