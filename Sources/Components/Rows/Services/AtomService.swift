@@ -10,7 +10,7 @@ public struct AtomService {
         case .image40(let viewProperties):
             return createView(of: ImageView.self, with: viewProperties)
         case .card(let viewProperties):
-            return createView(of: CardImageView.self, with: viewProperties)
+            return createView(of: CardView.self, with: viewProperties)
         case .index(let viewProperties):
             return createView(of: LabelView.self, with: viewProperties)
         case .icon24(let viewProperties):
@@ -27,9 +27,7 @@ public struct AtomService {
             return createView(of: RadioView.self, with: viewProperties)
         case .button(let viewProperties):
             return createView(of: ButtonView.self, with: viewProperties)
-        case .copyText(let viewProperties):
-            return createView(of: LabelView.self, with: viewProperties)
-        case .subindex(let viewProperties):
+        case .label(let viewProperties):
             return createView(of: LabelView.self, with: viewProperties)
         case .input(let viewProperties):
             return createView(of: InputTextField.self, with: viewProperties)

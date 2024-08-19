@@ -92,7 +92,7 @@ public final class ToggleView: UIView, ComponentProtocol {
     
     private func setupThumbColor(isOn: Bool) {
         switchView.thumbTintColor = isOn
-            ? viewProperties.onTintColor
+            ? viewProperties.thumbOnTintColor
             : viewProperties.thumbOffTintColor
     }
     

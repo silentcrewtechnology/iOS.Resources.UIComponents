@@ -1,41 +1,72 @@
 import UIKit
 import SnapKit
 
-
 public final class ButtonView: UIButton, ComponentProtocol {
+    
+    // MARK: - ViewProperties
     
     public struct ViewProperties {
         public var isEnabled: Bool
-        public var attributedText: NSMutableAttributedString
+        public var attributedText: NSMutableAttributedString?
         public var leftIcon: UIImage?
-        public var rightIcon: UIImage?
         public var backgroundColor: UIColor
         public var onHighlighted: (Bool) -> Void
         public var activityIndicator: ActivityIndicatorView.ViewProperties
         public var onTap: () -> Void
-        public var insets: UIEdgeInsets
+        public var cornerRadius: CGFloat
+        public var margins: Margins
         
         public init(
             isEnabled: Bool = true,
-            isLoading: Bool = false,
             attributedText: NSMutableAttributedString = .init(string: ""),
             leftIcon: UIImage? = nil,
-            rightIcon: UIImage? = nil,
             backgroundColor: UIColor = .clear,
             activityIndicator: ActivityIndicatorView.ViewProperties = .init(),
             onHighlighted: @escaping (Bool) -> Void = { _ in },
             onTap: @escaping () -> Void = { },
-            insets: UIEdgeInsets = .zero
+            cornerRadius: CGFloat = 0,
+            margins: Margins = .init()
         ) {
             self.isEnabled = isEnabled
             self.attributedText = attributedText
             self.leftIcon = leftIcon
-            self.rightIcon = rightIcon
             self.backgroundColor = backgroundColor
             self.activityIndicator = activityIndicator
             self.onHighlighted = onHighlighted
             self.onTap = onTap
-            self.insets = insets
+            self.cornerRadius = cornerRadius
+            self.margins = margins
+        }
+        
+        public struct Margins {
+            public var imageTop: CGFloat
+            public var imageBottom: CGFloat
+            public var top: CGFloat
+            public var bottom: CGFloat
+            public var leading: CGFloat
+            public var trailing: CGFloat
+            public var spacing: CGFloat
+            public var height: CGFloat
+            
+            public init(
+                imageTop: CGFloat = 0,
+                imageBottom: CGFloat = 0,
+                top: CGFloat = 0,
+                bottom: CGFloat = 0,
+                leading: CGFloat = 0,
+                trailing: CGFloat = 0,
+                spacing: CGFloat = 0,
+                height: CGFloat = 0
+            ) {
+                self.imageTop = imageTop
+                self.imageBottom = imageBottom
+                self.top = top
+                self.bottom = bottom
+                self.leading = leading
+                self.trailing = trailing
+                self.spacing = spacing
+                self.height = height
+            }
         }
     }
     
@@ -44,33 +75,8 @@ public final class ButtonView: UIButton, ComponentProtocol {
     // MARK: - UI
     
     private let activityIndicator = ActivityIndicatorView()
-    
-    private let stackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.distribution = .fillProportionally
-        stackView.alignment = .center
-        stackView.spacing = 16
-        stackView.isUserInteractionEnabled = false
-        return stackView
-    }()
-    
-    private let leftIconView: UIImageView = {
-        let view = UIImageView()
-        view.contentMode = .center
-        return view
-    }()
-    
-    private let textLabel: UILabel = {
-        let label = UILabel()
-        label.setContentCompressionResistancePriority(.required, for: .horizontal)
-        return label
-    }()
-    
-    private let rightIconView: UIImageView = {
-        let view = UIImageView()
-        view.contentMode = .center
-        return view
-    }()
+    private let leftIconView = UIImageView()
+    private let textLabel = UILabel()
     
     public override var isHighlighted: Bool {
         didSet {
@@ -82,7 +88,6 @@ public final class ButtonView: UIButton, ComponentProtocol {
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
-        setupView()
     }
     
     @available(*, unavailable)
@@ -91,11 +96,14 @@ public final class ButtonView: UIButton, ComponentProtocol {
     // MARK: - Public Methods
     
     public func update(with viewProperties: ViewProperties) {
-        setupProperties(with: viewProperties)
-        updateInsets(with: viewProperties)
-        setupActionButton(with: viewProperties)
-        updateIndicator(indicator: viewProperties.activityIndicator)
-        self.viewProperties = viewProperties
+        DispatchQueue.main.async {
+            self.viewProperties = viewProperties
+            self.setupProperties(with: viewProperties)
+            self.setCornerRadius(with: viewProperties)
+            self.setupActionButton(with: viewProperties)
+            self.updateConstraints(with: viewProperties)
+            self.updateActivityIndicator(with: viewProperties)
+        }
     }
     
     // MARK: - Private Methods
@@ -104,55 +112,76 @@ public final class ButtonView: UIButton, ComponentProtocol {
         backgroundColor = viewProperties.backgroundColor
         isUserInteractionEnabled = viewProperties.isEnabled
         textLabel.attributedText = viewProperties.attributedText
-        
-        if let leftIcon = viewProperties.leftIcon {
-            leftIconView.image = leftIcon
+        leftIconView.image = viewProperties.leftIcon
+    }
+
+    private func updateConstraints(with viewProperties: ViewProperties) {
+        removeConstraintsAndSubviews()
+        if viewProperties.leftIcon != nil {
+            setupFullView()
         } else {
-            stackView.removeArrangedSubview(leftIconView)
+            setupLabelView()
+        }
+        setupLoadingView()
+    }
+    
+    private func setupLabelView() {
+        addSubview(textLabel)
+        textLabel.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(viewProperties.margins.top)
+            $0.leading.equalToSuperview().offset(viewProperties.margins.leading)
+            $0.trailing.equalToSuperview().offset(-viewProperties.margins.trailing)
+            $0.bottom.equalToSuperview().offset(-viewProperties.margins.bottom)
+        }
+    }
+    
+    private func setupFullView() {
+        addSubview(leftIconView)
+        leftIconView.snp.makeConstraints() {
+            $0.top.equalToSuperview().offset(viewProperties.margins.imageTop)
+            $0.leading.equalToSuperview().offset(viewProperties.margins.leading)
+            $0.bottom.equalToSuperview().offset(-viewProperties.margins.imageBottom)
         }
         
-        if let rightIcon = viewProperties.rightIcon {
-            rightIconView.image = rightIcon
-        } else {
-            stackView.removeArrangedSubview(rightIconView)
+        addSubview(textLabel)
+        textLabel.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(viewProperties.margins.top)
+            $0.leading.equalTo(leftIconView.snp.trailing).offset(viewProperties.margins.spacing)
+            $0.trailing.equalToSuperview().offset(-viewProperties.margins.trailing)
+            $0.bottom.equalToSuperview().offset(-viewProperties.margins.bottom)
         }
+    }
+    
+    private func setupLoadingView() {
+        addSubview(activityIndicator)
+        activityIndicator.snp.makeConstraints {
+            $0.centerX.centerY.equalToSuperview()
+        }
+    }
+    
+    private func removeConstraintsAndSubviews() {
+        self.subviews.forEach { subview in
+            subview.snp.removeConstraints()
+            subview.removeFromSuperview()
+        }
+    }
+    
+    private func setCornerRadius(with viewProperties: ViewProperties) {
+        cornerRadius(
+            radius: viewProperties.cornerRadius,
+            direction: .allCorners,
+            clipsToBounds: true
+        )
+    }
+    
+    private func updateActivityIndicator(with viewProperties: ViewProperties) {
+        activityIndicator.update(with: viewProperties.activityIndicator)
+
+        textLabel.isHidden = viewProperties.activityIndicator.isAnimating
     }
     
     private func setupActionButton(with viewProperties: ViewProperties) {
         addTarget(self, action: #selector(didTapAction), for: .touchUpInside)
-    }
-    
-    private func setupView() {
-        
-        layer.cornerRadius = 8
-        
-        [stackView, activityIndicator].forEach { addSubview($0) }
-        [leftIconView, textLabel, rightIconView].forEach { stackView.addArrangedSubview($0) }
-        
-        stackView.snp.makeConstraints {
-            $0.center.equalToSuperview()
-            $0.leading.greaterThanOrEqualToSuperview()
-            $0.trailing.lessThanOrEqualToSuperview()
-            $0.top.bottom.equalToSuperview()
-        }
-        
-        activityIndicator.snp.makeConstraints {
-            $0.center.equalToSuperview()
-        }
-    }
-    
-    private func updateInsets(with viewProperties: ViewProperties) {
-        guard self.viewProperties.insets != viewProperties.insets else { return }
-        stackView.snp.updateConstraints {
-            $0.leading.greaterThanOrEqualToSuperview().offset(viewProperties.insets.left)
-            $0.trailing.lessThanOrEqualToSuperview().inset(viewProperties.insets.right)
-            $0.top.bottom.equalToSuperview().inset(viewProperties.insets)
-        }
-    }
-    
-    private func updateIndicator(indicator: ActivityIndicatorView.ViewProperties) {
-        stackView.isHidden = indicator.isAnimating
-        activityIndicator.update(with: indicator)
     }
     
     @objc

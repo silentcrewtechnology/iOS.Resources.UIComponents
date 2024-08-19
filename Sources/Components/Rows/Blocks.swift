@@ -8,13 +8,12 @@ public enum Atom {
     case image40(ImageView.ViewProperties)
     case icon24(ImageView.ViewProperties)
     case icon20(ImageView.ViewProperties)
-    case card(CardImageView.ViewProperties)
+    case card(CardView.ViewProperties)
     case toggle(ToggleView.ViewProperties)
     case checkbox(CheckboxView.ViewProperties)
     case radio(RadioView.ViewProperties)
     case button(ButtonView.ViewProperties)
-    case copyText(LabelView.ViewProperties)
-    case subindex(LabelView.ViewProperties)
+    case label(LabelView.ViewProperties)
     case input(InputTextField.ViewProperties)
     case buttonIcon(ButtonIcon.ViewProperties)
     case titleView(TitleView.ViewProperties)
@@ -33,7 +32,7 @@ public enum Molecule {
     case indexWithIcon24(LabelView.ViewProperties, ImageView.ViewProperties)
     case indexWithIcons20(LabelView.ViewProperties, [ImageView.ViewProperties])
     case indexWithToggle(LabelView.ViewProperties, ToggleView.ViewProperties)
-    case buttonWithSubindex(ButtonView.ViewProperties, LabelView.ViewProperties)
+    case buttonWithSubtitle(ButtonView.ViewProperties, LabelView.ViewProperties)
 }
 
 public enum RowBlocks {

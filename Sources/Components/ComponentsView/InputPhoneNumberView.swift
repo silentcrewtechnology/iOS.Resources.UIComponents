@@ -22,7 +22,7 @@ public class InputPhoneNumberView: UIView, ComponentProtocol {
         public var defaultText: NSMutableAttributedString
         public var placeholder: NSMutableAttributedString?
         public var clearButtonIcon: UIImage
-        public var hint: HintView.ViewProperties
+        public var hint: OldHintView.ViewProperties
         public var divider: DividerView.ViewProperties
         public var backgroundColor: UIColor
         public var border: Border
@@ -54,7 +54,7 @@ public class InputPhoneNumberView: UIView, ComponentProtocol {
             defaultText: NSMutableAttributedString = .init(string: " "),
             placeholder: NSMutableAttributedString? = nil,
             clearButtonIcon: UIImage = .init(),
-            hint: HintView.ViewProperties = .init(),
+            hint: OldHintView.ViewProperties = .init(),
             divider: DividerView.ViewProperties = .init(),
             backgroundColor: UIColor = .clear,
             border: Border = .init(),
@@ -156,8 +156,8 @@ public class InputPhoneNumberView: UIView, ComponentProtocol {
         return view
     }()
     
-    private lazy var hintView: HintView = {
-        let view = HintView()
+    private lazy var hintView: OldHintView = {
+        let view = OldHintView()
         return view
     }()
     
@@ -257,7 +257,7 @@ public class InputPhoneNumberView: UIView, ComponentProtocol {
         inputContainerView.layer.cornerRadius = border.cornerRadius
     }
     
-    private func updateHintView(with hint: HintView.ViewProperties) {
+    private func updateHintView(with hint: OldHintView.ViewProperties) {
         hintView.update(with: hint)
     }
     
