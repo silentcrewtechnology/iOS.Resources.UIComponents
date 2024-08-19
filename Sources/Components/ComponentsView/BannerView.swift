@@ -1,7 +1,7 @@
 import UIKit
 import SnapKit
 
-public final class BannerView: UIView {
+public final class BannerView: UIView, ComponentProtocol {
     
     // MARK: - Properties
     

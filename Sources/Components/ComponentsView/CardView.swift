@@ -1,7 +1,7 @@
 import UIKit
 import SnapKit
 
-public class CardView: UIView {
+public class CardView: UIView, ComponentProtocol {
     
     // MARK: - Properties
     
