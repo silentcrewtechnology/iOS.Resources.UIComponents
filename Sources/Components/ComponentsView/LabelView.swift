@@ -1,10 +1,3 @@
-//
-//  LabelView.swift
-//
-//
-//  Created by Ilnur Mugaev on 16.04.2024.
-//
-
 import UIKit
 import SnapKit
 
@@ -68,6 +61,7 @@ public class LabelView: UIView, ComponentProtocol {
         
         return label
     }()
+    private var container = UIView()
     
     private lazy var longPressGesture = UILongPressGestureRecognizer()
     private var viewProperties: ViewProperties = .init()
@@ -75,19 +69,17 @@ public class LabelView: UIView, ComponentProtocol {
     // MARK: - Public methods
     
     public func update(with viewProperties: ViewProperties) {
-        DispatchQueue.main.async {
-            self.viewProperties = viewProperties
-            
-            self.setupView(size: viewProperties.size)
-            self.updateLabel(with: viewProperties.text)
-            self.setupAccessibilityIds(with: viewProperties.accessibilityIds)
-            
-            if let longPressGestureRecognizer = viewProperties.longPressGestureRecognizer {
-                self.addGestureRecognizer(longPressGestureRecognizer)
-                self.longPressGesture = longPressGestureRecognizer
-            } else {
-                self.removeGestureRecognizer(self.longPressGesture)
-            }
+        self.viewProperties = viewProperties
+        
+        self.setupView(size: viewProperties.size)
+        self.updateLabel(with: viewProperties.text)
+        self.setupAccessibilityIds(with: viewProperties.accessibilityIds)
+        
+        if let longPressGestureRecognizer = viewProperties.longPressGestureRecognizer {
+            self.addGestureRecognizer(longPressGestureRecognizer)
+            self.longPressGesture = longPressGestureRecognizer
+        } else {
+            self.removeGestureRecognizer(self.longPressGesture)
         }
     }
     
@@ -95,8 +87,11 @@ public class LabelView: UIView, ComponentProtocol {
     
     private func setupView(size: ViewProperties.Size) {
         removeConstraintsAndSubviews()
-        
-        addSubview(textLabel)
+        addSubview(container)
+        container.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        container.addSubview(textLabel)
         textLabel.snp.makeConstraints {
             $0.height.greaterThanOrEqualTo(size.lineHeight)
             $0.edges.equalToSuperview().inset(size.inset)
