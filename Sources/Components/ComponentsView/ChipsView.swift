@@ -124,7 +124,7 @@ public class ChipsView: PressableView, ComponentProtocol {
         self.setCornerRadius(with: viewProperties)
         self.updateConstraints(with: viewProperties)
         self.updateStack(with: viewProperties)
-        self.textLabel.tintColor = viewProperties.textColor
+        self.textLabel.textColor = viewProperties.textColor
         self.textLabel.attributedText = viewProperties.text
         self.isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
     }

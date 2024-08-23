@@ -22,6 +22,23 @@ public final class DividerView: UIView, ComponentProtocol {
         }
     }
     
+    private var container = UIView()
+    
+    private enum ConstraintType: Int {
+        case top
+        case leading
+        case trailing
+        case bottom
+        case topGreaterOrEqual
+        case leadingGreaterOrEqual
+        case trailingLessOrEqual
+        case bottomLessOrEqual
+        case width
+        case height
+    }
+    
+    public var containerConstraints: [Constraint] = []
+    
     public override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
@@ -29,42 +46,61 @@ public final class DividerView: UIView, ComponentProtocol {
     
     required init?(coder: NSCoder) { fatalError() }
     
-    private var horizontalConstraint: Constraint?
-    private var verticalConstraint: Constraint?
-    
     private func setupView() {
-        snp.makeConstraints {
-            self.horizontalConstraint = $0.width.equalTo(0).constraint
-            self.verticalConstraint = $0.height.equalTo(0).constraint
+        addSubview(container)
+        container.snp.makeConstraints {
+            $0.center.equalToSuperview()
+            containerConstraints.append(contentsOf: [
+                $0.top.equalToSuperview().constraint,
+                $0.leading.equalToSuperview().constraint,
+                $0.trailing.equalToSuperview().constraint,
+                $0.bottom.equalToSuperview().constraint,
+                $0.top.greaterThanOrEqualToSuperview().constraint,
+                $0.leading.greaterThanOrEqualToSuperview().constraint,
+                $0.trailing.lessThanOrEqualToSuperview().constraint,
+                $0.bottom.lessThanOrEqualToSuperview().constraint,
+                $0.width.equalTo(0).priority(.required).constraint,
+                $0.height.equalTo(0).priority(.required).constraint
+            ])
         }
-        horizontalConstraint?.deactivate()
-        verticalConstraint?.deactivate()
+        deactivateAllConstraints()
+    }
+    
+    private func deactivateAllConstraints() {
+        containerConstraints.forEach { $0.deactivate() }
     }
     
     private var viewProperties: ViewProperties = .init()
     
     public func update(with viewProperties: ViewProperties) {
-        updateSize(size: viewProperties.size)
-        backgroundColor = viewProperties.backgroundColor
         self.viewProperties = viewProperties
+        updateSize(size: viewProperties.size)
+        container.backgroundColor = viewProperties.backgroundColor
     }
     
     private func updateSize(size: ViewProperties.Size) {
-        guard self.viewProperties.size != size else { return }
-        horizontalConstraint?.deactivate()
-        verticalConstraint?.deactivate()
+        deactivateAllConstraints()
+        
         switch size {
         case .width(let width):
-            horizontalConstraint?.update(offset: width)
-            horizontalConstraint?.activate()
+            activateConstraints(for: [.width, .top, .bottom, .leadingGreaterOrEqual, .trailingLessOrEqual], offset: width)
         case .height(let height):
-            verticalConstraint?.update(offset: height)
-            verticalConstraint?.activate()
+            activateConstraints(for: [.height, .leading, .trailing, .topGreaterOrEqual, .bottomLessOrEqual], offset: height)
         case .size(let size):
-            horizontalConstraint?.update(offset: size.width)
-            verticalConstraint?.update(offset: size.height)
-            horizontalConstraint?.activate()
-            verticalConstraint?.activate()
+            containerConstraints[ConstraintType.width.rawValue].update(offset: size.width).activate()
+            containerConstraints[ConstraintType.height.rawValue].update(offset: size.height).activate()
+        }
+    }
+    
+    private func activateConstraints(for types: [ConstraintType], offset: CGFloat) {
+        types.forEach { type in
+            containerConstraints[type.rawValue].activate()
+        }
+        if types.contains(.width) {
+            containerConstraints[ConstraintType.width.rawValue].update(offset: offset)
+        }
+        if types.contains(.height) {
+            containerConstraints[ConstraintType.height.rawValue].update(offset: offset)
         }
     }
 }
