@@ -73,14 +73,11 @@ public class InputView: UIView, ComponentProtocol {
     // MARK: - Public methods
     
     public func update(with viewProperties: ViewProperties) {
-        DispatchQueue.main.async {
-            self.viewProperties = viewProperties
-            
-            self.setupView(viewProperties: viewProperties)
-            self.updateLabelView(with: viewProperties.labelViewProperties)
-            self.updateTextField(with: viewProperties)
-            self.hintView.update(with: viewProperties.hintViewProperties)
-        }
+        self.viewProperties = viewProperties
+        self.setupView(viewProperties: viewProperties)
+        self.updateLabelView(with: viewProperties.labelViewProperties)
+        self.updateTextField(with: viewProperties)
+        self.hintView.update(with: viewProperties.hintViewProperties)
     }
     
     // MARK: - Private methods
