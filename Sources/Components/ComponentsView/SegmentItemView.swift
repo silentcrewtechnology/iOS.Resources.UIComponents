@@ -1,6 +1,5 @@
 import UIKit
 import SnapKit
-import Extensions
 
 public class SegmentItemView: PressableView, ComponentProtocol {
     
@@ -52,7 +51,7 @@ public class SegmentItemView: PressableView, ComponentProtocol {
         public init(
             backgroundColor: UIColor? = nil,
             cornerRadius: CGFloat = 0,
-            text: NSMutableAttributedString = "".attributed,
+            text: NSMutableAttributedString = .init(string: ""),
             textColor: UIColor = .clear,
             textAlignment: NSTextAlignment = .center,
             margins: Margins = .init(),
