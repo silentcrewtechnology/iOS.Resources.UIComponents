@@ -11,7 +11,7 @@ public class NavigationBar: UINavigationController, ComponentProtocol {
     
     // MARK: - Properties
     
-    public struct ViewProperties {
+    public struct ViewProperties: Equatable {
         public var leftBarButtonItems: [UIBarButtonItem]?
         public var rightBarButtonItems: [UIBarButtonItem]?
         public var titleView: UIView?
@@ -51,6 +51,24 @@ public class NavigationBar: UINavigationController, ComponentProtocol {
             self.searchController = searchController
             self.hidesSearchBarWhenScrolling = hidesSearchBarWhenScrolling
             self.isNavigationBarHidden = isNavigationBarHidden
+        }
+        
+        public static func == (
+            lhs: NavigationBar.ViewProperties,
+            rhs: NavigationBar.ViewProperties
+        ) -> Bool {
+            return lhs.leftBarButtonItems == rhs.leftBarButtonItems
+                && lhs.rightBarButtonItems == rhs.rightBarButtonItems
+                && lhs.titleView == rhs.titleView
+                && lhs.title == rhs.title
+                && lhs.largeTitleDisplayMode == rhs.largeTitleDisplayMode
+                && lhs.prefersLargeTitles == rhs.prefersLargeTitles
+                && lhs.standartAppearance == rhs.standartAppearance
+                && lhs.compactAppearance == rhs.compactAppearance
+                && lhs.scrollEdgeAppearance == rhs.scrollEdgeAppearance
+                && lhs.searchController == rhs.searchController
+                && lhs.hidesSearchBarWhenScrolling == rhs.hidesSearchBarWhenScrolling
+                && lhs.isNavigationBarHidden == rhs.isNavigationBarHidden
         }
     }
     
