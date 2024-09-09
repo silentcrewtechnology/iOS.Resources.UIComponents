@@ -5,11 +5,14 @@ public final class InputPinView: UIView, ComponentProtocol {
     
     public struct ViewProperties {
         public var items: [UIView]
+        public var spacing: CGFloat
         
         public init(
-            items: [UIView] = []
+            items: [UIView] = [],
+            spacing: CGFloat = 0
         ) {
             self.items = items
+            self.spacing = spacing
         }
     }
     
@@ -18,7 +21,6 @@ public final class InputPinView: UIView, ComponentProtocol {
     private let hStack: UIStackView = {
         let stack = UIStackView()
         stack.axis = .horizontal
-        stack.spacing = 24
         return stack
     }()
     
@@ -39,6 +41,7 @@ public final class InputPinView: UIView, ComponentProtocol {
     }
     
     public func update(with viewProperties: ViewProperties) {
+        hStack.spacing = viewProperties.spacing
         updateSubviews(with: viewProperties)
         self.viewProperties = viewProperties
     }
