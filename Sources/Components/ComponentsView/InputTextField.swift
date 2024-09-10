@@ -10,6 +10,7 @@ public class InputTextField: UITextField, ComponentProtocol {
         public var delegateAssigningClosure: (UITextField) -> Void
         public var autocapitalizationType: UITextAutocapitalizationType
         public var keyboardType: UIKeyboardType
+        public var isSecureTextEntry: Bool
         
         public init(
             text: NSMutableAttributedString = .init(string: ""),
@@ -17,7 +18,8 @@ public class InputTextField: UITextField, ComponentProtocol {
             cursorColor: UIColor = .black,
             delegateAssigningClosure: @escaping (UITextField) -> Void = { _ in },
             autocapitalizationType: UITextAutocapitalizationType = .none,
-            keyboardType: UIKeyboardType = .default
+            keyboardType: UIKeyboardType = .default,
+            isSecureTextEntry: Bool = false
         ) {
             self.text = text
             self.placeholder = placeholder
@@ -25,6 +27,7 @@ public class InputTextField: UITextField, ComponentProtocol {
             self.autocapitalizationType = autocapitalizationType
             self.keyboardType = keyboardType
             self.cursorColor = cursorColor
+            self.isSecureTextEntry = isSecureTextEntry
         }
     }
     
@@ -39,6 +42,7 @@ public class InputTextField: UITextField, ComponentProtocol {
         attributedPlaceholder = viewProperties.placeholder
         tintColor = viewProperties.cursorColor
         viewProperties.delegateAssigningClosure(self)
+        isSecureTextEntry = viewProperties.isSecureTextEntry
         self.viewProperties = viewProperties
     }
     
