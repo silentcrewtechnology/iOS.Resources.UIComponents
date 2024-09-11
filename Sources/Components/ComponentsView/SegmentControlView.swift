@@ -1,5 +1,6 @@
 import UIKit
 import SnapKit
+import AccessibilityIds
 
 public class SegmentControlView: UIView, ComponentProtocol {
     
@@ -9,6 +10,7 @@ public class SegmentControlView: UIView, ComponentProtocol {
         public var selectedSegmentIndex: Int
         public var cornerRadius: CGFloat
         public var margins: Margins
+        public let accessibilityId: String?
         
         public struct Margins {
             public var top: CGFloat
@@ -37,13 +39,15 @@ public class SegmentControlView: UIView, ComponentProtocol {
             itemViews: [SegmentItemView] = [],
             selectedSegmentIndex: Int = 0,
             cornerRadius: CGFloat = .zero,
-            margins: Margins = .init()
+            margins: Margins = .init(),
+            accessibilityId: String? = nil
         ) {
             self.backgroundColor = backgroundColor
             self.itemViews = itemViews
             self.selectedSegmentIndex = selectedSegmentIndex
             self.cornerRadius = cornerRadius
             self.margins = margins
+            self.accessibilityId = accessibilityId
         }
     }
     
@@ -78,6 +82,7 @@ public class SegmentControlView: UIView, ComponentProtocol {
         setBackgroundColor(with: viewProperties)
         setCornerRadius(with: viewProperties)
         createSegments(using: viewProperties)
+        setupAccessibilityId(with: viewProperties)
     }
 }
 
@@ -100,8 +105,14 @@ extension SegmentControlView {
     
     private func createSegments(using viewProperties: ViewProperties) {
         for itemView in viewProperties.itemViews {
+            itemView.isAccessibilityElement = true
             segmentStack.addArrangedSubview(itemView)
         }
+    }
+    
+    private func setupAccessibilityId(with viewProperties: ViewProperties) {
+        isAccessibilityElement = true
+        accessibilityIdentifier = viewProperties.accessibilityId
     }
 }
 
@@ -116,6 +127,8 @@ extension SegmentControlView {
     
     private func setupContainer() {
         addSubview(containerView)
+        containerView.isAccessibilityElement = true
+        containerView.accessibilityIdentifier = DesignSystemAccessibilityIDs.SegmentControl.containerView
         containerView.snp.makeConstraints {
             $0.edges.equalToSuperview()
             $0.height.equalTo(0).priority(.required)
@@ -124,6 +137,8 @@ extension SegmentControlView {
     
     private func setupSegmentStack() {
         containerView.addSubview(segmentStack)
+        segmentStack.isAccessibilityElement = true
+        segmentStack.accessibilityIdentifier = DesignSystemAccessibilityIDs.SegmentControl.segmentStack
         segmentStack.snp.makeConstraints {
             $0.top.equalToSuperview().offset(0)
             $0.leading.equalToSuperview().offset(0)

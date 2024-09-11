@@ -1,5 +1,6 @@
 import UIKit
 import SnapKit
+import AccessibilityIds
 
 public class SegmentItemView: PressableView, ComponentProtocol {
     
@@ -16,6 +17,7 @@ public class SegmentItemView: PressableView, ComponentProtocol {
         public var isDividerHidden: Bool
         public var handleTap: (PressableView.State) -> Void
         public var onItemTap: (Bool) -> Void
+        public var accessibilityIds: AccessibilityIds?
         
         public struct Margins {
             public var height: CGFloat
@@ -48,6 +50,19 @@ public class SegmentItemView: PressableView, ComponentProtocol {
             }
         }
         
+        public struct AccessibilityIds {
+            public var id: String
+            public var labelId: String
+            
+            public init(
+                id: String,
+                labelId: String
+            ) {
+                self.id = id
+                self.labelId = labelId
+            }
+        }
+        
         public init(
             backgroundColor: UIColor? = nil,
             cornerRadius: CGFloat = 0,
@@ -58,7 +73,8 @@ public class SegmentItemView: PressableView, ComponentProtocol {
             divider: DividerView.ViewProperties = .init(),
             isDividerHidden: Bool = true,
             handleTap: @escaping (PressableView.State) -> Void = { _ in },
-            onItemTap: @escaping (Bool) -> Void = { _ in }
+            onItemTap: @escaping (Bool) -> Void = { _ in },
+            accessibilityIds: AccessibilityIds? = nil
         ) {
             self.backgroundColor = backgroundColor
             self.cornerRadius = cornerRadius
@@ -70,6 +86,7 @@ public class SegmentItemView: PressableView, ComponentProtocol {
             self.isDividerHidden = isDividerHidden
             self.handleTap = handleTap
             self.onItemTap = onItemTap
+            self.accessibilityIds = accessibilityIds
         }
     }
     
@@ -112,6 +129,7 @@ public class SegmentItemView: PressableView, ComponentProtocol {
         updatedividerView(with: viewProperties)
         setBackgroundColor(with: viewProperties)
         setCornerRadius(with: viewProperties)
+        setupAccessibilityIds(with: viewProperties)
     }
 }
 
@@ -141,6 +159,15 @@ extension SegmentItemView {
     
     private func setBackgroundColor(with viewProperties: ViewProperties) {
         backgroundColor = viewProperties.backgroundColor
+    }
+    
+    private func setupAccessibilityIds(with viewProperties: ViewProperties) {
+        isAccessibilityElement = true
+        accessibilityIdentifier = viewProperties.accessibilityIds?.id
+        containerView.isAccessibilityElement = true
+        containerView.accessibilityIdentifier = DesignSystemAccessibilityIDs.SegmentItemView.containerView
+        titleLabel.isAccessibilityElement = true
+        titleLabel.accessibilityIdentifier = viewProperties.accessibilityIds?.labelId
     }
 }
 
@@ -180,11 +207,9 @@ extension SegmentItemView {
     }
 }
 
-
 // MARK: Update Constraints
 
 extension SegmentItemView {
-    
     private func updateConstraints(with viewProperties: ViewProperties) {
         updateContainer(with: viewProperties)
         updateTitleLabel(with: viewProperties)
