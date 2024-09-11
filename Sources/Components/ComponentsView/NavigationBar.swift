@@ -24,6 +24,7 @@ public class NavigationBar: UINavigationController, ComponentProtocol {
         public var searchController: UISearchController?
         public var hidesSearchBarWhenScrolling: Bool
         public var isNavigationBarHidden: Bool
+        public var accessibilityId: String?
         
         public init(
             leftBarButtonItems: [UIBarButtonItem]? = nil,
@@ -37,7 +38,8 @@ public class NavigationBar: UINavigationController, ComponentProtocol {
             scrollEdgeAppearance: UINavigationBarAppearance? = nil,
             searchController: UISearchController? = nil,
             hidesSearchBarWhenScrolling: Bool = true,
-            isNavigationBarHidden: Bool = false
+            isNavigationBarHidden: Bool = false,
+            accessibilityId: String? = nil
         ) {
             self.leftBarButtonItems = leftBarButtonItems
             self.rightBarButtonItems = rightBarButtonItems
@@ -51,6 +53,7 @@ public class NavigationBar: UINavigationController, ComponentProtocol {
             self.searchController = searchController
             self.hidesSearchBarWhenScrolling = hidesSearchBarWhenScrolling
             self.isNavigationBarHidden = isNavigationBarHidden
+            self.accessibilityId = accessibilityId
         }
         
         public static func == (
@@ -84,6 +87,7 @@ public class NavigationBar: UINavigationController, ComponentProtocol {
         isNavigationBarHidden = viewProperties.isNavigationBarHidden
         updateNavigationBar(with: viewProperties)
         updateNavigationItem(with: viewProperties)
+        setupAccessibilityId(with: viewProperties)
     }
     
     // MARK: - Private methods
@@ -103,5 +107,9 @@ public class NavigationBar: UINavigationController, ComponentProtocol {
         visibleViewController?.navigationItem.largeTitleDisplayMode = viewProperties.largeTitleDisplayMode
         visibleViewController?.navigationItem.searchController = viewProperties.searchController
         visibleViewController?.navigationItem.hidesSearchBarWhenScrolling = viewProperties.hidesSearchBarWhenScrolling
+    }
+    
+    private func setupAccessibilityId(with viewProperties: ViewProperties) {
+        view.accessibilityIdentifier = viewProperties.accessibilityId
     }
 }
