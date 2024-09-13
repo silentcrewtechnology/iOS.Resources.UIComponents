@@ -1,5 +1,6 @@
 import UIKit
 import SnapKit
+import AccessibilityIds
 
 public class InputView: UIView, ComponentProtocol {
     
@@ -20,6 +21,26 @@ public class InputView: UIView, ComponentProtocol {
         public var isEnabled: Bool
         public var stackViewInsets: UIEdgeInsets
         public var stackViewSpacing: CGFloat
+        public var accessibilityIds: AccessibilityIds?
+        
+        public struct AccessibilityIds {
+            public var id: String
+            public var labelId: String?
+            public var hintId: String
+            public var textFieldId: String
+            
+            public init(
+                id: String,
+                labelId: String? = nil,
+                hintId: String,
+                textFieldId: String
+            ) {
+                self.id = id
+                self.labelId = labelId
+                self.hintId = hintId
+                self.textFieldId = textFieldId
+            }
+        }
        
         public init(
             labelViewProperties: LabelView.ViewProperties? = nil,
@@ -35,7 +56,8 @@ public class InputView: UIView, ComponentProtocol {
             rightView: UIView = .init(),
             isEnabled: Bool = true,
             stackViewInsets: UIEdgeInsets = .zero,
-            stackViewSpacing: CGFloat = .zero
+            stackViewSpacing: CGFloat = .zero,
+            accessibilityIds: AccessibilityIds? = nil
         ) {
             self.labelViewProperties = labelViewProperties
             self.hintViewProperties = hintViewProperties
@@ -51,6 +73,7 @@ public class InputView: UIView, ComponentProtocol {
             self.isEnabled = isEnabled
             self.stackViewInsets = stackViewInsets
             self.stackViewSpacing = stackViewSpacing
+            self.accessibilityIds = accessibilityIds
         }
     }
     
@@ -78,6 +101,7 @@ public class InputView: UIView, ComponentProtocol {
         self.updateLabelView(with: viewProperties.labelViewProperties)
         self.updateTextField(with: viewProperties)
         self.hintView.update(with: viewProperties.hintViewProperties)
+        self.setupAccessibilityIds(with: viewProperties)
     }
     
     // MARK: - Private methods
@@ -149,5 +173,21 @@ public class InputView: UIView, ComponentProtocol {
         guard textFieldContainer.isUserInteractionEnabled else { return }
         
         textField.becomeFirstResponder()
+    }
+    
+    private func setupAccessibilityIds(with viewProperties: ViewProperties) {
+        isAccessibilityElement = true
+        accessibilityIdentifier = viewProperties.accessibilityIds?.id
+        verticalStack.isAccessibilityElement = true
+        verticalStack.accessibilityIdentifier = DesignSystemAccessibilityIDs.InputView.verticalStack
+        textFieldContainer.isAccessibilityElement = true
+        textFieldContainer.accessibilityIdentifier = DesignSystemAccessibilityIDs.InputView.textFieldContainer
+        self.viewProperties.labelViewProperties?.accessibilityIds?.id = viewProperties.accessibilityIds?.labelId ?? ""
+        labelView.isAccessibilityElement = true
+        labelView.accessibilityIdentifier = viewProperties.accessibilityIds?.labelId
+        hintView.isAccessibilityElement = true
+        hintView.accessibilityIdentifier = viewProperties.accessibilityIds?.hintId
+        textField.isAccessibilityElement = true
+        textField.accessibilityIdentifier = viewProperties.accessibilityIds?.textFieldId
     }
 }

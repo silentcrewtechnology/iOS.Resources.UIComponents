@@ -15,6 +15,7 @@ public final class ButtonView: UIButton, ComponentProtocol {
         public var onTap: () -> Void
         public var cornerRadius: CGFloat
         public var margins: Margins
+        public var accessibilityIds: AccessibilityIds?
         
         public init(
             isEnabled: Bool = true,
@@ -25,7 +26,8 @@ public final class ButtonView: UIButton, ComponentProtocol {
             onHighlighted: @escaping (Bool) -> Void = { _ in },
             onTap: @escaping () -> Void = { },
             cornerRadius: CGFloat = 0,
-            margins: Margins = .init()
+            margins: Margins = .init(),
+            accessibilityIds: AccessibilityIds? = nil
         ) {
             self.isEnabled = isEnabled
             self.attributedText = attributedText
@@ -36,6 +38,20 @@ public final class ButtonView: UIButton, ComponentProtocol {
             self.onTap = onTap
             self.cornerRadius = cornerRadius
             self.margins = margins
+            self.accessibilityIds = accessibilityIds
+        }
+        
+        public struct AccessibilityIds {
+            public var id: String
+            public var labelId: String
+            
+            public init(
+                id: String,
+                labelId: String
+            ) {
+                self.id = id
+                self.labelId = labelId
+            }
         }
         
         public struct Margins {
@@ -104,6 +120,7 @@ public final class ButtonView: UIButton, ComponentProtocol {
             self.updateConstraints(with: viewProperties)
             self.updateActivityIndicator(with: viewProperties)
         }
+        setupAccessibilityIds(with: viewProperties)
     }
     
     // MARK: - Private Methods
@@ -187,5 +204,12 @@ public final class ButtonView: UIButton, ComponentProtocol {
     @objc
     private func didTapAction() {
         self.viewProperties.onTap()
+    }
+    
+    private func setupAccessibilityIds(with viewProperties: ViewProperties) {
+        isAccessibilityElement = true
+        accessibilityIdentifier = viewProperties.accessibilityIds?.id
+        textLabel.isAccessibilityElement = true
+        textLabel.accessibilityIdentifier = viewProperties.accessibilityIds?.labelId
     }
 }
