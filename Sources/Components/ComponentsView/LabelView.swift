@@ -1,5 +1,6 @@
 import UIKit
 import SnapKit
+import AccessibilityIds
 
 public class LabelView: UIView, ComponentProtocol {
     
@@ -114,5 +115,7 @@ public class LabelView: UIView, ComponentProtocol {
         isAccessibilityElement = true
         accessibilityIdentifier = accessibilityIds?.id
         textLabel.accessibilityIdentifier = accessibilityIds?.labelViewId
+        container.isAccessibilityElement = true
+        container.accessibilityIdentifier = DesignSystemAccessibilityIDs.LabelView.container
     }
 }
