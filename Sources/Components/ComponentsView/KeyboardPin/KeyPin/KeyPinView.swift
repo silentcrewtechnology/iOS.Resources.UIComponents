@@ -58,7 +58,7 @@ public final class KeyPinView: PressableView, ComponentProtocol {
         updateBorder(with: viewProperties)
         updateSize(with: viewProperties)
         digitLabel.attributedText = viewProperties.digit
-        UIView.transition(with: self, duration: 0.2, options: .transitionCrossDissolve) { [self] in
+        UIView.transition(with: self, duration: 0.2, options: [.transitionCrossDissolve, .allowUserInteraction]) { [self] in
             backgroundColor = viewProperties.backgroundColor
         }
         self.viewProperties = viewProperties
