@@ -1,18 +1,22 @@
 import UIKit
 import SnapKit
+import AccessibilityIds
 
 public final class InputOTPView: UIView, ComponentProtocol {
     
     public struct ViewProperties {
         public var items: [InputOTPItemView.ViewProperties]
         public var hint: OldHintView.ViewProperties
+        public let accessibilityId: String?
         
         public init(
             items: [InputOTPItemView.ViewProperties] = [],
-            hint: OldHintView.ViewProperties = .init()
+            hint: OldHintView.ViewProperties = .init(),
+            accessibilityId: String? = nil
         ) {
             self.items = items
             self.hint = hint
+            self.accessibilityId = accessibilityId
         }
     }
     
@@ -50,10 +54,11 @@ public final class InputOTPView: UIView, ComponentProtocol {
     }
     
     public func update(with viewProperties: ViewProperties) {
+        self.viewProperties = viewProperties
         createItems(count: viewProperties.items.count)
         updateItems(items: viewProperties.items)
         hintView.update(with: viewProperties.hint)
-        self.viewProperties = viewProperties
+        setupAccessibilityId(with: viewProperties)
     }
     
     private func createItems(count: Int) {
@@ -72,5 +77,12 @@ public final class InputOTPView: UIView, ComponentProtocol {
         for (itemView, item) in zip(itemViews, items) {
             itemView.update(with: item)
         }
+    }
+    
+    private func setupAccessibilityId(with viewProperties: ViewProperties) {
+        isAccessibilityElement = true
+        accessibilityIdentifier = viewProperties.accessibilityId
+        itemsStack.isAccessibilityElement = true
+        itemsStack.accessibilityIdentifier = DesignSystemAccessibilityIDs.InputOTPView.itemsStack
     }
 }

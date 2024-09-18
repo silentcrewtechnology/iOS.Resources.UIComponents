@@ -10,6 +10,20 @@ public class InputOTPItemView: UIView, ComponentProtocol {
         public var text: NSMutableAttributedString
         public var borderColor: UIColor
         public var borderWidth: CGFloat
+        public var accessibilityIds: AccessibilityIds?
+        
+        public struct AccessibilityIds {
+            public var id: String
+            public var labelId: String
+            
+            public init(
+                id: String,
+                labelId: String
+            ) {
+                self.id = id
+                self.labelId = labelId
+            }
+        }
         
         public init(
             backgroundColor: UIColor = .clear,
@@ -17,7 +31,8 @@ public class InputOTPItemView: UIView, ComponentProtocol {
             cornerRadius: CGFloat = 0,
             text: NSMutableAttributedString = .init(string: ""),
             borderColor: UIColor = .clear,
-            borderWidth: CGFloat = 0
+            borderWidth: CGFloat = 0,
+            accessibilityIds: AccessibilityIds? = nil
         ) {
             self.backgroundColor = backgroundColor
             self.size = size
@@ -25,6 +40,7 @@ public class InputOTPItemView: UIView, ComponentProtocol {
             self.text = text
             self.borderColor = borderColor
             self.borderWidth = borderWidth
+            self.accessibilityIds = accessibilityIds
         }
     }
     
@@ -54,6 +70,7 @@ public class InputOTPItemView: UIView, ComponentProtocol {
         updateBorder(with: viewProperties)
         updateSize(size: viewProperties.size)
         self.viewProperties = viewProperties
+        setupAccessibilityIds(with: viewProperties)
     }
     
     public func updateBackground(with viewProperties: ViewProperties) {
@@ -69,5 +86,12 @@ public class InputOTPItemView: UIView, ComponentProtocol {
     private func updateSize(size: CGSize) {
         guard self.viewProperties.size != size else { return }
         snp.updateConstraints { $0.size.equalTo(size) }
+    }
+    
+    private func setupAccessibilityIds(with viewProperties: ViewProperties) {
+        isAccessibilityElement = true
+        accessibilityIdentifier = viewProperties.accessibilityIds?.id
+        titleLabel.isAccessibilityElement = true
+        titleLabel.accessibilityIdentifier = viewProperties.accessibilityIds?.labelId
     }
 }

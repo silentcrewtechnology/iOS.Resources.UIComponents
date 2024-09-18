@@ -1,10 +1,3 @@
-//
-//  TitleView.swift
-//
-//
-//  Created by Ilnur Mugaev on 01.04.2024.
-//
-
 import UIKit
 import SnapKit
 
@@ -16,15 +9,31 @@ public class TitleView: UIView, ComponentProtocol {
         public var title: NSMutableAttributedString
         public var backgroundColor: UIColor
         public var insets: UIEdgeInsets
+        public var accessibilityIds: AccessibilityIds?
+        
+        public struct AccessibilityIds {
+            public var id: String
+            public var labelId: String
+            
+            public init(
+                id: String,
+                labelId: String
+            ) {
+                self.id = id
+                self.labelId = labelId
+            }
+        }
         
         public init(
             title: NSMutableAttributedString = .init(string: ""),
             backgroundColor: UIColor = .clear,
-            insets: UIEdgeInsets = .zero
+            insets: UIEdgeInsets = .zero,
+            accessibilityIds: AccessibilityIds? = nil
         ) {
             self.title = title
             self.backgroundColor = backgroundColor
             self.insets = insets
+            self.accessibilityIds = accessibilityIds
         }
     }
     
@@ -57,6 +66,7 @@ public class TitleView: UIView, ComponentProtocol {
         backgroundColor = viewProperties.backgroundColor
         updateLabel(text: viewProperties.title)
         updateInsets(viewProperties.insets)
+        setupAccessibilityIds(with: viewProperties)
     }
     
     // MARK: - Private methods
@@ -77,5 +87,12 @@ public class TitleView: UIView, ComponentProtocol {
         titleLabel.snp.updateConstraints {
             $0.edges.equalToSuperview().inset(insets)
         }
+    }
+    
+    private func setupAccessibilityIds(with viewProperties: ViewProperties) {
+        isAccessibilityElement = true
+        accessibilityIdentifier = viewProperties.accessibilityIds?.id
+        titleLabel.isAccessibilityElement = true
+        titleLabel.accessibilityIdentifier = viewProperties.accessibilityIds?.labelId
     }
 }
