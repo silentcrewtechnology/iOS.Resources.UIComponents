@@ -1,5 +1,6 @@
 import UIKit
 import SnapKit
+import AccessibilityIds
 
 public final class KeyboardPinView: UIView, ComponentProtocol {
     
@@ -7,15 +8,18 @@ public final class KeyboardPinView: UIView, ComponentProtocol {
         public var keys: [UIView]
         public var bottomLeftView: UIView
         public var bottomRightView: UIView
+        public let accessibilityId: String?
         
         public init(
             keys: [UIView] = [],
             bottomLeftView: UIView = .init(),
-            bottomRightView: UIView = .init()
+            bottomRightView: UIView = .init(),
+            accessibilityId: String? = nil
         ) {
             self.keys = keys
             self.bottomLeftView = bottomLeftView
             self.bottomRightView = bottomRightView
+            self.accessibilityId = accessibilityId
         }
     }
     
@@ -57,6 +61,7 @@ public final class KeyboardPinView: UIView, ComponentProtocol {
     public func update(with viewProperties: ViewProperties) {
         setupSubviews(with: viewProperties)
         self.viewProperties = viewProperties
+        setupAccessibilityIds(with: viewProperties)
     }
     
     private func setupSubviews(with viewProperties: ViewProperties) {
@@ -112,6 +117,8 @@ public final class KeyboardPinView: UIView, ComponentProtocol {
     /// Для равномерного расползания по ширине
     private func wrapper(view: UIView) -> UIView {
         let wrapper = UIView()
+        wrapper.isAccessibilityElement = true
+        wrapper.accessibilityIdentifier = DesignSystemAccessibilityIDs.KeyboardPinView.wrapper
         wrapper.addSubview(view)
         view.snp.makeConstraints {
             $0.leading.greaterThanOrEqualToSuperview()
@@ -119,5 +126,20 @@ public final class KeyboardPinView: UIView, ComponentProtocol {
             $0.trailing.lessThanOrEqualToSuperview()
         }
         return wrapper
+    }
+    
+    private func setupAccessibilityIds(with viewProperties: ViewProperties) {
+        isAccessibilityElement = true
+        accessibilityIdentifier = viewProperties.accessibilityId
+        vStack.isAccessibilityElement = true
+        vStack.accessibilityIdentifier = DesignSystemAccessibilityIDs.KeyboardPinView.vStack
+        firstRowStack.isAccessibilityElement = true
+        firstRowStack.accessibilityIdentifier = DesignSystemAccessibilityIDs.KeyboardPinView.firstRowStack
+        secondRowStack.isAccessibilityElement = true
+        secondRowStack.accessibilityIdentifier = DesignSystemAccessibilityIDs.KeyboardPinView.secondRowStack
+        thirdRowStack.isAccessibilityElement = true
+        thirdRowStack.accessibilityIdentifier = DesignSystemAccessibilityIDs.KeyboardPinView.thirdRowStack
+        fourthRowStack.isAccessibilityElement = true
+        fourthRowStack.accessibilityIdentifier = DesignSystemAccessibilityIDs.KeyboardPinView.fourthRowStack
     }
 }
