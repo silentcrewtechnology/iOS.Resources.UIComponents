@@ -7,15 +7,31 @@ public final class KeyPinBottomRightView: PressableView, ComponentProtocol {
         public var icon: UIImage
         public var isUserInteractionEnabled: Bool
         public var onPressChange: (State) -> Void
+        public var accessibilityIds: AccessibilityIds?
+        
+        public struct AccessibilityIds {
+            public var id: String
+            public var imageViewId: String
+            
+            public init(
+                id: String,
+                imageViewId: String
+            ) {
+                self.id = id
+                self.imageViewId = imageViewId
+            }
+        }
         
         public init(
             icon: UIImage = .init(),
             isUserInteractionEnabled: Bool = true,
-            onPressChange: @escaping (State) -> Void = { _ in }
+            onPressChange: @escaping (State) -> Void = { _ in },
+            accessibilityIds: AccessibilityIds? = nil
         ) {
             self.icon = icon
             self.isUserInteractionEnabled = isUserInteractionEnabled
             self.onPressChange = onPressChange
+            self.accessibilityIds = accessibilityIds
         }
     }
     
@@ -45,9 +61,16 @@ public final class KeyPinBottomRightView: PressableView, ComponentProtocol {
         imageView.image = viewProperties.icon
         isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
         self.viewProperties = viewProperties
+        setupAccessibilityIds(with: viewProperties)
     }
     
     public override func handlePress(state: State) {
         viewProperties.onPressChange(state)
+    }
+    
+    private func setupAccessibilityIds(with viewProperties: ViewProperties) {
+        isAccessibilityElement = true
+        accessibilityIdentifier = viewProperties.accessibilityIds?.id
+        imageView.accessibilityIdentifier = viewProperties.accessibilityIds?.imageViewId
     }
 }

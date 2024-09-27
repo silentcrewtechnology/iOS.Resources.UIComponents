@@ -11,6 +11,7 @@ public final class KeyPinView: PressableView, ComponentProtocol {
         public var borderColor: UIColor
         public var borderWidth: CGFloat
         public var onPressChange: (State) -> Void
+        public let accessibilityId: String?
         
         public init(
             size: CGSize = .zero,
@@ -19,7 +20,8 @@ public final class KeyPinView: PressableView, ComponentProtocol {
             digit: NSMutableAttributedString = .init(string: ""),
             borderColor: UIColor = .clear,
             borderWidth: CGFloat = 0,
-            onPressChange: @escaping (State) -> Void = { _ in }
+            onPressChange: @escaping (State) -> Void = { _ in },
+            accessibilityId: String? = nil
         ) {
             self.size = size
             self.backgroundColor = backgroundColor
@@ -28,6 +30,7 @@ public final class KeyPinView: PressableView, ComponentProtocol {
             self.borderColor = borderColor
             self.borderWidth = borderWidth
             self.onPressChange = onPressChange
+            self.accessibilityId = accessibilityId
         }
     }
     
@@ -62,6 +65,7 @@ public final class KeyPinView: PressableView, ComponentProtocol {
             backgroundColor = viewProperties.backgroundColor
         }
         self.viewProperties = viewProperties
+        setupAccessibilityId(with: viewProperties)
     }
     
     private func updateSize(with viewProperties: ViewProperties) {
@@ -79,5 +83,10 @@ public final class KeyPinView: PressableView, ComponentProtocol {
     
     public override func handlePress(state: State) {
         viewProperties.onPressChange(state)
+    }
+    
+    private func setupAccessibilityId(with viewProperties: ViewProperties) {
+        isAccessibilityElement = true
+        accessibilityIdentifier = viewProperties.accessibilityId
     }
 }

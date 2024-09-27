@@ -7,15 +7,18 @@ public final class InputPinItemView: UIView, ComponentProtocol {
         public var size: CGSize
         public var backgroundColor: UIColor
         public var cornerRadius: CGFloat
+        public let accessibilityId: String?
         
         public init(
             size: CGSize = .zero,
             backgroundColor: UIColor = .clear,
-            cornerRadius: CGFloat = 0
+            cornerRadius: CGFloat = 0,
+            accessibilityId: String? = nil
         ) {
             self.size = size
             self.backgroundColor = backgroundColor
             self.cornerRadius = cornerRadius
+            self.accessibilityId = accessibilityId
         }
     }
     
@@ -38,11 +41,17 @@ public final class InputPinItemView: UIView, ComponentProtocol {
         UIView.transition(with: self, duration: 0.2, options: .transitionCrossDissolve) { [self] in
             backgroundColor = viewProperties.backgroundColor
         }
+        setupAccessibilityId(with: viewProperties)
         self.viewProperties = viewProperties
     }
     
     private func updateSize(with viewProperties: ViewProperties) {
         guard self.viewProperties.size != viewProperties.size else { return }
         snp.updateConstraints { $0.size.equalTo(viewProperties.size) }
+    }
+    
+    private func setupAccessibilityId(with viewProperties: ViewProperties) {
+        isAccessibilityElement = true
+        accessibilityIdentifier = viewProperties.accessibilityId
     }
 }
