@@ -1,7 +1,7 @@
 import UIKit
 import SnapKit
 
-public class SpacerView: UIView, ComponentProtocol {
+public final class SpacerView: UIView, ComponentProtocol {
     
     public struct ViewProperties {
         public var size: CGSize

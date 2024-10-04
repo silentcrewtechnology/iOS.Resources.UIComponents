@@ -1,7 +1,7 @@
 import UIKit
 import SnapKit
 
-public class InputOTPItemView: UIView, ComponentProtocol {
+public final class InputOTPItemView: UIView, ComponentProtocol {
     
     public struct ViewProperties {
         public var backgroundColor: UIColor

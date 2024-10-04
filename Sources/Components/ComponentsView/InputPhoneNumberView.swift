@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-public class InputPhoneNumberView: UIView, ComponentProtocol {
+public final class InputPhoneNumberView: UIView, ComponentProtocol {
     
     public enum Prefix {
         case icon(image: UIImage)

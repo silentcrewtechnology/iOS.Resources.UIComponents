@@ -1,7 +1,7 @@
 import UIKit
 import SnapKit
 
-public class ChipsView: PressableView, ComponentProtocol {
+public final class ChipsView: PressableView, ComponentProtocol {
     
     public struct ViewProperties {
         public var backgroundColor: UIColor

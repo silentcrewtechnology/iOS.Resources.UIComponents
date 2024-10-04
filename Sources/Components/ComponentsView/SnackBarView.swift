@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-public class SnackBarView: UIView, ComponentProtocol {
+public final class SnackBarView: UIView, ComponentProtocol {
     
     // MARK: - Properties
     

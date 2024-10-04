@@ -1,7 +1,7 @@
 import UIKit
 import SnapKit
 
-public class TabItemView: UIView, ComponentProtocol {
+public final class TabItemView: UIView, ComponentProtocol {
     
     public struct ViewProperties {
         public var text: NSMutableAttributedString
