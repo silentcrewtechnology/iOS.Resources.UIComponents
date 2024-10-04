@@ -2,7 +2,7 @@ import UIKit
 import SnapKit
 import AccessibilityIds
 
-public class LabelView: UIView, ComponentProtocol {
+public final class LabelView: UIView, ComponentProtocol {
     
     // MARK: - ViewProperties
     

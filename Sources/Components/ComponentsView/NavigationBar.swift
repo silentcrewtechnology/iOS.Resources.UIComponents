@@ -7,7 +7,7 @@
 
 import UIKit
 
-public class NavigationBar: UINavigationController, ComponentProtocol {
+public final class NavigationBar: UINavigationController, ComponentProtocol {
     
     // MARK: - Properties
     

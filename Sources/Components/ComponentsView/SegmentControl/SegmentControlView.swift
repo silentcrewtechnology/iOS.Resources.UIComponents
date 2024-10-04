@@ -2,7 +2,7 @@ import UIKit
 import SnapKit
 import AccessibilityIds
 
-public class SegmentControlView: UIView, ComponentProtocol {
+public final class SegmentControlView: UIView, ComponentProtocol {
     
     public struct ViewProperties {
         public var backgroundColor: UIColor

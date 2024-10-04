@@ -1,7 +1,7 @@
 import UIKit
 import SnapKit
 
-public class ButtonPay: UIButton, ComponentProtocol {
+public final class ButtonPay: UIButton, ComponentProtocol {
     
     // MARK: - Properties
     

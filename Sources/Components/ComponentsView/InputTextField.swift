@@ -1,7 +1,7 @@
 import UIKit
 import SnapKit
 
-public class InputTextField: UITextField, ComponentProtocol {
+public final class InputTextField: UITextField, ComponentProtocol {
     
     public struct ViewProperties {
         public var text: NSMutableAttributedString

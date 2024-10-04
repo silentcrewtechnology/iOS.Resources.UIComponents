@@ -1,6 +1,7 @@
 import UIKit
 import SnapKit
 
+@available(*, deprecated, message: "Use LoaderView instead")
 public class ActivityIndicatorView: UIView, ComponentProtocol {
     
     public struct ViewProperties {

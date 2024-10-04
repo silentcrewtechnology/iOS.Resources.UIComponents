@@ -1,6 +1,6 @@
 import UIKit
 
-public class SegmentSliderView: UIView, ComponentProtocol {
+public final class SegmentSliderView: UIView, ComponentProtocol {
     
     public struct ViewProperties {
         public var backgroundColor: UIColor

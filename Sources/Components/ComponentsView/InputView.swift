@@ -2,7 +2,7 @@ import UIKit
 import SnapKit
 import AccessibilityIds
 
-public class InputView: UIView, ComponentProtocol {
+public final class InputView: UIView, ComponentProtocol {
     
     // MARK: - Properties
     

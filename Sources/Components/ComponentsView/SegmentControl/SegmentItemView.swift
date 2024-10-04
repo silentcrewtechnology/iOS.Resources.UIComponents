@@ -2,7 +2,7 @@ import UIKit
 import SnapKit
 import AccessibilityIds
 
-public class SegmentItemView: PressableView, ComponentProtocol {
+public final class SegmentItemView: PressableView, ComponentProtocol {
     
     // MARK: - ViewProperties
     

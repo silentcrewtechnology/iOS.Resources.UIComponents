@@ -1,7 +1,7 @@
 import UIKit
 import SnapKit
 
-public class TabsView: UIView, ComponentProtocol {
+public final class TabsView: UIView, ComponentProtocol {
     
     public struct ViewProperties {
         public var height: CGFloat

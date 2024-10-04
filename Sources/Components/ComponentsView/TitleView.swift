@@ -1,7 +1,7 @@
 import UIKit
 import SnapKit
 
-public class TitleView: UIView, ComponentProtocol {
+public final class TitleView: UIView, ComponentProtocol {
     
     // MARK: - ViewProperties
     
