@@ -11,6 +11,7 @@ public final class InputTextField: UITextField, ComponentProtocol {
         public var autocapitalizationType: UITextAutocapitalizationType
         public var keyboardType: UIKeyboardType
         public var isSecureTextEntry: Bool
+        public var accessibilityId: String?
         
         public init(
             text: NSMutableAttributedString = .init(string: ""),
@@ -19,7 +20,8 @@ public final class InputTextField: UITextField, ComponentProtocol {
             delegateAssigningClosure: @escaping (UITextField) -> Void = { _ in },
             autocapitalizationType: UITextAutocapitalizationType = .none,
             keyboardType: UIKeyboardType = .default,
-            isSecureTextEntry: Bool = false
+            isSecureTextEntry: Bool = false,
+            accessibilityId: String? = nil
         ) {
             self.text = text
             self.placeholder = placeholder
@@ -28,6 +30,7 @@ public final class InputTextField: UITextField, ComponentProtocol {
             self.keyboardType = keyboardType
             self.cursorColor = cursorColor
             self.isSecureTextEntry = isSecureTextEntry
+            self.accessibilityId = accessibilityId
         }
     }
     
@@ -43,6 +46,7 @@ public final class InputTextField: UITextField, ComponentProtocol {
         tintColor = viewProperties.cursorColor
         viewProperties.delegateAssigningClosure(self)
         isSecureTextEntry = viewProperties.isSecureTextEntry
+        setupAccessibilityId(with: viewProperties)
         self.viewProperties = viewProperties
     }
     
@@ -56,5 +60,11 @@ public final class InputTextField: UITextField, ComponentProtocol {
         font = attributes[.font] as? UIFont
         textColor = attributes[.foregroundColor] as? UIColor
         text = attributedText.string
+    }
+    
+    private func setupAccessibilityId(with viewProperties: ViewProperties) {
+        isAccessibilityElement = true
+        accessibilityIdentifier = viewProperties.accessibilityId
+        accessibilityLabel = viewProperties.accessibilityId
     }
 }

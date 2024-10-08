@@ -26,10 +26,13 @@ public final class LabelView: UIView, ComponentProtocol {
         }
         
         public struct AccessibilityIds {
-            public var id: String
+            public var id: String?
             public var labelViewId: String
             
-            public init(id: String, labelViewId: String) {
+            public init(
+                id: String? = nil,
+                labelViewId: String
+            ) {
                 self.id = id
                 self.labelViewId = labelViewId
             }

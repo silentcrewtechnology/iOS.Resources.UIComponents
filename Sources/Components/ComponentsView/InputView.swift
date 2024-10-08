@@ -25,20 +25,14 @@ public final class InputView: UIView, ComponentProtocol {
         
         public struct AccessibilityIds {
             public var id: String
-            public var labelId: String?
             public var hintId: String
-            public var textFieldId: String
             
             public init(
                 id: String,
-                labelId: String? = nil,
-                hintId: String,
-                textFieldId: String
+                hintId: String
             ) {
                 self.id = id
-                self.labelId = labelId
                 self.hintId = hintId
-                self.textFieldId = textFieldId
             }
         }
        
@@ -178,16 +172,12 @@ public final class InputView: UIView, ComponentProtocol {
     private func setupAccessibilityIds(with viewProperties: ViewProperties) {
         isAccessibilityElement = true
         accessibilityIdentifier = viewProperties.accessibilityIds?.id
+        accessibilityLabel = viewProperties.accessibilityIds?.id
         verticalStack.isAccessibilityElement = true
         verticalStack.accessibilityIdentifier = DesignSystemAccessibilityIDs.InputView.verticalStack
         textFieldContainer.isAccessibilityElement = true
         textFieldContainer.accessibilityIdentifier = DesignSystemAccessibilityIDs.InputView.textFieldContainer
-        self.viewProperties.labelViewProperties?.accessibilityIds?.id = viewProperties.accessibilityIds?.labelId ?? ""
-        labelView.isAccessibilityElement = true
-        labelView.accessibilityIdentifier = viewProperties.accessibilityIds?.labelId
         hintView.isAccessibilityElement = true
         hintView.accessibilityIdentifier = viewProperties.accessibilityIds?.hintId
-        textField.isAccessibilityElement = true
-        textField.accessibilityIdentifier = viewProperties.accessibilityIds?.textFieldId
     }
 }
