@@ -174,6 +174,14 @@ public final class LoaderView: UIView, ComponentProtocol {
         startAnimating(with: viewProperties)
     }
     
+    public func stopAnimating() {
+        containerView.layer.transform = CATransform3DIdentity
+        containerView.layer.removeAllAnimations()
+        
+        circleShapeLayer.transform = CATransform3DIdentity
+        circleShapeLayer.removeAllAnimations()
+    }
+    
     // MARK: - Private methods
     
     private func setupView(with viewProperties: ViewProperties) {
@@ -189,8 +197,6 @@ public final class LoaderView: UIView, ComponentProtocol {
     }
     
     private func setupCircleLayer(with viewProperties: ViewProperties) {
-        // TODO: - Проверить центр
-        let center = CGPoint(x: bounds.width * 0.5, y: bounds.height * 0.5)
         circleShapeLayer.path = UIBezierPath(
             arcCenter: center,
             radius: center.x,
@@ -295,10 +301,8 @@ public final class LoaderView: UIView, ComponentProtocol {
 
     private func removeSublayersAndConstraints() {
         containerView.snp.removeConstraints()
-        containerView.layer.transform = CATransform3DIdentity
-        containerView.layer.sublayers?.forEach { layer in
-            layer.transform = CATransform3DIdentity
-            layer.removeFromSuperlayer()
-        }
+        containerView.removeFromSuperview()
+        
+        circleShapeLayer.transform = CATransform3DIdentity
     }
 }
