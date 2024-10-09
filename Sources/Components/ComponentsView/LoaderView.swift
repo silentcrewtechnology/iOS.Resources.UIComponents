@@ -16,9 +16,10 @@ public final class LoaderView: UIView, ComponentProtocol {
         public var frame: CGRect
         public var backgroundColor: UIColor
         public var containerInsets: UIEdgeInsets
+        public var isHidden: Bool
         public var circleLayer: CircleLayer
         public var rotatingAnimation: RotatingAnimation
-        public var strokeAnimation: StrokeAnimation // УКАЗАТЬ
+        public var strokeAnimation: StrokeAnimation
         
         public struct CircleLayer {
             public var strokeColor: UIColor
@@ -144,6 +145,7 @@ public final class LoaderView: UIView, ComponentProtocol {
             frame: CGRect = .zero,
             backgroundColor: UIColor = .clear,
             containerInsets: UIEdgeInsets = .zero,
+            isHidden: Bool = false,
             circleLayer: CircleLayer = .init(),
             rotatingAnimation: RotatingAnimation = .init(),
             strokeAnimation: StrokeAnimation = .init()
@@ -151,6 +153,7 @@ public final class LoaderView: UIView, ComponentProtocol {
             self.frame = frame
             self.backgroundColor = backgroundColor
             self.containerInsets = containerInsets
+            self.isHidden = isHidden
             self.circleLayer = circleLayer
             self.rotatingAnimation = rotatingAnimation
             self.strokeAnimation = strokeAnimation
@@ -168,18 +171,15 @@ public final class LoaderView: UIView, ComponentProtocol {
     public func update(with viewProperties: ViewProperties) {
         self.viewProperties = viewProperties
         
-        removeSublayersAndConstraints()
-        setupView(with: viewProperties)
-        setupCircleLayer(with: viewProperties)
-        startAnimating(with: viewProperties)
-    }
-    
-    public func stopAnimating() {
-        containerView.layer.transform = CATransform3DIdentity
-        containerView.layer.removeAllAnimations()
-        
-        circleShapeLayer.transform = CATransform3DIdentity
-        circleShapeLayer.removeAllAnimations()
+        isHidden = viewProperties.isHidden
+        if viewProperties.isHidden {
+            stopAnimating()
+        } else {
+            removeSublayersAndConstraints()
+            setupView(with: viewProperties)
+            setupCircleLayer(with: viewProperties)
+            startAnimating(with: viewProperties)
+        }
     }
     
     // MARK: - Private methods
@@ -297,6 +297,14 @@ public final class LoaderView: UIView, ComponentProtocol {
         animationGroup.isRemovedOnCompletion = viewProperties.strokeAnimation.pathRemovedOnCompletion
         
         return animationGroup
+    }
+    
+    private func stopAnimating() {
+        containerView.layer.transform = CATransform3DIdentity
+        containerView.layer.removeAllAnimations()
+        
+        circleShapeLayer.transform = CATransform3DIdentity
+        circleShapeLayer.removeAllAnimations()
     }
 
     private func removeSublayersAndConstraints() {
