@@ -303,6 +303,6 @@ public final class LoaderView: UIView, ComponentProtocol {
         containerView.snp.removeConstraints()
         containerView.removeFromSuperview()
         
-        circleShapeLayer.transform = CATransform3DIdentity
+        circleShapeLayer.removeFromSuperlayer()
     }
 }
