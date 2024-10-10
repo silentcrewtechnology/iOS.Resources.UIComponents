@@ -16,9 +16,10 @@ public final class LoaderView: UIView, ComponentProtocol {
         public var frame: CGRect
         public var backgroundColor: UIColor
         public var containerInsets: UIEdgeInsets
+        public var isHidden: Bool
         public var circleLayer: CircleLayer
         public var rotatingAnimation: RotatingAnimation
-        public var strokeAnimation: StrokeAnimation // УКАЗАТЬ
+        public var strokeAnimation: StrokeAnimation
         
         public struct CircleLayer {
             public var strokeColor: UIColor
@@ -144,6 +145,7 @@ public final class LoaderView: UIView, ComponentProtocol {
             frame: CGRect = .zero,
             backgroundColor: UIColor = .clear,
             containerInsets: UIEdgeInsets = .zero,
+            isHidden: Bool = false,
             circleLayer: CircleLayer = .init(),
             rotatingAnimation: RotatingAnimation = .init(),
             strokeAnimation: StrokeAnimation = .init()
@@ -151,6 +153,7 @@ public final class LoaderView: UIView, ComponentProtocol {
             self.frame = frame
             self.backgroundColor = backgroundColor
             self.containerInsets = containerInsets
+            self.isHidden = isHidden
             self.circleLayer = circleLayer
             self.rotatingAnimation = rotatingAnimation
             self.strokeAnimation = strokeAnimation
@@ -168,10 +171,15 @@ public final class LoaderView: UIView, ComponentProtocol {
     public func update(with viewProperties: ViewProperties) {
         self.viewProperties = viewProperties
         
-        removeSublayersAndConstraints()
-        setupView(with: viewProperties)
-        setupCircleLayer(with: viewProperties)
-        startAnimating(with: viewProperties)
+        isHidden = viewProperties.isHidden
+        if viewProperties.isHidden {
+            stopAnimating()
+        } else {
+            removeSublayersAndConstraints()
+            setupView(with: viewProperties)
+            setupCircleLayer(with: viewProperties)
+            startAnimating(with: viewProperties)
+        }
     }
     
     // MARK: - Private methods
@@ -189,8 +197,6 @@ public final class LoaderView: UIView, ComponentProtocol {
     }
     
     private func setupCircleLayer(with viewProperties: ViewProperties) {
-        // TODO: - Проверить центр
-        let center = CGPoint(x: bounds.width * 0.5, y: bounds.height * 0.5)
         circleShapeLayer.path = UIBezierPath(
             arcCenter: center,
             radius: center.x,
@@ -292,13 +298,19 @@ public final class LoaderView: UIView, ComponentProtocol {
         
         return animationGroup
     }
+    
+    private func stopAnimating() {
+        containerView.layer.transform = CATransform3DIdentity
+        containerView.layer.removeAllAnimations()
+        
+        circleShapeLayer.transform = CATransform3DIdentity
+        circleShapeLayer.removeAllAnimations()
+    }
 
     private func removeSublayersAndConstraints() {
         containerView.snp.removeConstraints()
-        containerView.layer.transform = CATransform3DIdentity
-        containerView.layer.sublayers?.forEach { layer in
-            layer.transform = CATransform3DIdentity
-            layer.removeFromSuperlayer()
-        }
+        containerView.removeFromSuperview()
+        
+        circleShapeLayer.removeFromSuperlayer()
     }
 }
