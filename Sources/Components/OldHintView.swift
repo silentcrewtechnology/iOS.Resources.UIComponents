@@ -1,5 +1,6 @@
 import UIKit
 import SnapKit
+import AccessibilityIds
 
 @available(*, deprecated, message: "Use HintView")
 public final class OldHintView: UIView {
@@ -8,15 +9,34 @@ public final class OldHintView: UIView {
         public var leftText: NSMutableAttributedString?
         public var rightText: NSMutableAttributedString?
         public var minHeight: CGFloat
+        public var accessibilityIds: AccessibilityIds?
+        
+        public struct AccessibilityIds {
+            public var id: String
+            public var leftLabelId: String?
+            public var rightLabelId: String?
+            
+            public init(
+                id: String,
+                leftLabelId: String? = nil,
+                rightLabelId: String? = nil
+            ) {
+                self.id = id
+                self.leftLabelId = leftLabelId
+                self.rightLabelId = rightLabelId
+            }
+        }
         
         public init(
             leftText: NSMutableAttributedString? = nil,
             rightText: NSMutableAttributedString? = nil,
-            minHeight: CGFloat = 0
+            minHeight: CGFloat = 0,
+            accessibilityIds: AccessibilityIds? = nil
         ) {
             self.leftText = leftText
             self.rightText = rightText
             self.minHeight = minHeight
+            self.accessibilityIds = accessibilityIds
         }
     }
     
@@ -67,6 +87,7 @@ public final class OldHintView: UIView {
     public func update(with viewProperties: ViewProperties) {
         updateLabels(with: viewProperties)
         updateMinHeight(minHeight: viewProperties.minHeight)
+        setupAccessibilityIds(with: viewProperties)
         self.viewProperties = viewProperties
     }
     
@@ -82,5 +103,17 @@ public final class OldHintView: UIView {
         snp.updateConstraints {
             $0.height.greaterThanOrEqualTo(minHeight)
         }
+    }
+    
+    private func setupAccessibilityIds(with viewProperties: ViewProperties) {
+        isAccessibilityElement = true
+        accessibilityIdentifier = viewProperties.accessibilityIds?.id
+        hStack.isAccessibilityElement = true
+        hStack.accessibilityIdentifier = DesignSystemAccessibilityIDs.OldHintView.hStack
+        leftLabel.isAccessibilityElement = true
+        leftLabel.accessibilityIdentifier = viewProperties.accessibilityIds?.leftLabelId
+        rightLabel.isAccessibilityElement = true
+        rightLabel.accessibilityIdentifier = viewProperties.accessibilityIds?.rightLabelId
+        
     }
 }
