@@ -11,7 +11,7 @@ public final class ButtonView: UIButton, ComponentProtocol {
         public var leftIcon: UIImage?
         public var backgroundColor: UIColor
         public var onHighlighted: (Bool) -> Void
-        public var activityIndicator: ActivityIndicatorView.ViewProperties
+        public var loader: UIView
         public var onTap: () -> Void
         public var cornerRadius: CGFloat
         public var margins: Margins
@@ -22,7 +22,7 @@ public final class ButtonView: UIButton, ComponentProtocol {
             attributedText: NSMutableAttributedString = .init(string: ""),
             leftIcon: UIImage? = nil,
             backgroundColor: UIColor = .clear,
-            activityIndicator: ActivityIndicatorView.ViewProperties = .init(),
+            loader: UIView = .init(),
             onHighlighted: @escaping (Bool) -> Void = { _ in },
             onTap: @escaping () -> Void = { },
             cornerRadius: CGFloat = 0,
@@ -33,7 +33,7 @@ public final class ButtonView: UIButton, ComponentProtocol {
             self.attributedText = attributedText
             self.leftIcon = leftIcon
             self.backgroundColor = backgroundColor
-            self.activityIndicator = activityIndicator
+            self.loader = loader
             self.onHighlighted = onHighlighted
             self.onTap = onTap
             self.cornerRadius = cornerRadius
@@ -90,7 +90,6 @@ public final class ButtonView: UIButton, ComponentProtocol {
     
     // MARK: - UI
     
-    private let activityIndicator = ActivityIndicatorView()
     private let leftIconView = UIImageView()
     private let textLabel = UILabel()
     
@@ -118,7 +117,6 @@ public final class ButtonView: UIButton, ComponentProtocol {
             self.setCornerRadius(with: viewProperties)
             self.setupActionButton(with: viewProperties)
             self.updateConstraints(with: viewProperties)
-            self.updateActivityIndicator(with: viewProperties)
         }
         setupAccessibilityIds(with: viewProperties)
     }
@@ -129,6 +127,7 @@ public final class ButtonView: UIButton, ComponentProtocol {
         backgroundColor = viewProperties.backgroundColor
         isUserInteractionEnabled = viewProperties.isEnabled
         textLabel.attributedText = viewProperties.attributedText
+        textLabel.isHidden = !viewProperties.loader.isHidden
         leftIconView.image = viewProperties.leftIcon
     }
 
@@ -139,7 +138,7 @@ public final class ButtonView: UIButton, ComponentProtocol {
         } else {
             setupLabelView()
         }
-        setupLoadingView()
+        setupLoaderView(with: viewProperties)
     }
     
     private func setupLabelView() {
@@ -169,9 +168,9 @@ public final class ButtonView: UIButton, ComponentProtocol {
         }
     }
     
-    private func setupLoadingView() {
-        addSubview(activityIndicator)
-        activityIndicator.snp.makeConstraints {
+    private func setupLoaderView(with viewProperties: ViewProperties) {
+        addSubview(viewProperties.loader)
+        viewProperties.loader.snp.makeConstraints {
             $0.centerX.centerY.equalToSuperview()
         }
     }
@@ -189,12 +188,6 @@ public final class ButtonView: UIButton, ComponentProtocol {
             direction: .allCorners,
             clipsToBounds: true
         )
-    }
-    
-    private func updateActivityIndicator(with viewProperties: ViewProperties) {
-        activityIndicator.update(with: viewProperties.activityIndicator)
-
-        textLabel.isHidden = viewProperties.activityIndicator.isAnimating
     }
     
     private func setupActionButton(with viewProperties: ViewProperties) {
