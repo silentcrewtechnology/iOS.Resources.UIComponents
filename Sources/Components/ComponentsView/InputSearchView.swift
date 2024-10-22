@@ -152,6 +152,7 @@ public final class InputSearchView: UISearchBar, ComponentProtocol {
 // MARK: - UISearchBarDelegate
 
 extension InputSearchView: UISearchBarDelegate {
+    
     public func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         searchBar.text?.removeAll()
         searchBar.setShowsCancelButton(false, animated: true)
