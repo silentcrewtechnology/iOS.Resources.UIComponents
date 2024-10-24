@@ -11,7 +11,7 @@ public final class ButtonView: UIButton, ComponentProtocol {
         public var leftIcon: UIImage?
         public var backgroundColor: UIColor
         public var onHighlighted: (Bool) -> Void
-        public var loader: UIView
+        public var loader: UIView?
         public var onTap: () -> Void
         public var cornerRadius: CGFloat
         public var margins: Margins
@@ -22,7 +22,7 @@ public final class ButtonView: UIButton, ComponentProtocol {
             attributedText: NSMutableAttributedString = .init(string: ""),
             leftIcon: UIImage? = nil,
             backgroundColor: UIColor = .clear,
-            loader: UIView = .init(),
+            loader: UIView? = nil,
             onHighlighted: @escaping (Bool) -> Void = { _ in },
             onTap: @escaping () -> Void = { },
             cornerRadius: CGFloat = 0,
@@ -127,7 +127,7 @@ public final class ButtonView: UIButton, ComponentProtocol {
         backgroundColor = viewProperties.backgroundColor
         isUserInteractionEnabled = viewProperties.isEnabled
         textLabel.attributedText = viewProperties.attributedText
-        textLabel.isHidden = !viewProperties.loader.isHidden
+        textLabel.isHidden = !(viewProperties.loader?.isHidden ?? true)
         leftIconView.image = viewProperties.leftIcon
     }
 
@@ -169,8 +169,10 @@ public final class ButtonView: UIButton, ComponentProtocol {
     }
     
     private func setupLoaderView(with viewProperties: ViewProperties) {
-        addSubview(viewProperties.loader)
-        viewProperties.loader.snp.makeConstraints {
+        guard let loader = viewProperties.loader else { return }
+        
+        addSubview(loader)
+        loader.snp.makeConstraints {
             $0.centerX.centerY.equalToSuperview()
         }
     }
