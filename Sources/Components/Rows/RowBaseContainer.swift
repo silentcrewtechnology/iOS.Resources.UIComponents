@@ -1,5 +1,6 @@
 import UIKit
 import SnapKit
+import AccessibilityIds
 
 public final class RowBaseContainer: UIView {
     
@@ -10,6 +11,17 @@ public final class RowBaseContainer: UIView {
         public var trailingView: UIView?
         public var centralBlockAlignment: BlockAlignment
         public var margins: Margins
+        public var accessibilityIds: AccessibilityIds?
+        
+        public struct AccessibilityIds {
+            var id: String?
+            
+            public init(
+                id: String? = nil
+            ) {
+                self.id = id
+            }
+        }
         
         public enum BlockAlignment {
             case leading
@@ -43,13 +55,15 @@ public final class RowBaseContainer: UIView {
             centerView: UIView? = nil,
             trailingView: UIView? = nil,
             centralBlockAlignment: BlockAlignment = .leading,
-            margins: Margins = .init()
+            margins: Margins = .init(),
+            accessibilityIds: AccessibilityIds? = nil
         ) {
             self.leadingView = leadingView
             self.centerView = centerView
             self.trailingView = trailingView
             self.centralBlockAlignment = centralBlockAlignment
             self.margins = margins
+            self.accessibilityIds = accessibilityIds
         }
     }
     
@@ -78,7 +92,12 @@ public final class RowBaseContainer: UIView {
         emptyViewDetection()
         emptyConstraintsDetection()
         setConstraints()
-        
+        setupAccessibilityIds(with: viewProperties)
+    }
+    
+    private func setupAccessibilityIds(with viewProperties: ViewProperties) {
+        isAccessibilityElement = true
+        accessibilityIdentifier = viewProperties.accessibilityIds?.id
     }
     
     private func removeSubviewsFromContainers() {

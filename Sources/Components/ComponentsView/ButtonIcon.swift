@@ -1,5 +1,6 @@
 import UIKit
 import SnapKit
+import AccessibilityIds
 
 public final class ButtonIcon: UIButton, ComponentProtocol {
     
@@ -15,6 +16,7 @@ public final class ButtonIcon: UIButton, ComponentProtocol {
         public var margins: Margins
         public var activityIndicator: ActivityIndicatorView.ViewProperties
         public var isEnabled: Bool
+        public var accessibilityIds: AccessibilityIds?
         public var onTap: () -> Void
         
         public init(
@@ -27,6 +29,7 @@ public final class ButtonIcon: UIButton, ComponentProtocol {
             margins: Margins = .init(),
             activityIndicator: ActivityIndicatorView.ViewProperties = .init(),
             isEnabled: Bool = true,
+            accessibilityIds: AccessibilityIds? = nil,
             onTap: @escaping () -> Void = { }
         ) {
             self.backgroundColor = backgroundColor
@@ -38,7 +41,20 @@ public final class ButtonIcon: UIButton, ComponentProtocol {
             self.margins = margins
             self.activityIndicator = activityIndicator
             self.isEnabled = isEnabled
+            self.accessibilityIds = accessibilityIds
             self.onTap = onTap
+        }
+        
+        public struct AccessibilityIds {
+            public var id: String
+            public var iconViewId: String
+            
+            public init(id: String,
+                        iconViewId: String = DesignSystemAccessibilityIDs.ButtonIconView.iconView
+            ) {
+                self.id = id
+                self.iconViewId = iconViewId
+            }
         }
         
         public struct Margins {
@@ -105,6 +121,7 @@ public final class ButtonIcon: UIButton, ComponentProtocol {
             self.updateConstraints(with: viewProperties)
             self.updateActivityIndicator(with: viewProperties)
         }
+        setupAccessibilityIds(with: viewProperties)
     }
     
     // MARK: - private methods
@@ -172,5 +189,12 @@ public final class ButtonIcon: UIButton, ComponentProtocol {
     private func updateActivityIndicator(with viewProperties: ViewProperties) {
         activityIndicator.update(with: viewProperties.activityIndicator)
         iconView.isHidden = viewProperties.activityIndicator.isAnimating
+    }
+    
+    private func setupAccessibilityIds(with viewProperties: ViewProperties) {
+        isAccessibilityElement = true
+        accessibilityIdentifier = viewProperties.accessibilityIds?.id
+        iconView.isAccessibilityElement = true
+        iconView.accessibilityIdentifier = viewProperties.accessibilityIds?.id
     }
 }

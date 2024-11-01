@@ -29,7 +29,7 @@ public final class InputView: UIView, ComponentProtocol {
             
             public init(
                 id: String,
-                hintId: String
+                hintId: String = DesignSystemAccessibilityIDs.InputView.hint
             ) {
                 self.id = id
                 self.hintId = hintId
@@ -91,11 +91,11 @@ public final class InputView: UIView, ComponentProtocol {
     
     public func update(with viewProperties: ViewProperties) {
         self.viewProperties = viewProperties
-        self.setupView(viewProperties: viewProperties)
-        self.updateLabelView(with: viewProperties.labelViewProperties)
-        self.updateTextField(with: viewProperties)
-        self.hintView.update(with: viewProperties.hintViewProperties)
-        self.setupAccessibilityIds(with: viewProperties)
+        setupView(viewProperties: viewProperties)
+        updateLabelView(with: viewProperties.labelViewProperties)
+        updateTextField(with: viewProperties)
+        hintView.update(with: viewProperties.hintViewProperties)
+        setupAccessibilityIds(with: viewProperties)
     }
     
     // MARK: - Private methods

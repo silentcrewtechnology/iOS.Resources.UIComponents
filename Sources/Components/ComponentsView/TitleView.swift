@@ -1,5 +1,6 @@
 import UIKit
 import SnapKit
+import AccessibilityIds
 
 public final class TitleView: UIView, ComponentProtocol {
     
@@ -17,7 +18,7 @@ public final class TitleView: UIView, ComponentProtocol {
             
             public init(
                 id: String,
-                labelId: String
+                labelId: String = DesignSystemAccessibilityIDs.TitleView.label
             ) {
                 self.id = id
                 self.labelId = labelId

@@ -1,5 +1,6 @@
 import UIKit
 import SnapKit
+import AccessibilityIds
 
 public struct ViewsConnectionService {
     
@@ -15,6 +16,8 @@ public struct ViewsConnectionService {
         stackView.alignment = .fill
         stackView.distribution = .fill
         stackView.spacing = 0
+        stackView.isAccessibilityElement = true
+        stackView.accessibilityIdentifier = DesignSystemAccessibilityIDs.RowView.verticalStack
         return stackView
     }
     
@@ -24,6 +27,8 @@ public struct ViewsConnectionService {
         stackView.alignment = .fill
         stackView.distribution = .fill
         stackView.spacing = CGFloat(spacing)
+        stackView.isAccessibilityElement = true
+        stackView.accessibilityIdentifier = DesignSystemAccessibilityIDs.RowView.horizontalStack
         return stackView
     }
     
@@ -33,6 +38,8 @@ public struct ViewsConnectionService {
         stackView.alignment = .fill
         stackView.distribution = .fill
         stackView.spacing = spacing
+        stackView.isAccessibilityElement = true
+        stackView.accessibilityIdentifier = DesignSystemAccessibilityIDs.RowView.horizontalArrayStack
         return stackView
     }
     
@@ -44,6 +51,8 @@ public struct ViewsConnectionService {
         stackView.distribution = .fill
         stackView.spacing = spacing
         scrollView.addSubview(stackView)
+        stackView.isAccessibilityElement = true
+        stackView.accessibilityIdentifier = DesignSystemAccessibilityIDs.RowView.horizontalScrollStack
         stackView.snp.makeConstraints {
             $0.edges.equalToSuperview()
             $0.height.equalToSuperview()
@@ -58,6 +67,8 @@ public struct ViewsConnectionService {
         stackView.alignment = .fill
         stackView.distribution = .fill
         stackView.spacing = 0
+        stackView.isAccessibilityElement = true
+        stackView.accessibilityIdentifier = DesignSystemAccessibilityIDs.RowView.verticalArrayStack
         return stackView
     }
 }

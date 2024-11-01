@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AccessibilityIds
 
 public final class ToggleView: UIView, ComponentProtocol {
     
@@ -18,7 +19,21 @@ public final class ToggleView: UIView, ComponentProtocol {
         public var onTintColor: UIColor?
         public var thumbOffTintColor: UIColor?
         public var thumbOnTintColor: UIColor?
+        public var accessibilityIds: AccessibilityIds?
         public var checkAction: (Bool) -> Void
+        
+        public struct AccessibilityIds {
+            public var id: String?
+            public var switchViewId: String?
+            
+            public init(
+                id: String? = nil,
+                switchViewId: String = DesignSystemAccessibilityIDs.ToggleView.switchView
+            ) {
+                self.id = id
+                self.switchViewId = switchViewId
+            }
+        }
         
         public init(
             isEnabled: Bool = true,
@@ -27,6 +42,7 @@ public final class ToggleView: UIView, ComponentProtocol {
             onTintColor: UIColor? = nil,
             thumbOffTintColor: UIColor? = nil,
             thumbOnTintColor: UIColor? = nil,
+            accessibilityIds: AccessibilityIds? = nil,
             checkAction: @escaping (Bool) -> Void = { _ in }
         ) {
             self.isEnabled = isEnabled
@@ -35,6 +51,7 @@ public final class ToggleView: UIView, ComponentProtocol {
             self.onTintColor = onTintColor
             self.thumbOffTintColor = thumbOffTintColor
             self.thumbOnTintColor = thumbOnTintColor
+            self.accessibilityIds = accessibilityIds
             self.checkAction = checkAction
         }
     }
@@ -60,6 +77,7 @@ public final class ToggleView: UIView, ComponentProtocol {
         self.viewProperties = viewProperties
         
         setupProperties(with: viewProperties)
+        setupAccessibilityIds(with: viewProperties)
     }
     
     // MARK: - Private methods
@@ -71,6 +89,13 @@ public final class ToggleView: UIView, ComponentProtocol {
         switchView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
+    }
+    
+    private func setupAccessibilityIds(with viewProperties: ViewProperties) {
+        isAccessibilityElement = true
+        accessibilityIdentifier = viewProperties.accessibilityIds?.id
+        switchView.isAccessibilityElement = true
+        switchView.accessibilityIdentifier = viewProperties.accessibilityIds?.switchViewId
     }
     
     private func setupProperties(with viewProperties: ViewProperties) {

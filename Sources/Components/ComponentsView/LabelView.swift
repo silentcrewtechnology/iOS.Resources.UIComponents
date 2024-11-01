@@ -27,11 +27,11 @@ public final class LabelView: UIView, ComponentProtocol {
         
         public struct AccessibilityIds {
             public var id: String?
-            public var labelViewId: String
+            public var labelViewId: String?
             
             public init(
                 id: String? = nil,
-                labelViewId: String
+                labelViewId: String = DesignSystemAccessibilityIDs.LabelView.labelView
             ) {
                 self.id = id
                 self.labelViewId = labelViewId
@@ -62,7 +62,6 @@ public final class LabelView: UIView, ComponentProtocol {
     private lazy var textLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = .zero
-        
         return label
     }()
     private var container = UIView()
@@ -117,6 +116,7 @@ public final class LabelView: UIView, ComponentProtocol {
     private func setupAccessibilityIds(with accessibilityIds: ViewProperties.AccessibilityIds?) {
         isAccessibilityElement = true
         accessibilityIdentifier = accessibilityIds?.id
+        textLabel.isAccessibilityElement = true
         textLabel.accessibilityIdentifier = accessibilityIds?.labelViewId
         container.isAccessibilityElement = true
         container.accessibilityIdentifier = DesignSystemAccessibilityIDs.LabelView.container

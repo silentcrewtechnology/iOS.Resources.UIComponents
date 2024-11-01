@@ -1,5 +1,6 @@
 import UIKit
 import SnapKit
+import AccessibilityIds
 
 public final class ImageView: UIView, ComponentProtocol {
     
@@ -12,6 +13,7 @@ public final class ImageView: UIView, ComponentProtocol {
         public var text: NSMutableAttributedString?
         public var image: UIImage?
         public var margins: Margins
+        public var accessibilityIds: AccessibilityIds?
         
         public init(
             size: CGSize = .zero,
@@ -19,7 +21,8 @@ public final class ImageView: UIView, ComponentProtocol {
             cornerRadius: CGFloat = 0,
             text: NSMutableAttributedString? = nil,
             image: UIImage? = nil,
-            margins: Margins = .init()
+            margins: Margins = .init(),
+            accessibilityIds: AccessibilityIds? = nil
         ) {
             self.size = size
             self.backgroundColor = backgroundColor
@@ -27,6 +30,7 @@ public final class ImageView: UIView, ComponentProtocol {
             self.text = text
             self.image = image
             self.margins = margins
+            self.accessibilityIds = accessibilityIds
         }
         
         public struct Margins {
@@ -48,6 +52,22 @@ public final class ImageView: UIView, ComponentProtocol {
                 self.imageLeading = imageLeading
                 self.imageTrailing = imageTrailing
                 self.size = size
+            }
+        }
+        
+        public struct AccessibilityIds {
+            public var id: String?
+            public var imageViewId: String?
+            public var titleLabelId: String?
+            
+            public init(
+                id: String? = nil,
+                imageViewId: String = DesignSystemAccessibilityIDs.ImageView.imageView,
+                titleLabelId: String = DesignSystemAccessibilityIDs.ImageView.titleLabel
+            ) {
+                self.id = id
+                self.imageViewId = imageViewId
+                self.titleLabelId = titleLabelId
             }
         }
     }
@@ -85,6 +105,7 @@ public final class ImageView: UIView, ComponentProtocol {
             self.updateImage(with: viewProperties)
             self.updateConstraints(with: viewProperties)
         }
+        self.setupAccessibilityIds(with: viewProperties)
     }
     
     // MARK: - private methods
@@ -113,6 +134,15 @@ public final class ImageView: UIView, ComponentProtocol {
         removeConstraintsAndSubviews()
         setupTitleLabel()
         setupImageView()
+    }
+    
+    private func setupAccessibilityIds(with viewProperties: ViewProperties) {
+        isAccessibilityElement = true
+        accessibilityIdentifier = viewProperties.accessibilityIds?.id
+        imageView.isAccessibilityElement = true
+        imageView.accessibilityIdentifier = viewProperties.accessibilityIds?.imageViewId
+        titleLabel.isAccessibilityElement = true
+        titleLabel.accessibilityIdentifier = viewProperties.accessibilityIds?.titleLabelId
     }
     
     private func setupTitleLabel() {

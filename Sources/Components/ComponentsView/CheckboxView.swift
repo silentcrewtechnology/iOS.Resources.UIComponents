@@ -1,5 +1,6 @@
 import UIKit
 import SnapKit
+import AccessibilityIds
 
 public final class CheckboxView: PressableView, ComponentProtocol {
     
@@ -11,7 +12,21 @@ public final class CheckboxView: PressableView, ComponentProtocol {
         public var borderWidth: CGFloat
         public var checkIcon: UIImage?
         public var isUserInteractionEnabled: Bool
+        public var accessibilityIds: AccessibilityIds?
         public var onPressChange: (State) -> Void
+        
+        public struct AccessibilityIds {
+            public var id: String?
+            public var checkViewId: String?
+            
+            public init(
+                id: String? = nil,
+                checkViewId: String = DesignSystemAccessibilityIDs.CheckboxView.checkView
+            ) {
+                self.id = id
+                self.checkViewId = checkViewId
+            }
+        }
         
         public init(
             backgroundColor: UIColor = .clear,
@@ -21,6 +36,7 @@ public final class CheckboxView: PressableView, ComponentProtocol {
             borderWidth: CGFloat = 0,
             checkIcon: UIImage? = nil,
             isUserInteractionEnabled: Bool = true,
+            accessibilityIds: AccessibilityIds? = nil,
             onPressChange: @escaping (State) -> Void = { _ in }
         ) {
             self.backgroundColor = backgroundColor
@@ -30,6 +46,7 @@ public final class CheckboxView: PressableView, ComponentProtocol {
             self.borderWidth = borderWidth
             self.checkIcon = checkIcon
             self.isUserInteractionEnabled = isUserInteractionEnabled
+            self.accessibilityIds = accessibilityIds
             self.onPressChange = onPressChange
         }
     }
@@ -67,6 +84,14 @@ public final class CheckboxView: PressableView, ComponentProtocol {
             setupIndicator(with: viewProperties)
             self.viewProperties = viewProperties
         }
+        setupAccessibilityIds(with: viewProperties)
+    }
+    
+    private func setupAccessibilityIds(with viewProperties: ViewProperties) {
+        isAccessibilityElement = true
+        accessibilityIdentifier = viewProperties.accessibilityIds?.id
+        checkView.isAccessibilityElement = true
+        checkView.accessibilityIdentifier = viewProperties.accessibilityIds?.checkViewId
     }
     
     private func setupBackground(with viewProperties: ViewProperties) {

@@ -1,5 +1,6 @@
 import UIKit
 import SnapKit
+import AccessibilityIds
 
 public final class RadioView: PressableView, ComponentProtocol {
     
@@ -13,7 +14,21 @@ public final class RadioView: PressableView, ComponentProtocol {
         public var borderWidth: CGFloat
         public var checkIcon: UIImage?
         public var isUserInteractionEnabled: Bool
+        public var accessibilityIds: AccessibilityIds?
         public var onPressChange: (State) -> Void
+        
+        public struct AccessibilityIds {
+            public var id: String?
+            public var indicatorViewId: String?
+            
+            public init(
+                id: String? = nil,
+                indicatorViewId: String = DesignSystemAccessibilityIDs.RadioView.indicatorView
+            ) {
+                self.id = id
+                self.indicatorViewId = indicatorViewId
+            }
+        }
         
         public init(
             backgroundColor: UIColor = .clear,
@@ -23,6 +38,7 @@ public final class RadioView: PressableView, ComponentProtocol {
             borderWidth: CGFloat = 0,
             checkIcon: UIImage? = nil,
             isUserInteractionEnabled: Bool = true,
+            accessibilityIds: AccessibilityIds? = nil,
             onPressChange: @escaping (State) -> Void = { _ in }
         ) {
             self.backgroundColor = backgroundColor
@@ -32,6 +48,7 @@ public final class RadioView: PressableView, ComponentProtocol {
             self.borderWidth = borderWidth
             self.checkIcon = checkIcon
             self.isUserInteractionEnabled = isUserInteractionEnabled
+            self.accessibilityIds = accessibilityIds
             self.onPressChange = onPressChange
         }
     }
@@ -63,9 +80,17 @@ public final class RadioView: PressableView, ComponentProtocol {
             updateIndicator(with: viewProperties)
             updateConstraints(with: viewProperties)
         }
+        setupAccessibilityIds(with: viewProperties)
     }
     
     // MARK: - private methods
+    
+    private func setupAccessibilityIds(with viewProperties: ViewProperties) {
+        isAccessibilityElement = true
+        accessibilityIdentifier = viewProperties.accessibilityIds?.id
+        indicatorView.isAccessibilityElement = true
+        indicatorView.accessibilityIdentifier = viewProperties.accessibilityIds?.indicatorViewId
+    }
     
     private func updateBackground(with viewProperties: ViewProperties) {
         backgroundColor = viewProperties.backgroundColor

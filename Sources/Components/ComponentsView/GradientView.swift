@@ -1,4 +1,5 @@
 import UIKit
+import AccessibilityIds
 
 public final class GradientView: UIView, ComponentProtocol {
     
@@ -9,17 +10,28 @@ public final class GradientView: UIView, ComponentProtocol {
         public var endPoint: CGPoint
         public var colors: [Any]?
         public var insets: UIEdgeInsets
+        public var accessibilityIds: AccessibilityIds?
+        
+        public struct AccessibilityIds {
+            public var id: String?
+            
+            public init(id: String? = nil) {
+                self.id = id
+            }
+        }
         
         public init(
             startPoint: CGPoint = .zero,
             endPoint: CGPoint = .zero,
             colors: [Any]? = nil,
-            insets: UIEdgeInsets = .zero
+            insets: UIEdgeInsets = .zero,
+            accessibilityIds: AccessibilityIds? = nil
         ) {
             self.startPoint = startPoint
             self.endPoint = endPoint
             self.colors = colors
             self.insets = insets
+            self.accessibilityIds = accessibilityIds
         }
     }
     
@@ -46,5 +58,11 @@ public final class GradientView: UIView, ComponentProtocol {
         gradientLayer.startPoint = viewProperties.startPoint
         gradientLayer.endPoint = viewProperties.endPoint
         gradientLayer.colors = viewProperties.colors
+        setupAccessibilityIds(with: viewProperties)
+    }
+    
+    private func setupAccessibilityIds(with viewProperties: ViewProperties) {
+        isAccessibilityElement = true
+        accessibilityIdentifier = viewProperties.accessibilityIds?.id
     }
 }
