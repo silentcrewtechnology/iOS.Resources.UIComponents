@@ -1,5 +1,6 @@
 import UIKit
 import SnapKit
+import AccessibilityIds
 
 public final class CardView: UIView, ComponentProtocol {
     
@@ -20,6 +21,7 @@ public final class CardView: UIView, ComponentProtocol {
         public var maskedCardNumber: NSMutableAttributedString?
         public var gradientViewProperties: GradientView.ViewProperties?
         public var stackCardView: StackCardView?
+        public var accessibilityIds: AccessibilityIds?
         
         public struct EmptyBand {
             public var backgroundColor: UIColor
@@ -53,6 +55,34 @@ public final class CardView: UIView, ComponentProtocol {
             }
         }
         
+        public struct AccessibilityIds {
+            public var id: String?
+            public var backgroundImageView: String?
+            public var paymentSystemImageView: String?
+            public var centerImageView: String?
+            public var cardNumberLabel: String?
+            public var bandView: String?
+            public var containerView: String?
+            
+            public init(
+                id: String? = nil,
+                backgroundImageView: String = DesignSystemAccessibilityIDs.CardView.backgroundImageView,
+                paymentSystemImageView: String = DesignSystemAccessibilityIDs.CardView.paymentSystemImageView,
+                centerImageView: String = DesignSystemAccessibilityIDs.CardView.centerImageView,
+                cardNumberLabel: String = DesignSystemAccessibilityIDs.CardView.cardNumberLabel,
+                bandView: String = DesignSystemAccessibilityIDs.CardView.bandView,
+                containerView: String = DesignSystemAccessibilityIDs.CardView.containerView
+            ) {
+                self.id = id
+                self.backgroundImageView = backgroundImageView
+                self.paymentSystemImageView = paymentSystemImageView
+                self.centerImageView = centerImageView
+                self.cardNumberLabel = cardNumberLabel
+                self.bandView = bandView
+                self.containerView = containerView
+            }
+        }
+        
         public init(
             backgroundImage: UIImage? = nil,
             paymentSystemImage: UIImage? = nil,
@@ -67,7 +97,8 @@ public final class CardView: UIView, ComponentProtocol {
             maskedCardNumberLabelInsets: UIEdgeInsets = .zero,
             maskedCardNumber: NSMutableAttributedString? = nil,
             gradientViewProperties: GradientView.ViewProperties? = nil,
-            stackCardView: StackCardView? = nil
+            stackCardView: StackCardView? = nil,
+            accessibilityIds: AccessibilityIds? = nil
         ) {
             self.backgroundImage = backgroundImage
             self.paymentSystemImage = paymentSystemImage
@@ -83,6 +114,7 @@ public final class CardView: UIView, ComponentProtocol {
             self.maskedCardNumber = maskedCardNumber
             self.gradientViewProperties = gradientViewProperties
             self.stackCardView = stackCardView
+            self.accessibilityIds = accessibilityIds
         }
     }
     
@@ -139,10 +171,28 @@ public final class CardView: UIView, ComponentProtocol {
                 self.setupStackCardView(cardView: stackCardView)
             }
         }
+        self.setupAccessibilityIds(with: viewProperties)
     }
    
     // MARK: - Private methods
     
+    private func setupAccessibilityIds(with viewProperties: ViewProperties) {
+        isAccessibilityElement = true
+        accessibilityIdentifier = viewProperties.accessibilityIds?.id
+        backgroundImageView.isAccessibilityElement = true
+        backgroundImageView.accessibilityIdentifier = viewProperties.accessibilityIds?.backgroundImageView
+        paymentSystemImageView.isAccessibilityElement = true
+        paymentSystemImageView.accessibilityIdentifier = viewProperties.accessibilityIds?.paymentSystemImageView
+        centerImageView.isAccessibilityElement = true
+        centerImageView.accessibilityIdentifier = viewProperties.accessibilityIds?.centerImageView
+        cardNumberLabel.isAccessibilityElement = true
+        cardNumberLabel.accessibilityIdentifier = viewProperties.accessibilityIds?.cardNumberLabel
+        bandView.isAccessibilityElement = true
+        bandView.accessibilityIdentifier = viewProperties.accessibilityIds?.bandView
+        containerView.isAccessibilityElement = true
+        containerView.accessibilityIdentifier = viewProperties.accessibilityIds?.containerView
+    }
+
     private func setupContainerView(viewProperties: ViewProperties) {
         removeConstraintsAndSubviews()
         

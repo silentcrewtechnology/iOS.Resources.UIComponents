@@ -1,5 +1,6 @@
 import UIKit
 import SnapKit
+import AccessibilityIds
 
 public final class ButtonView: UIButton, ComponentProtocol {
     
@@ -47,7 +48,7 @@ public final class ButtonView: UIButton, ComponentProtocol {
             
             public init(
                 id: String,
-                labelId: String
+                labelId: String = DesignSystemAccessibilityIDs.ButtonView.label
             ) {
                 self.id = id
                 self.labelId = labelId
