@@ -180,7 +180,6 @@ public final class ButtonView: UIButton, ComponentProtocol {
     
     private func removeConstraintsAndSubviews() {
         self.subviews.forEach { subview in
-            subview.snp.removeConstraints()
             subview.removeFromSuperview()
         }
     }
