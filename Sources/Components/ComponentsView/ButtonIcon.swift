@@ -14,7 +14,10 @@ public final class ButtonIcon: UIButton, ComponentProtocol {
         public var image: UIImage?
         public var cornerRadius: CGFloat
         public var margins: Margins
+        // TODO: Убрать Optional у loader после удаления activityIndicator PCABO3-11972
+        @available(*, deprecated, message: "Use LoaderView instead")
         public var activityIndicator: ActivityIndicatorView.ViewProperties
+        public var loader: UIView?
         public var isEnabled: Bool
         public var accessibilityIds: AccessibilityIds?
         public var onTap: () -> Void
@@ -28,6 +31,7 @@ public final class ButtonIcon: UIButton, ComponentProtocol {
             cornerRadius: CGFloat = 0,
             margins: Margins = .init(),
             activityIndicator: ActivityIndicatorView.ViewProperties = .init(),
+            loader: UIView? = nil,
             isEnabled: Bool = true,
             accessibilityIds: AccessibilityIds? = nil,
             onTap: @escaping () -> Void = { }
@@ -40,6 +44,7 @@ public final class ButtonIcon: UIButton, ComponentProtocol {
             self.cornerRadius = cornerRadius
             self.margins = margins
             self.activityIndicator = activityIndicator
+            self.loader = loader
             self.isEnabled = isEnabled
             self.accessibilityIds = accessibilityIds
             self.onTap = onTap
@@ -98,6 +103,7 @@ public final class ButtonIcon: UIButton, ComponentProtocol {
     
     private let iconView: UIImageView = {
         let image = UIImageView()
+        image.snp.makeConstraints { $0.size.equalTo(0) }
         return image
     }()
     
@@ -156,39 +162,41 @@ public final class ButtonIcon: UIButton, ComponentProtocol {
     }
     
     private func updateConstraints(with viewProperties: ViewProperties) {
-        removeConstraintsAndSubviews()
-        setupIconView()
-        setupLoadingView()
+        subviews.forEach { $0.removeFromSuperview() }
+        setupIconView(with: viewProperties)
+        setupLoadingView(with: viewProperties)
     }
     
-    private func setupIconView() {
+    private func setupIconView(with viewProperties: ViewProperties) {
         addSubview(iconView)
         iconView.snp.makeConstraints {
             $0.top.equalToSuperview().offset(viewProperties.margins.imageTop)
             $0.leading.equalToSuperview().offset(viewProperties.margins.imageLeading)
             $0.trailing.equalToSuperview().offset(-viewProperties.margins.imageTrailing)
             $0.bottom.equalToSuperview().offset(-viewProperties.margins.imageBottom)
+        }
+        iconView.snp.updateConstraints {
             $0.size.equalTo(viewProperties.margins.size)
         }
     }
     
-    private func setupLoadingView() {
-        addSubview(activityIndicator)
-        activityIndicator.snp.makeConstraints {
-            $0.centerX.centerY.equalToSuperview()
+    private func setupLoadingView(with viewProperties: ViewProperties) {
+        guard let loader = viewProperties.loader else {
+            addSubview(activityIndicator)
+            activityIndicator.snp.makeConstraints { $0.center.equalToSuperview() }
+            return
         }
-    }
-    
-    private func removeConstraintsAndSubviews() {
-        self.subviews.forEach { subview in
-            subview.snp.removeConstraints()
-            subview.removeFromSuperview()
-        }
+        addSubview(loader)
+        loader.snp.makeConstraints { $0.center.equalToSuperview() }
     }
     
     private func updateActivityIndicator(with viewProperties: ViewProperties) {
-        activityIndicator.update(with: viewProperties.activityIndicator)
-        iconView.isHidden = viewProperties.activityIndicator.isAnimating
+        guard let loader = viewProperties.loader else {
+            activityIndicator.update(with: viewProperties.activityIndicator)
+            iconView.isHidden = viewProperties.activityIndicator.isAnimating
+            return
+        }
+        iconView.isHidden = !loader.isHidden
     }
     
     private func setupAccessibilityIds(with viewProperties: ViewProperties) {
