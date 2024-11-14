@@ -1,11 +1,3 @@
-//
-//  BadgeView.swift
-//  ABOL
-//
-//  Created by firdavs on 16.08.2023.
-//  Copyright © 2023 ps. All rights reserved.
-//
-
 import UIKit
 import SnapKit
 
@@ -21,6 +13,7 @@ public final class BadgeView: UIView, ComponentProtocol {
         public var textColor: UIColor?
         public var image: UIImage?
         public var cornerRadius: CGFloat
+        public var textAlignment: NSTextAlignment
         public var margins: Margins
         
         public struct Margins {
@@ -64,6 +57,7 @@ public final class BadgeView: UIView, ComponentProtocol {
             height: CGFloat = 0,
             width: CGFloat = 0,
             cornerRadius: CGFloat = 0,
+            textAlignment: NSTextAlignment = .center,
             margins: Margins = .init()
         ) {
             self.isTextHidden = isTextHidden
@@ -73,6 +67,7 @@ public final class BadgeView: UIView, ComponentProtocol {
             self.textColor = textColor
             self.image = image
             self.cornerRadius = cornerRadius
+            self.textAlignment = textAlignment
             self.margins = margins
         }
     }
@@ -81,17 +76,9 @@ public final class BadgeView: UIView, ComponentProtocol {
     
     // MARK: - UI
     
-    private let containerView = UIView()
-    
-    private let titleLabel: UILabel = {
-        let label = UILabel()
-        return label
-    }()
-    
-    private let imageView: UIImageView = {
-        let label = UIImageView()
-        return label
-    }()
+    private lazy var containerView = UIView()
+    private lazy var titleLabel = UILabel()
+    private lazy var imageView = UIImageView()
     
     // MARK: - init
     
@@ -105,6 +92,7 @@ public final class BadgeView: UIView, ComponentProtocol {
     
     public func update(with viewProperties: ViewProperties) {
         self.viewProperties = viewProperties
+        
         setText(with: viewProperties)
         setBackgroundColor(with: viewProperties)
         setImage(with: viewProperties)
@@ -116,7 +104,7 @@ public final class BadgeView: UIView, ComponentProtocol {
     
     private func setText(with viewProperties: ViewProperties) {
         titleLabel.attributedText = viewProperties.text
-        titleLabel.textAlignment = .center
+        titleLabel.textAlignment = viewProperties.textAlignment
         titleLabel.textColor = viewProperties.textColor
     }
     
@@ -134,15 +122,6 @@ public final class BadgeView: UIView, ComponentProtocol {
             direction: .allCorners,
             clipsToBounds: true
         )
-    }
-    
-    private func removeConstraintsAndSubviews() {
-        containerView.subviews.forEach { subview in
-            subview.snp.removeConstraints()
-            subview.removeFromSuperview()
-        }
-        containerView.snp.removeConstraints()
-        containerView.removeFromSuperview()
     }
     
     private func updateConstraints(with viewProperties: ViewProperties) {
@@ -194,5 +173,14 @@ public final class BadgeView: UIView, ComponentProtocol {
             $0.trailing.equalToSuperview().offset(-viewProperties.margins.trailing)
             $0.bottom.equalToSuperview().offset(-viewProperties.margins.bottom)
         }
+    }
+    
+    private func removeConstraintsAndSubviews() {
+        containerView.subviews.forEach { subview in
+            subview.snp.removeConstraints()
+            subview.removeFromSuperview()
+        }
+        containerView.snp.removeConstraints()
+        containerView.removeFromSuperview()
     }
 }
