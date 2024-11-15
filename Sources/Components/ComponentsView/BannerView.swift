@@ -130,18 +130,16 @@ public final class BannerView: UIView, ComponentProtocol {
     // MARK: - Methods
 
     public func update(with viewProperties: ViewProperties) {
-        DispatchQueue.main.async {
-            self.viewProperties = viewProperties
-            
-            self.containerView.backgroundColor = viewProperties.backgroundColor
-            self.containerView.layer.cornerRadius = viewProperties.cornerRadius
-            self.setupView(viewProperties: viewProperties)
-            self.updateTitleLabel(title: viewProperties.title)
-            self.updateSubtitleLabel(subtitle: viewProperties.subtitle)
-            self.updateIconImageView(icon: viewProperties.icon)
-            self.updateBottomButton(button: viewProperties.bottomButton)
-            self.updateBottomButtonTopSpacer(with: viewProperties)
-        }
+        self.viewProperties = viewProperties
+        
+        containerView.backgroundColor = viewProperties.backgroundColor
+        containerView.layer.cornerRadius = viewProperties.cornerRadius
+        setupView(viewProperties: viewProperties)
+        updateTitleLabel(title: viewProperties.title)
+        updateSubtitleLabel(subtitle: viewProperties.subtitle)
+        updateIconImageView(icon: viewProperties.icon)
+        updateBottomButton(button: viewProperties.bottomButton)
+        updateBottomButtonTopSpacer(with: viewProperties)
     }
     
     // MARK: - Private methods
