@@ -78,7 +78,7 @@ public final class ImageView: UIView, ComponentProtocol {
     
     private let imageView: UIImageView = {
         let view = UIImageView()
-        view.contentMode = .center
+        view.contentMode = .scaleAspectFill
         return view
     }()
     
