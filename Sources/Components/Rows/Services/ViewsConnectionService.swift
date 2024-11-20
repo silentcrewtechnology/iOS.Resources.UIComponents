@@ -10,12 +10,12 @@ public struct ViewsConnectionService {
     
     // MARK: - Methods
     
-    public func connect(topView: UIView, bottomView: UIView) -> UIView {
+    public func connect(topView: UIView, bottomView: UIView, spacing: CGFloat = 0) -> UIView {
         let stackView = UIStackView(arrangedSubviews: [topView, bottomView])
         stackView.axis = .vertical
         stackView.alignment = .fill
         stackView.distribution = .fill
-        stackView.spacing = 0
+        stackView.spacing = spacing
         stackView.isAccessibilityElement = true
         stackView.accessibilityIdentifier = DesignSystemAccessibilityIDs.RowView.verticalStack
         return stackView
@@ -61,12 +61,12 @@ public struct ViewsConnectionService {
         return scrollView
     }
     
-    public func connect(verticalyViews: [UIView]) -> UIView {
+    public func connect(verticalyViews: [UIView], spacing: CGFloat = 0) -> UIView {
         let stackView = UIStackView(arrangedSubviews: verticalyViews)
         stackView.axis = .vertical
         stackView.alignment = .fill
         stackView.distribution = .fill
-        stackView.spacing = 0
+        stackView.spacing = spacing
         stackView.isAccessibilityElement = true
         stackView.accessibilityIdentifier = DesignSystemAccessibilityIDs.RowView.verticalArrayStack
         return stackView

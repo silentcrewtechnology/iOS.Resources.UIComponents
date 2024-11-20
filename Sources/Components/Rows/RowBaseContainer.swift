@@ -10,6 +10,7 @@ public final class RowBaseContainer: UIView {
         public var centerView: UIView?
         public var trailingView: UIView?
         public var centralBlockAlignment: BlockAlignment
+        public var verticalAlignment: VerticalAlignment
         public var margins: Margins
         public var accessibilityIds: AccessibilityIds?
         
@@ -25,7 +26,16 @@ public final class RowBaseContainer: UIView {
         
         public enum BlockAlignment {
             case leading
+            case center
             case trailing
+            case fill
+        }
+        
+        public enum VerticalAlignment {
+            case top
+            case center
+            case bottom
+            case fill
         }
         
         public struct Margins {
@@ -55,6 +65,7 @@ public final class RowBaseContainer: UIView {
             centerView: UIView? = nil,
             trailingView: UIView? = nil,
             centralBlockAlignment: BlockAlignment = .leading,
+            verticalAlignment: VerticalAlignment = .center,
             margins: Margins = .init(),
             accessibilityIds: AccessibilityIds? = nil
         ) {
@@ -62,24 +73,20 @@ public final class RowBaseContainer: UIView {
             self.centerView = centerView
             self.trailingView = trailingView
             self.centralBlockAlignment = centralBlockAlignment
+            self.verticalAlignment = verticalAlignment
             self.margins = margins
             self.accessibilityIds = accessibilityIds
         }
     }
     
-    public var leadingView = UIView()
-    public var centerView = UIView()
-    public var trailingView = UIView()
+    private var hStack: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .horizontal
+        return stack
+    }()
     
-    private var isLeadingViewNil: Bool = false
-    private var isCenterViewNil: Bool = false
-    private var isTrailingViewNil: Bool = false
-    
-    private var leadingOffsetOfCenterView: CGFloat = 0
-    private var leadingOffsetOfTrailingView: CGFloat = 0
-    
-    public init() {
-        super.init(frame: .zero)
+    public override init(frame: CGRect) {
+        super.init(frame: frame)
     }
     
     required init?(coder: NSCoder) { fatalError() }
@@ -88,10 +95,8 @@ public final class RowBaseContainer: UIView {
     
     public func update(with viewProperties: ViewProperties) {
         self.viewProperties = viewProperties
-        removeSubviewsFromContainers()
-        emptyViewDetection()
-        emptyConstraintsDetection()
-        setConstraints()
+        setupHStack(with: viewProperties)
+        setupBlocks(with: viewProperties)
         setupAccessibilityIds(with: viewProperties)
     }
     
@@ -100,83 +105,73 @@ public final class RowBaseContainer: UIView {
         accessibilityIdentifier = viewProperties.accessibilityIds?.id
     }
     
-    private func removeSubviewsFromContainers() {
-        leadingView.removeFromSuperview()
-        centerView.removeFromSuperview()
-        trailingView.removeFromSuperview()
+    private func setupHStack(with viewProperties: ViewProperties) {
+        subviews.forEach { $0.removeFromSuperview() }
+        hStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        addSubview(hStack)
+        hStack.snp.makeConstraints {
+            $0.edges.equalToSuperview().inset(UIEdgeInsets(
+                top: viewProperties.margins.top,
+                left: viewProperties.margins.leading,
+                bottom: viewProperties.margins.bottom,
+                right: viewProperties.margins.trailing
+            ))
+        }
+        hStack.spacing = viewProperties.margins.spacing
+        hStack.alignment = {
+            switch viewProperties.verticalAlignment {
+            case .top: .top
+            case .center: .center
+            case .bottom: .bottom
+            case .fill: .fill
+            }
+        }()
     }
     
-    private func emptyViewDetection() {
-        isLeadingViewNil = viewProperties.leadingView == nil
-        isCenterViewNil = viewProperties.centerView == nil
-        isTrailingViewNil = viewProperties.trailingView == nil
-        
-        leadingView = viewProperties.leadingView ?? .init()
-        centerView = viewProperties.centerView ?? .init()
-        trailingView = viewProperties.trailingView ?? .init()
-    }
-    
-    private func emptyConstraintsDetection() {
-        leadingOffsetOfCenterView = viewProperties.margins.spacing
-        leadingOffsetOfTrailingView = viewProperties.margins.spacing
-        
-        if isLeadingViewNil || isCenterViewNil {
-            leadingOffsetOfCenterView = 0
+    private func setupBlocks(with viewProperties: ViewProperties) {
+        if let leadingView = viewProperties.leadingView {
+            hStack.addArrangedSubview(leadingView)
         }
         
-        if isLeadingViewNil && isCenterViewNil || isCenterViewNil && isTrailingViewNil {
-            leadingOffsetOfCenterView = 0
-            leadingOffsetOfTrailingView = 0
-        }
+        setupCenterBlock(with: viewProperties)
         
-        if isTrailingViewNil {
-            leadingOffsetOfTrailingView = 0
+        if let trailingView = viewProperties.trailingView {
+            hStack.addArrangedSubview(trailingView)
         }
     }
     
-    private func setConstraints() {
-        addSubview(leadingView)
-        leadingView.snp.makeConstraints {
-            $0.top.greaterThanOrEqualToSuperview().offset(viewProperties.margins.top)
-            $0.centerY.equalToSuperview()
-            $0.leading.equalToSuperview().offset(viewProperties.margins.leading)
-            $0.bottom.lessThanOrEqualToSuperview().offset(-viewProperties.margins.bottom)
-            if isLeadingViewNil {
-                $0.height.width.equalTo(0)
-            }
+    private func setupCenterBlock(with viewProperties: RowBaseContainer.ViewProperties) {
+        guard let centerView = viewProperties.centerView else {
+            return hStack.addArrangedSubview(makeGrowingHSpacer())
         }
         
-        addSubview(centerView)
-        centerView.snp.makeConstraints {
-            switch viewProperties.centralBlockAlignment {
-            case .leading:
-                $0.leading.equalTo(leadingView.snp.trailing).offset(leadingOffsetOfCenterView)
-            case .trailing:
-                $0.leading.greaterThanOrEqualTo(leadingView.snp.trailing).offset(leadingOffsetOfCenterView)
-            }
-            $0.top.greaterThanOrEqualToSuperview().offset(viewProperties.margins.top)
-            $0.centerY.equalToSuperview()
-            $0.bottom.lessThanOrEqualToSuperview().offset(-viewProperties.margins.bottom)
-            if isCenterViewNil {
-                $0.height.width.equalTo(0)
-            }
+        var (leadingCenterSpacer, trailingCenterSpacer): (UIView?, UIView?)
+        
+        if [.center, .trailing].contains(viewProperties.centralBlockAlignment) {
+            let spacer = makeGrowingHSpacer()
+            hStack.addArrangedSubview(spacer)
+            leadingCenterSpacer = spacer
         }
         
-        addSubview(trailingView)
-        trailingView.snp.makeConstraints {
-            switch viewProperties.centralBlockAlignment {
-            case .leading:
-                $0.leading.greaterThanOrEqualTo(centerView.snp.trailing).offset(leadingOffsetOfTrailingView)
-            case .trailing:
-                $0.leading.equalTo(centerView.snp.trailing).offset(leadingOffsetOfTrailingView)
-            }
-            $0.top.greaterThanOrEqualToSuperview().offset(viewProperties.margins.top)
-            $0.centerY.equalToSuperview()
-            $0.trailing.equalToSuperview().offset(-viewProperties.margins.trailing)
-            $0.bottom.lessThanOrEqualToSuperview().offset(-viewProperties.margins.bottom)
-            if isTrailingViewNil {
-                $0.height.width.equalTo(0)
+        hStack.addArrangedSubview(centerView)
+        
+        if [.leading, .center].contains(viewProperties.centralBlockAlignment) {
+            let spacer = makeGrowingHSpacer()
+            hStack.addArrangedSubview(spacer)
+            trailingCenterSpacer = spacer
+        }
+        
+        if let leadingCenterSpacer, let trailingCenterSpacer {
+            leadingCenterSpacer.snp.makeConstraints {
+                $0.width.equalTo(trailingCenterSpacer)
             }
         }
+    }
+    
+    private func makeGrowingHSpacer() -> UIView {
+        let view = UIView()
+        view.snp.makeConstraints { $0.width.equalTo(CGFloat.greatestFiniteMagnitude).priority(.low)
+        }
+        return view
     }
 }

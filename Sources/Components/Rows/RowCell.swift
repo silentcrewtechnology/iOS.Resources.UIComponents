@@ -1,4 +1,5 @@
 import UIKit
+import SnapKit
 
 public final class RowCell: UITableViewCell {
     public var customView: UIView? {
@@ -17,5 +18,10 @@ public final class RowCell: UITableViewCell {
         view.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
+    }
+    
+    public override func prepareForReuse() {
+        super.prepareForReuse()
+        contentView.subviews.forEach { $0.removeFromSuperview() }
     }
 }
