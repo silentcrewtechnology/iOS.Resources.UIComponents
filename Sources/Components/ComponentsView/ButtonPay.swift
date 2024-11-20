@@ -7,7 +7,6 @@ public final class ButtonPay: UIButton, ComponentProtocol {
     
     public struct ViewProperties {
         public var height: CGFloat
-        public var maxWidth: CGFloat
         public var cornerRadius: CGFloat
         public var horizontalStackSpacing: CGFloat
         public var backgroundColor: UIColor
@@ -18,7 +17,6 @@ public final class ButtonPay: UIButton, ComponentProtocol {
         
         public init(
             height: CGFloat = .zero,
-            maxWidth: CGFloat = .zero,
             backgroundColor: UIColor = .clear,
             cornerRadius: CGFloat = .zero,
             horizontalStackSpacing: CGFloat = .zero,
@@ -28,7 +26,6 @@ public final class ButtonPay: UIButton, ComponentProtocol {
             onTap: @escaping () -> Void = { }
         ) {
             self.height = height
-            self.maxWidth = maxWidth
             self.cornerRadius = cornerRadius
             self.horizontalStackSpacing = horizontalStackSpacing
             self.backgroundColor = backgroundColor
@@ -59,15 +56,13 @@ public final class ButtonPay: UIButton, ComponentProtocol {
     // MARK: - Methods
     
     public func update(with viewProperties: ViewProperties) {
-        DispatchQueue.main.async {
-            self.viewProperties = viewProperties
-            
-            self.setupView(viewProperties: viewProperties)
-            self.backgroundColor = viewProperties.backgroundColor
-            self.layer.cornerRadius = viewProperties.cornerRadius
-            self.textLabel.attributedText = viewProperties.text
-            self.logoImageView.image = viewProperties.image
-        }
+        self.viewProperties = viewProperties
+        
+        backgroundColor = viewProperties.backgroundColor
+        layer.cornerRadius = viewProperties.cornerRadius
+        logoImageView.image = viewProperties.image
+        setupView(viewProperties: viewProperties)
+        setupTextLabel(viewProperties: viewProperties)
     }
     
     // MARK: - Private methods
@@ -85,10 +80,14 @@ public final class ButtonPay: UIButton, ComponentProtocol {
         
         snp.makeConstraints {
             $0.height.equalTo(viewProperties.height)
-            $0.width.lessThanOrEqualTo(viewProperties.maxWidth)
         }
         
         addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
+    }
+    
+    private func setupTextLabel(viewProperties: ViewProperties) {
+        textLabel.attributedText = viewProperties.text
+        textLabel.isHidden = viewProperties.text.string.isEmpty
     }
     
     private func removeConstraintsAndSubviews() {
