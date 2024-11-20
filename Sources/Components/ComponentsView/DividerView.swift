@@ -3,6 +3,8 @@ import SnapKit
 
 public final class DividerView: UIView, ComponentProtocol {
     
+    // MARK: - Private properties
+    
     public struct ViewProperties {
         public var size: Size
         public var backgroundColor: UIColor
@@ -22,8 +24,6 @@ public final class DividerView: UIView, ComponentProtocol {
         }
     }
     
-    private var container = UIView()
-    
     private enum ConstraintType: Int {
         case top
         case leading
@@ -37,7 +37,11 @@ public final class DividerView: UIView, ComponentProtocol {
         case height
     }
     
-    public var containerConstraints: [Constraint] = []
+    private lazy var container = UIView()
+    private var containerConstraints: [Constraint] = []
+    private var viewProperties: ViewProperties = .init()
+    
+    // MARK: - Init
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
@@ -45,6 +49,16 @@ public final class DividerView: UIView, ComponentProtocol {
     }
     
     required init?(coder: NSCoder) { fatalError() }
+    
+    // MARK: - Methods
+    
+    public func update(with viewProperties: ViewProperties) {
+        self.viewProperties = viewProperties
+        updateSize(size: viewProperties.size)
+        container.backgroundColor = viewProperties.backgroundColor
+    }
+    
+    // MARK: - Private methods
     
     private func setupView() {
         addSubview(container)
@@ -70,22 +84,20 @@ public final class DividerView: UIView, ComponentProtocol {
         containerConstraints.forEach { $0.deactivate() }
     }
     
-    private var viewProperties: ViewProperties = .init()
-    
-    public func update(with viewProperties: ViewProperties) {
-        self.viewProperties = viewProperties
-        updateSize(size: viewProperties.size)
-        container.backgroundColor = viewProperties.backgroundColor
-    }
-    
     private func updateSize(size: ViewProperties.Size) {
         deactivateAllConstraints()
         
         switch size {
         case .width(let width):
-            activateConstraints(for: [.width, .top, .bottom, .leadingGreaterOrEqual, .trailingLessOrEqual], offset: width)
+            activateConstraints(
+                for: [.width, .top, .bottom, .leadingGreaterOrEqual, .trailingLessOrEqual],
+                offset: width
+            )
         case .height(let height):
-            activateConstraints(for: [.height, .leading, .trailing, .topGreaterOrEqual, .bottomLessOrEqual], offset: height)
+            activateConstraints(
+                for: [.height, .leading, .trailing, .topGreaterOrEqual, .bottomLessOrEqual],
+                offset: height
+            )
         case .size(let size):
             containerConstraints[ConstraintType.width.rawValue].update(offset: size.width).activate()
             containerConstraints[ConstraintType.height.rawValue].update(offset: size.height).activate()

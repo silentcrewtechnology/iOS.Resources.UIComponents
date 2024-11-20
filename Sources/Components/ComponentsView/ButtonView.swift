@@ -112,13 +112,12 @@ public final class ButtonView: UIButton, ComponentProtocol {
     // MARK: - Public Methods
     
     public func update(with viewProperties: ViewProperties) {
-        DispatchQueue.main.async {
-            self.viewProperties = viewProperties
-            self.setupProperties(with: viewProperties)
-            self.setCornerRadius(with: viewProperties)
-            self.setupActionButton(with: viewProperties)
-            self.updateConstraints(with: viewProperties)
-        }
+        self.viewProperties = viewProperties
+        
+        setupProperties(with: viewProperties)
+        setCornerRadius(with: viewProperties)
+        setupActionButton(with: viewProperties)
+        updateConstraints(with: viewProperties)
         setupAccessibilityIds(with: viewProperties)
     }
     

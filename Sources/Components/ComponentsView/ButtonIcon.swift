@@ -118,15 +118,14 @@ public final class ButtonIcon: UIButton, ComponentProtocol {
     required init?(coder: NSCoder) { fatalError() }
     
     public func update(with viewProperties: ViewProperties) {
-        DispatchQueue.main.async {
-            self.viewProperties = viewProperties
-            self.updateButtonAction(with: viewProperties)
-            self.setBackgroundColor(with: viewProperties)
-            self.setImage(with: viewProperties)
-            self.setCornerRadius(with: viewProperties)
-            self.updateConstraints(with: viewProperties)
-            self.updateActivityIndicator(with: viewProperties)
-        }
+        self.viewProperties = viewProperties
+        
+        updateButtonAction(with: viewProperties)
+        setBackgroundColor(with: viewProperties)
+        setImage(with: viewProperties)
+        setCornerRadius(with: viewProperties)
+        updateConstraints(with: viewProperties)
+        updateActivityIndicator(with: viewProperties)
         setupAccessibilityIds(with: viewProperties)
     }
     

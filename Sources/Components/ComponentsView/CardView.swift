@@ -152,26 +152,25 @@ public final class CardView: UIView, ComponentProtocol {
     // MARK: - Methods
     
     public func update(with viewProperties: ViewProperties) {
-        DispatchQueue.main.async {
-            self.viewProperties = viewProperties
-           
-            self.setupContainerView(viewProperties: viewProperties)
-            
-            if let centerImage = viewProperties.centerImage {
-                self.setupWithCenterImageView(centerImage: centerImage)
-            } else if  let emptyBand = viewProperties.emptyBand {
-                self.setupWithEmptyBand(emptyBand: emptyBand)
-            } else if viewProperties.maskedCardNumber != nil {
-                self.setupWithCardLabel(viewProperties: viewProperties)
-            } else {
-                self.setupWithPaymentSystemLabel(viewProperties: viewProperties)
-            }
-            
-            if let stackCardView = viewProperties.stackCardView {
-                self.setupStackCardView(cardView: stackCardView)
-            }
+        self.viewProperties = viewProperties
+       
+        setupContainerView(viewProperties: viewProperties)
+        
+        if let centerImage = viewProperties.centerImage {
+            setupWithCenterImageView(centerImage: centerImage)
+        } else if  let emptyBand = viewProperties.emptyBand {
+            setupWithEmptyBand(emptyBand: emptyBand)
+        } else if viewProperties.maskedCardNumber != nil {
+            setupWithCardLabel(viewProperties: viewProperties)
+        } else {
+            setupWithPaymentSystemLabel(viewProperties: viewProperties)
         }
-        self.setupAccessibilityIds(with: viewProperties)
+        
+        if let stackCardView = viewProperties.stackCardView {
+            setupStackCardView(cardView: stackCardView)
+        }
+        
+        setupAccessibilityIds(with: viewProperties)
     }
    
     // MARK: - Private methods
