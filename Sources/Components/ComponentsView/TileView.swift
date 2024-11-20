@@ -75,16 +75,15 @@ public final class TileView: UIView, ComponentProtocol {
     required init?(coder: NSCoder) { fatalError() }
     
     public func update(with viewProperties: ViewProperties) {
-        DispatchQueue.main.async {
-            self.viewProperties = viewProperties
-            self.textLabel.attributedText = viewProperties.text
-            self.textLabel.numberOfLines = viewProperties.numberOfLines
-            self.textLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-            self.setBackgroundColor(with: viewProperties)
-            self.setCornerRadius(with: viewProperties)
-            self.updateImageView(with: viewProperties)
-            self.updateConstraints(with: viewProperties)
-        }
+        self.viewProperties = viewProperties
+        
+        textLabel.attributedText = viewProperties.text
+        textLabel.numberOfLines = viewProperties.numberOfLines
+        textLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        setBackgroundColor(with: viewProperties)
+        setCornerRadius(with: viewProperties)
+        updateImageView(with: viewProperties)
+        updateConstraints(with: viewProperties)
     }
     
     // MARK: - private methods

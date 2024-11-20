@@ -97,15 +97,14 @@ public final class ImageView: UIView, ComponentProtocol {
     required init?(coder: NSCoder) { fatalError() }
     
     public func update(with viewProperties: ViewProperties) {
-        DispatchQueue.main.async {
-            self.viewProperties = viewProperties
-            self.updateBackground(with: viewProperties)
-            self.setCornerRadius(with: viewProperties)
-            self.updateText(with: viewProperties)
-            self.updateImage(with: viewProperties)
-            self.updateConstraints(with: viewProperties)
-        }
-        self.setupAccessibilityIds(with: viewProperties)
+        self.viewProperties = viewProperties
+        
+        updateBackground(with: viewProperties)
+        setCornerRadius(with: viewProperties)
+        updateText(with: viewProperties)
+        updateImage(with: viewProperties)
+        updateConstraints(with: viewProperties)
+        setupAccessibilityIds(with: viewProperties)
     }
     
     // MARK: - private methods
