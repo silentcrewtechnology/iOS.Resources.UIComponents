@@ -2,6 +2,8 @@ import UIKit
 
 public final class InputAmountTextField: UITextField, ComponentProtocol {
     
+    // MARK: - Properties
+    
     public struct ViewProperties {
         public var text: NSMutableAttributedString
         public var textAttributes: [NSAttributedString.Key: Any]
@@ -24,7 +26,14 @@ public final class InputAmountTextField: UITextField, ComponentProtocol {
         }
     }
     
+    public override var canBecomeFirstResponder: Bool { true }
+    
+    // MARK: - Private properties
+    
     private var viewProperties: ViewProperties = .init()
+    private var wasSetup = false
+    
+    // MARK: - Init
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
@@ -33,13 +42,15 @@ public final class InputAmountTextField: UITextField, ComponentProtocol {
     
     required init?(coder: NSCoder) { fatalError() }
     
+    // MARK: - Methods
+    
     public func update(with viewProperties: ViewProperties) {
         updateView(viewProperties: viewProperties)
         self.viewProperties = viewProperties
     }
     
-    private var wasSetup = false
-    
+    // MARK: - Private properties
+
     private func setupView() {
         guard !wasSetup else { return }
         wasSetup = true
@@ -57,6 +68,4 @@ public final class InputAmountTextField: UITextField, ComponentProtocol {
         attributedPlaceholder = viewProperties.placeholder
         tintColor = viewProperties.cursorColor
     }
-    
-    public override var canBecomeFirstResponder: Bool { true }
 }

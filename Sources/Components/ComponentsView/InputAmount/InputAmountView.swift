@@ -7,10 +7,10 @@ public final class InputAmountView: UIView {
     
     public struct ViewProperties {
         public var margins: Margins
-        public var headerViewProperties: LabelView.ViewProperties?
+        public var headerView: UIView?
+        public var hintView: UIView?
         public var textFieldProperties: InputAmountTextField.ViewProperties
         public var amountSymbol: NSMutableAttributedString
-        public var hintViewProperties: HintView.ViewProperties?
         public var isUserInteractionEnabled: Bool
         
         public struct Margins {
@@ -20,11 +20,13 @@ public final class InputAmountView: UIView {
             public var bottom: CGFloat
             public var spacing: CGFloat
             
-            public init(top: CGFloat = 0,
-                        trailing: CGFloat = 0,
-                        leading: CGFloat = 0,
-                        bottom: CGFloat = 0,
-                        spacing: CGFloat = 0) {
+            public init(
+                top: CGFloat = 0,
+                trailing: CGFloat = 0,
+                leading: CGFloat = 0,
+                bottom: CGFloat = 0,
+                spacing: CGFloat = 0
+            ) {
                 self.top = top
                 self.trailing = trailing
                 self.leading = leading
@@ -35,17 +37,17 @@ public final class InputAmountView: UIView {
         
         public init(
             margins: Margins = .init(),
-            headerViewProperties: LabelView.ViewProperties? = nil,
+            headerView: UIView? = nil,
+            hintView: UIView? = nil,
             textFieldProperties: InputAmountTextField.ViewProperties = .init(),
             amountSymbol: NSMutableAttributedString = .init(string: ""),
-            hintViewProperties: HintView.ViewProperties? = nil,
             isUserInteractionEnabled: Bool = true
         ) {
             self.margins = margins
-            self.headerViewProperties = headerViewProperties
+            self.headerView = headerView
+            self.hintView = hintView
             self.textFieldProperties = textFieldProperties
             self.amountSymbol = amountSymbol
-            self.hintViewProperties = hintViewProperties
             self.isUserInteractionEnabled = isUserInteractionEnabled
         }
     }
@@ -54,11 +56,9 @@ public final class InputAmountView: UIView {
     
     private var viewProperties: ViewProperties = .init()
     
-    private var containerView = UIView()
-    
-    private lazy var headerView = LabelView()
-    
-    private lazy var hintView = HintView()
+    private lazy var containerView = UIView()
+    private lazy var amountCurrencyContainer = UIView()
+    private lazy var currencyLabel = UILabel()
     
     private lazy var amountTextField: InputAmountTextField = {
         let textField = InputAmountTextField()
@@ -67,9 +67,7 @@ public final class InputAmountView: UIView {
         return textField
     }()
     
-    private var currencyLabel = UILabel()
-    
-    private var amountCurrencyContainer = UIView()
+    // MARK: - Init
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
@@ -81,16 +79,13 @@ public final class InputAmountView: UIView {
     
     public func update(with viewProperties: ViewProperties) {
         self.viewProperties = viewProperties
-        self.amountTextField.update(with: viewProperties.textFieldProperties)
-        self.updateViewSettings(with: viewProperties)
         
-        self.updateConstraint(with: viewProperties)
-        if let hint = viewProperties.hintViewProperties {
-            self.hintView.update(with: hint)
-        }
-        if let header = viewProperties.headerViewProperties {
-            self.headerView.update(with: header)
-        }
+        amountTextField.update(with: viewProperties.textFieldProperties)
+        updateViewSettings(with: viewProperties)
+        updateConstraint(with: viewProperties)
+        setupHeaderViewIfNeeded(with: viewProperties)
+        setupAmountCurrency(with: viewProperties)
+        setupHintViewIfNeeded(with: viewProperties)
     }
     
     // MARK: - Private methods
@@ -101,13 +96,10 @@ public final class InputAmountView: UIView {
         containerView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-        setupHeaderViewIfNeeded(with: viewProperties)
-        setupAmountCurrency(with: viewProperties)
-        setupHintViewIfNeeded(with: viewProperties)
     }
     
     private func setupHeaderViewIfNeeded(with viewProperties: ViewProperties) {
-        if viewProperties.headerViewProperties != nil {
+        if let headerView = viewProperties.headerView {
             containerView.addSubview(headerView)
             headerView.snp.makeConstraints {
                 $0.top.equalToSuperview().offset(viewProperties.margins.top)
@@ -119,7 +111,7 @@ public final class InputAmountView: UIView {
     
     private func setupAmountCurrency(with viewProperties: ViewProperties) {
         containerView.addSubview(amountCurrencyContainer)
-        if viewProperties.headerViewProperties != nil {
+        if let headerView = viewProperties.headerView {
             amountCurrencyContainer.snp.makeConstraints {
                 $0.top.equalTo(headerView.snp.bottom)
                 $0.leading.equalToSuperview().offset(viewProperties.margins.leading)
@@ -147,7 +139,7 @@ public final class InputAmountView: UIView {
     }
     
     private func setupHintViewIfNeeded(with viewProperties: ViewProperties) {
-        if viewProperties.hintViewProperties != nil {
+        if let hintView = viewProperties.hintView {
             containerView.addSubview(hintView)
             hintView.snp.makeConstraints {
                 $0.top.equalTo(amountCurrencyContainer.snp.bottom)
