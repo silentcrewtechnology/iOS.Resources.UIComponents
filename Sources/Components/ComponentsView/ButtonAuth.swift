@@ -3,91 +3,105 @@ import SnapKit
 
 public final class ButtonAuth: UIButton, ComponentProtocol {
     
-    // MARK: - ViewProperties
+    // MARK: - Properties
     
     public struct ViewProperties {
-        public var image: UIImage
-        public var title: NSMutableAttributedString
-        public var backgroundColor: UIColor
-        public var spacing: CGFloat
-        public var cornerRadius: CGFloat
         public var height: CGFloat
+        public var minWidth: CGFloat
+        public var cornerRadius: CGFloat
+        public var horizontalStackSpacing: CGFloat
+        public var backgroundColor: UIColor
+        public var text: NSMutableAttributedString
+        public var image: UIImage
+        public var stackViewInsets: UIEdgeInsets
         public var onTap: () -> Void
         
         public init(
-            image: UIImage = .init(),
-            title: NSMutableAttributedString = .init(string: ""),
+            height: CGFloat = .zero,
+            minWidth: CGFloat = .zero,
             backgroundColor: UIColor = .clear,
-            spacing: CGFloat = .zero,
-            cornerRadius: CGFloat = 0,
-            height: CGFloat = 0,
+            cornerRadius: CGFloat = .zero,
+            horizontalStackSpacing: CGFloat = .zero,
+            text: NSMutableAttributedString = .init(string: ""),
+            image: UIImage = .init(),
+            stackViewInsets: UIEdgeInsets = .zero,
             onTap: @escaping () -> Void = { }
         ) {
-            self.image = image
-            self.title = title
-            self.backgroundColor = backgroundColor
-            self.spacing = spacing
-            self.cornerRadius = cornerRadius
             self.height = height
+            self.minWidth = minWidth
+            self.cornerRadius = cornerRadius
+            self.horizontalStackSpacing = horizontalStackSpacing
+            self.backgroundColor = backgroundColor
+            self.text = text
+            self.image = image
+            self.stackViewInsets = stackViewInsets
             self.onTap = onTap
         }
     }
     
+    // MARK: - Private properties
+    
+    private lazy var hStack: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [
+            logoImageView,
+            textLabel
+        ])
+        stack.alignment = .center
+        
+        return stack
+    }()
+    
+    private lazy var textLabel = UILabel()
+    private lazy var logoImageView = UIImageView()
+    
     private var viewProperties: ViewProperties = .init()
     
-    // MARK: - init
-    
-    public override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
-    
-    required init?(coder: NSCoder) { fatalError() }
+    // MARK: - Methods
     
     public func update(with viewProperties: ViewProperties) {
         self.viewProperties = viewProperties
-        updateImage(image: viewProperties.image)
-        updateTitle(title: viewProperties.title)
-        updateInsets(spacing: viewProperties.spacing)
-        updateCornerRadius(with: viewProperties)
-        updateHeight(with: viewProperties)
+        
         backgroundColor = viewProperties.backgroundColor
+        layer.cornerRadius = viewProperties.cornerRadius
+        logoImageView.image = viewProperties.image
+        setupView(viewProperties: viewProperties)
+        setupTextLabel(viewProperties: viewProperties)
+    }
+    
+    // MARK: - Private methods
+
+    private func setupView(viewProperties: ViewProperties) {
+        removeConstraintsAndSubviews()
+        
+        addSubview(hStack)
+        hStack.spacing = viewProperties.horizontalStackSpacing
+        hStack.snp.makeConstraints {
+            $0.center.equalToSuperview()
+            $0.leading.greaterThanOrEqualToSuperview().inset(viewProperties.stackViewInsets)
+            $0.trailing.lessThanOrEqualToSuperview().inset(viewProperties.stackViewInsets)
+        }
+        
+        snp.makeConstraints {
+            $0.height.equalTo(viewProperties.height)
+            $0.width.greaterThanOrEqualTo(viewProperties.minWidth)
+        }
+        
         addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
     }
     
-    // MARK: - private methods
-
-    private func updateImage(image: UIImage) {
-        setImage(image, for: .normal)
-        setImage(image, for: .highlighted)
+    private func setupTextLabel(viewProperties: ViewProperties) {
+        textLabel.attributedText = viewProperties.text
+        textLabel.isHidden = viewProperties.text.string.isEmpty
     }
     
-    private func updateTitle(title: NSMutableAttributedString) {
-        setAttributedTitle(title, for: .normal)
-        setAttributedTitle(title, for: .highlighted)
-    }
-    
-    private func updateInsets(spacing: CGFloat) {
-        let halfSpacing = spacing / 2
-        imageEdgeInsets = UIEdgeInsets(top: 0, left: -halfSpacing, bottom: 0, right: halfSpacing)
-        titleEdgeInsets = UIEdgeInsets(top: 0, left: halfSpacing, bottom: 0, right: -halfSpacing)
-        contentEdgeInsets = UIEdgeInsets(top: 0, left: halfSpacing, bottom: 0, right: halfSpacing)
+    private func removeConstraintsAndSubviews() {
+        subviews.forEach { subview in
+            subview.snp.removeConstraints()
+            subview.removeFromSuperview()
+        }
     }
     
     @objc private func buttonTapped() {
         viewProperties.onTap()
-    }
-    
-    private func updateCornerRadius(with viewProperties: ViewProperties) {
-        cornerRadius(
-            radius: viewProperties.cornerRadius,
-            direction: .allCorners,
-            clipsToBounds: true
-        )
-    }
-    
-    private func updateHeight(with viewProperties: ViewProperties) {
-        snp.makeConstraints {
-            $0.height.equalTo(viewProperties.height)
-        }
     }
 }
