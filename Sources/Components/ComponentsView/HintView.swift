@@ -53,7 +53,7 @@ public final class HintView: UIView, ComponentProtocol {
     
     private var viewProperties: ViewProperties = .init()
     
-    private var containerView = UIView()
+    private lazy var containerView = UIView()
     
     private lazy var label: UILabel = {
         let label = UILabel()

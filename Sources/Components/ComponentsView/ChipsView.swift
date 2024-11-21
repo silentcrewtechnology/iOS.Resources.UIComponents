@@ -3,45 +3,35 @@ import SnapKit
 
 public final class ChipsView: PressableView, ComponentProtocol {
     
+    // MARK: - Properties
+    
     public struct ViewProperties {
         public var backgroundColor: UIColor
         public var cornerRadius: CGFloat
         public var leftImage: UIImage?
-        public var leftImageColor: UIColor
         public var isLeftImageHidden: Bool?
         public var text: NSMutableAttributedString
-        public var textColor: UIColor
         public var isTextHidden: Bool?
         public var rightImage: UIImage?
-        public var rightImageColor: UIColor
         public var isRightImageHidden: Bool?
         public var isUserInteractionEnabled: Bool
         public var onChipsTap: (Bool) -> Void
         public var handleTap: (PressableView.State) -> Void
-        public var onIconTap: () -> Void
+        public var onIconTap: (() -> Void)?
         public var margins: Margins
         
         public struct Margins {
+            public var insets: UIEdgeInsets
             public var spacing: CGFloat
-            public var top: CGFloat
-            public var leading: CGFloat
-            public var trailing: CGFloat
-            public var bottom: CGFloat
-            public var height: CGFloat = 0
+            public var height: CGFloat
             
             public init(
-                spacing: CGFloat = 0,
-                top: CGFloat = 0,
-                leading: CGFloat = 0,
-                trailing: CGFloat = 0,
-                bottom: CGFloat = 0,
-                height: CGFloat = 0
+                insets: UIEdgeInsets = .zero,
+                spacing: CGFloat = .zero,
+                height: CGFloat = .zero
             ) {
+                self.insets = insets
                 self.spacing = spacing
-                self.top = top
-                self.leading = leading
-                self.trailing = trailing
-                self.bottom = bottom
                 self.height = height
             }
         }
@@ -50,30 +40,24 @@ public final class ChipsView: PressableView, ComponentProtocol {
             backgroundColor: UIColor = .clear,
             cornerRadius: CGFloat = 0,
             leftImage: UIImage? = nil,
-            leftImageColor: UIColor = .clear,
             isLeftImageHidden: Bool = false,
             text: NSMutableAttributedString = .init(string: ""),
             isTextHidden: Bool = false,
-            textColor: UIColor = .clear,
             rightImage: UIImage? = nil,
-            rightImageColor: UIColor = .clear,
             isRightImageHidden: Bool = false,
             isUserInteractionEnabled: Bool = true,
             onChipsTap: @escaping (Bool) -> Void = { _ in },
             handleTap: @escaping (PressableView.State) -> Void = { _ in },
-            onIconTap: @escaping () -> Void = { },
+            onIconTap: (() -> Void)? = nil,
             margins: Margins = .init()
         ) {
             self.backgroundColor = backgroundColor
             self.cornerRadius = cornerRadius
             self.leftImage = leftImage
-            self.leftImageColor = leftImageColor
             self.isLeftImageHidden = isLeftImageHidden
             self.text = text
             self.isTextHidden = isTextHidden
-            self.textColor = textColor
             self.rightImage = rightImage
-            self.rightImageColor = rightImageColor
             self.isRightImageHidden = isRightImageHidden
             self.isUserInteractionEnabled = isUserInteractionEnabled
             self.onChipsTap = onChipsTap
@@ -83,9 +67,9 @@ public final class ChipsView: PressableView, ComponentProtocol {
         }
     }
     
-    private var viewProperties: ViewProperties = .init()
+    // MARK: - Private properties
     
-    // TODO: Проверить работу на устройстве
+    private var viewProperties: ViewProperties = .init()
     
     // MARK: - UI
     
@@ -93,41 +77,35 @@ public final class ChipsView: PressableView, ComponentProtocol {
         let stack = UIStackView()
         stack.axis = .horizontal
         stack.alignment = .center
+        
         return stack
     }()
-    
-    private let leftImageView: UIImageView = {
-        let image = UIImageView()
-        return image
-    }()
-    
-    private let textLabel: UILabel = {
+
+    private lazy var textLabel: UILabel = {
         let label = UILabel()
         label.lineBreakMode = .byTruncatingTail
         return label
     }()
+
+    private lazy var leftIconButton = UIButton()
+    private lazy var rightIconButton = UIButton()
     
-    private let rightImageView: UIImageView = {
-        let image = UIImageView()
-        return image
-    }()
-    
-    public override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
-    
-    required init?(coder: NSCoder) { fatalError() }
+    // MARK: - Methods
     
     public func update(with viewProperties: ViewProperties) {
         self.viewProperties = viewProperties
-        self.backgroundColor = viewProperties.backgroundColor
-        self.setCornerRadius(with: viewProperties)
-        self.updateConstraints(with: viewProperties)
-        self.updateStack(with: viewProperties)
-        self.textLabel.textColor = viewProperties.textColor
-        self.textLabel.attributedText = viewProperties.text
-        self.isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
+        
+        UIView.animate(withDuration: 0.1) {
+            self.backgroundColor = viewProperties.backgroundColor
+            self.isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
+            self.textLabel.attributedText = viewProperties.text
+            self.setCornerRadius(with: viewProperties)
+            self.updateConstraints(with: viewProperties)
+            self.updateStack(with: viewProperties)
+        }
     }
+    
+    // MARK: - Private methods
     
     private func setCornerRadius(with viewProperties: ViewProperties) {
         cornerRadius(
@@ -138,14 +116,15 @@ public final class ChipsView: PressableView, ComponentProtocol {
     }
     
     private func updateStack(with viewProperties: ViewProperties) {
-        
+        hStack.spacing = viewProperties.margins.spacing
         if let leftImage = viewProperties.leftImage,
            let isLeftImageHidden = viewProperties.isLeftImageHidden {
             if !isLeftImageHidden {
-                let gr = UITapGestureRecognizer(target: self, action: #selector(iconTapped))
-                leftImageView.image = leftImage.withTintColor(viewProperties.leftImageColor)
-                leftImageView.addGestureRecognizer(gr)
-                hStack.addArrangedSubview(leftImageView)
+                leftIconButton.setImage(leftImage, for: .normal)
+                leftIconButton.setImage(leftImage, for: .disabled)
+                leftIconButton.addTarget(self, action: #selector(iconButtonTapped), for: .touchUpInside)
+                leftIconButton.isEnabled = viewProperties.onIconTap != nil
+                hStack.addArrangedSubview(leftIconButton)
             }
         }
         
@@ -155,27 +134,24 @@ public final class ChipsView: PressableView, ComponentProtocol {
             }
         }
         
-        // TODO / UITapGestureRecognizer - не работает с PressableView
         if let rightImage = viewProperties.rightImage,
            let isRightImageHidden = viewProperties.isRightImageHidden {
             if !isRightImageHidden {
-                let gr = UITapGestureRecognizer(target: self, action: #selector(iconTapped))
-                rightImageView.image = rightImage.withTintColor(viewProperties.rightImageColor)
-                rightImageView.addGestureRecognizer(gr)
-                hStack.addArrangedSubview(rightImageView)
+                rightIconButton.setImage(rightImage, for: .normal)
+                rightIconButton.setImage(rightImage, for: .disabled)
+                rightIconButton.addTarget(self, action: #selector(iconButtonTapped), for: .touchUpInside)
+                rightIconButton.isEnabled = viewProperties.onIconTap != nil
+                hStack.addArrangedSubview(rightIconButton)
             }
         }
     }
     
     private func updateConstraints(with viewProperties: ViewProperties) {
         removeConstraintsAndSubviews()
+        
         addSubview(hStack)
         hStack.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(viewProperties.margins.top)
-            $0.leading.equalToSuperview().offset(viewProperties.margins.leading)
-            $0.trailing.equalToSuperview().offset(-viewProperties.margins.trailing)
-            $0.bottom.equalToSuperview().offset(-viewProperties.margins.bottom)
-            
+            $0.edges.equalToSuperview().inset(viewProperties.margins.insets)
         }
     }
     
@@ -191,14 +167,19 @@ public final class ChipsView: PressableView, ComponentProtocol {
         viewProperties.handleTap(state)
     }
     
-    @objc
-    private func iconTapped() {
-        viewProperties.onIconTap()
+    @objc private func iconButtonTapped() {
+        viewProperties.onIconTap?()
     }
 }
 
+// MARK: - UIGestureRecognizerDelegate
+
 extension ChipsView: UIGestureRecognizerDelegate {
-    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+    
+    public func gestureRecognizer(
+        _ gestureRecognizer: UIGestureRecognizer,
+        shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
+    ) -> Bool {
         return true
     }
 }
