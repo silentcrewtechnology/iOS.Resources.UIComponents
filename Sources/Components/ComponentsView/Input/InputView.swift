@@ -7,8 +7,8 @@ public final class InputView: UIView, ComponentProtocol {
     // MARK: - Properties
     
     public struct ViewProperties {
-        public var labelViewProperties: LabelView.ViewProperties?
-        public var hintViewProperties: HintView.ViewProperties
+        public var headerView: UIView?
+        public var hintView: UIView
         public var textFieldViewProperties: InputTextField.ViewProperties
         public var textFieldBackgroundColor: UIColor
         public var textFieldCornerRadius: CGFloat
@@ -21,6 +21,7 @@ public final class InputView: UIView, ComponentProtocol {
         public var isEnabled: Bool
         public var stackViewInsets: UIEdgeInsets
         public var stackViewSpacing: CGFloat
+        public var onTextChanged: ((String?) -> Void)?
         public var accessibilityIds: AccessibilityIds?
         
         public struct AccessibilityIds {
@@ -37,8 +38,8 @@ public final class InputView: UIView, ComponentProtocol {
         }
        
         public init(
-            labelViewProperties: LabelView.ViewProperties? = nil,
-            hintViewProperties: HintView.ViewProperties = .init(),
+            headerView: UIView? = nil,
+            hintView: UIView = .init(),
             textFieldViewProperties: InputTextField.ViewProperties = .init(),
             textFieldBackgroundColor: UIColor = .clear,
             textFieldCornerRadius: CGFloat = .zero,
@@ -51,10 +52,11 @@ public final class InputView: UIView, ComponentProtocol {
             isEnabled: Bool = true,
             stackViewInsets: UIEdgeInsets = .zero,
             stackViewSpacing: CGFloat = .zero,
+            onTextChanged: ((String?) -> Void)? = nil,
             accessibilityIds: AccessibilityIds? = nil
         ) {
-            self.labelViewProperties = labelViewProperties
-            self.hintViewProperties = hintViewProperties
+            self.headerView = headerView
+            self.hintView = hintView
             self.textFieldViewProperties = textFieldViewProperties
             self.textFieldBackgroundColor = textFieldBackgroundColor
             self.textFieldCornerRadius = textFieldCornerRadius
@@ -67,6 +69,7 @@ public final class InputView: UIView, ComponentProtocol {
             self.isEnabled = isEnabled
             self.stackViewInsets = stackViewInsets
             self.stackViewSpacing = stackViewSpacing
+            self.onTextChanged = onTextChanged
             self.accessibilityIds = accessibilityIds
         }
     }
@@ -81,9 +84,7 @@ public final class InputView: UIView, ComponentProtocol {
     }()
     
     private lazy var textFieldContainer = UIView()
-    private lazy var labelView = LabelView()
     private lazy var textField = InputTextField()
-    private lazy var hintView = HintView()
     
     private var viewProperties: ViewProperties = .init()
     
@@ -91,53 +92,38 @@ public final class InputView: UIView, ComponentProtocol {
     
     public func update(with viewProperties: ViewProperties) {
         self.viewProperties = viewProperties
-        setupView(viewProperties: viewProperties)
-        updateLabelView(with: viewProperties.labelViewProperties)
-        updateTextField(with: viewProperties)
-        hintView.update(with: viewProperties.hintViewProperties)
+        
+        setupView(with: viewProperties)
+        setupHeaderViewIfNeeded(with: viewProperties)
+        setupTextField(with: viewProperties)
+        setupHintView(with: viewProperties)
         setupAccessibilityIds(with: viewProperties)
     }
     
     // MARK: - Private methods
     
-    private func setupView(viewProperties: ViewProperties) {
+    private func setupView(with viewProperties: ViewProperties) {
         removeConstraintsAndSubviews()
         
         addSubview(verticalStack)
         verticalStack.spacing = viewProperties.stackViewSpacing
         verticalStack.isUserInteractionEnabled = true
-        verticalStack.addArrangedSubview(labelView)
-        verticalStack.addArrangedSubview(textFieldContainer)
-        verticalStack.addArrangedSubview(hintView)
         verticalStack.distribution = .fill
         verticalStack.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(viewProperties.stackViewInsets)
             make.height.greaterThanOrEqualTo(viewProperties.minHeight)
         }
-        
+    }
+    
+    private func setupHeaderViewIfNeeded(with viewProperties: ViewProperties) {
+        if let headerView = viewProperties.headerView {
+            verticalStack.addArrangedSubview(headerView)
+        }
+    }
+    
+    private func setupTextField(with viewProperties: ViewProperties) {
+        verticalStack.addArrangedSubview(textFieldContainer)
         textFieldContainer.clipsToBounds = true
-        textFieldContainer.snp.makeConstraints { make in
-            make.height.equalTo(viewProperties.textFieldHeight)
-        }
-        
-        textFieldContainer.addSubview(textField)
-        textField.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(viewProperties.textFieldInsets)
-        }
-    }
-    
-    private func updateLabelView(with labelViewProperties: LabelView.ViewProperties?) {
-        if let labelViewProperties {
-            labelView.update(with: labelViewProperties)
-            labelView.isHidden = false
-        } else {
-            labelView.isHidden = true
-        }
-    }
-    
-    private func updateTextField(with viewProperties: ViewProperties) {
-        textFieldContainer.backgroundColor = viewProperties.textFieldBackgroundColor
-        textFieldContainer.layer.borderColor = viewProperties.textFieldBorderColor.cgColor
         textFieldContainer.layer.borderWidth = viewProperties.textFieldBorderWidth
         textFieldContainer.layer.cornerRadius = viewProperties.textFieldCornerRadius
         textFieldContainer.isUserInteractionEnabled = viewProperties.isEnabled
@@ -145,10 +131,26 @@ public final class InputView: UIView, ComponentProtocol {
             target: self,
             action: #selector(textFieldTapped))
         )
+        textFieldContainer.snp.makeConstraints { make in
+            make.height.equalTo(viewProperties.textFieldHeight)
+        }
         
+        textFieldContainer.addSubview(textField)
         textField.rightViewMode = .always
         textField.rightView = viewProperties.rightView
         textField.update(with: viewProperties.textFieldViewProperties)
+        textField.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(viewProperties.textFieldInsets)
+        }
+        
+        UIView.animate(withDuration: 0.1) {
+            self.textFieldContainer.backgroundColor = viewProperties.textFieldBackgroundColor
+            self.textFieldContainer.layer.borderColor = viewProperties.textFieldBorderColor.cgColor
+        }
+    }
+    
+    private func setupHintView(with viewProperties: ViewProperties) {
+        verticalStack.addArrangedSubview(viewProperties.hintView)
     }
     
     private func removeConstraintsAndSubviews() {
@@ -177,7 +179,7 @@ public final class InputView: UIView, ComponentProtocol {
         verticalStack.accessibilityIdentifier = DesignSystemAccessibilityIDs.InputView.verticalStack
         textFieldContainer.isAccessibilityElement = true
         textFieldContainer.accessibilityIdentifier = DesignSystemAccessibilityIDs.InputView.textFieldContainer
-        hintView.isAccessibilityElement = true
-        hintView.accessibilityIdentifier = viewProperties.accessibilityIds?.hintId
+        viewProperties.hintView.isAccessibilityElement = true
+        viewProperties.hintView.accessibilityIdentifier = viewProperties.accessibilityIds?.hintId
     }
 }

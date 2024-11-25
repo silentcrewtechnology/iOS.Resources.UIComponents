@@ -12,6 +12,7 @@ public final class InputAmountView: UIView {
         public var textFieldProperties: InputAmountTextField.ViewProperties
         public var amountSymbol: NSMutableAttributedString
         public var isUserInteractionEnabled: Bool
+        public var onTextChanged: ((String?) -> Void)?
         
         public struct Margins {
             public var top: CGFloat
@@ -41,7 +42,8 @@ public final class InputAmountView: UIView {
             hintView: UIView? = nil,
             textFieldProperties: InputAmountTextField.ViewProperties = .init(),
             amountSymbol: NSMutableAttributedString = .init(string: ""),
-            isUserInteractionEnabled: Bool = true
+            isUserInteractionEnabled: Bool = true,
+            onTextChanged: ((String?) -> Void)? = nil
         ) {
             self.margins = margins
             self.headerView = headerView
@@ -49,6 +51,7 @@ public final class InputAmountView: UIView {
             self.textFieldProperties = textFieldProperties
             self.amountSymbol = amountSymbol
             self.isUserInteractionEnabled = isUserInteractionEnabled
+            self.onTextChanged = onTextChanged
         }
     }
     

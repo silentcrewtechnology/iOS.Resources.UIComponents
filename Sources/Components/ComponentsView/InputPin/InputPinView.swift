@@ -4,6 +4,8 @@ import AccessibilityIds
 
 public final class InputPinView: UIView, ComponentProtocol {
     
+    // MARK: - Properties
+    
     public struct ViewProperties {
         public var items: [UIView]
         public var spacing: CGFloat
@@ -20,20 +22,38 @@ public final class InputPinView: UIView, ComponentProtocol {
         }
     }
     
+    // MARK: - Private properties
+    
     private var viewProperties: ViewProperties = .init()
     
-    private let hStack: UIStackView = {
+    private lazy var hStack: UIStackView = {
         let stack = UIStackView()
         stack.axis = .horizontal
+        
         return stack
     }()
     
+    // MARK: - Life cycle
+    
     public override init(frame: CGRect) {
         super.init(frame: frame)
+        
         setupView()
     }
     
     required init?(coder: NSCoder) { fatalError() }
+    
+    // MARK: - Methods
+    
+    public func update(with viewProperties: ViewProperties) {
+        hStack.spacing = viewProperties.spacing
+        updateSubviews(with: viewProperties)
+        setupAccessibilityId(with: viewProperties)
+        
+        self.viewProperties = viewProperties
+    }
+    
+    // MARK: - Private methods
     
     private func setupView() {
         addSubview(hStack)
@@ -44,17 +64,10 @@ public final class InputPinView: UIView, ComponentProtocol {
         }
     }
     
-    public func update(with viewProperties: ViewProperties) {
-        hStack.spacing = viewProperties.spacing
-        updateSubviews(with: viewProperties)
-        setupAccessibilityId(with: viewProperties)
-        self.viewProperties = viewProperties
-    }
-    
     private func updateSubviews(with viewProperties: ViewProperties) {
-        guard
-            self.viewProperties.items.count != viewProperties.items.count
+        guard self.viewProperties.items.count != viewProperties.items.count
         else { return }
+        
         hStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
         for item in viewProperties.items {
             hStack.addArrangedSubview(item)

@@ -3,6 +3,8 @@ import SnapKit
 
 public final class InputTextField: UITextField, ComponentProtocol {
     
+    // MARK: - Properties
+    
     public struct ViewProperties {
         public var text: NSMutableAttributedString
         public var placeholder: NSMutableAttributedString
@@ -34,9 +36,13 @@ public final class InputTextField: UITextField, ComponentProtocol {
         }
     }
     
+    public override var canBecomeFirstResponder: Bool { true }
+    
+    // MARK: - Private properties
+    
     private var viewProperties: ViewProperties = .init()
     
-    public override var canBecomeFirstResponder: Bool { true }
+    // MARK: - Methods
     
     public func update(with viewProperties: ViewProperties) {
         autocapitalizationType = viewProperties.autocapitalizationType
@@ -49,6 +55,8 @@ public final class InputTextField: UITextField, ComponentProtocol {
         setupAccessibilityId(with: viewProperties)
         self.viewProperties = viewProperties
     }
+    
+    // MARK: - Private methods
     
     private func updateText(attributedText: NSMutableAttributedString) {
         // корректное позиционирование attributedText с lineHeight

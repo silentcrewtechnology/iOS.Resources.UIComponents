@@ -3,6 +3,8 @@ import SnapKit
 
 public final class InputPinItemView: UIView, ComponentProtocol {
     
+    // MARK: - Properties
+    
     public struct ViewProperties {
         public var size: CGSize
         public var backgroundColor: UIColor
@@ -22,31 +24,43 @@ public final class InputPinItemView: UIView, ComponentProtocol {
         }
     }
     
+    // MARK: - Private properties
+    
     private var viewProperties: ViewProperties = .init()
+    
+    // MARK: - Life cycle
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
+        
         setupView()
     }
     
     required init?(coder: NSCoder) { fatalError() }
     
-    private func setupView() {
-        snp.makeConstraints { $0.size.equalTo(0) }
-    }
+    // MARK: - Methods
     
     public func update(with viewProperties: ViewProperties) {
         layer.cornerRadius = viewProperties.cornerRadius
         updateSize(with: viewProperties)
-        UIView.transition(with: self, duration: 0.2, options: .transitionCrossDissolve) { [self] in
-            backgroundColor = viewProperties.backgroundColor
-        }
         setupAccessibilityId(with: viewProperties)
+        
         self.viewProperties = viewProperties
+        
+        UIView.animate(withDuration: 0.2) {
+            self.backgroundColor = viewProperties.backgroundColor
+        }
+    }
+    
+    // MARK: - Private methods
+    
+    private func setupView() {
+        snp.makeConstraints { $0.size.equalTo(0) }
     }
     
     private func updateSize(with viewProperties: ViewProperties) {
         guard self.viewProperties.size != viewProperties.size else { return }
+        
         snp.updateConstraints { $0.size.equalTo(viewProperties.size) }
     }
     

@@ -64,7 +64,7 @@ public final class LabelView: UIView, ComponentProtocol {
         label.numberOfLines = .zero
         return label
     }()
-    private var container = UIView()
+    private lazy var container = UIView()
     
     private lazy var longPressGesture = UILongPressGestureRecognizer()
     private var viewProperties: ViewProperties = .init()
