@@ -7,6 +7,7 @@ public final class InputTextField: UITextField, ComponentProtocol {
     
     public struct ViewProperties {
         public var text: NSMutableAttributedString
+        public var textAttributes: [NSAttributedString.Key: Any]
         public var placeholder: NSMutableAttributedString
         public var cursorColor: UIColor
         public var delegateAssigningClosure: (UITextField) -> Void
@@ -17,6 +18,7 @@ public final class InputTextField: UITextField, ComponentProtocol {
         
         public init(
             text: NSMutableAttributedString = .init(string: ""),
+            textAttributes: [NSAttributedString.Key: Any] = [:],
             placeholder: NSMutableAttributedString = .init(string: ""),
             cursorColor: UIColor = .black,
             delegateAssigningClosure: @escaping (UITextField) -> Void = { _ in },
@@ -26,11 +28,12 @@ public final class InputTextField: UITextField, ComponentProtocol {
             accessibilityId: String? = nil
         ) {
             self.text = text
+            self.textAttributes = textAttributes
             self.placeholder = placeholder
+            self.cursorColor = cursorColor
             self.delegateAssigningClosure = delegateAssigningClosure
             self.autocapitalizationType = autocapitalizationType
             self.keyboardType = keyboardType
-            self.cursorColor = cursorColor
             self.isSecureTextEntry = isSecureTextEntry
             self.accessibilityId = accessibilityId
         }
@@ -47,7 +50,7 @@ public final class InputTextField: UITextField, ComponentProtocol {
     public func update(with viewProperties: ViewProperties) {
         autocapitalizationType = viewProperties.autocapitalizationType
         keyboardType = viewProperties.keyboardType
-        updateText(attributedText: viewProperties.text)
+        updateText(with: viewProperties)
         attributedPlaceholder = viewProperties.placeholder
         tintColor = viewProperties.cursorColor
         viewProperties.delegateAssigningClosure(self)
@@ -58,16 +61,14 @@ public final class InputTextField: UITextField, ComponentProtocol {
     
     // MARK: - Private methods
     
-    private func updateText(attributedText: NSMutableAttributedString) {
-        // корректное позиционирование attributedText с lineHeight
-        var effectiveRange = attributedText.fullRange()
-        guard effectiveRange.length > 0 else { return }
-        let attributes = attributedText.attributes(
-            at: 0,
-            effectiveRange: &effectiveRange)
-        font = attributes[.font] as? UIFont
-        textColor = attributes[.foregroundColor] as? UIColor
-        text = attributedText.string
+    private func updateText(with viewProperties: ViewProperties) {
+        if let font = viewProperties.textAttributes[.font] as? UIFont {
+            self.font = font
+        }
+        if let textColor = viewProperties.textAttributes[.foregroundColor] as? UIColor {
+            self.textColor = textColor
+        }
+        text = viewProperties.text.string
     }
     
     private func setupAccessibilityId(with viewProperties: ViewProperties) {
