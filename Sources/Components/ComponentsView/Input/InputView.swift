@@ -79,69 +79,92 @@ public final class InputView: UIView, ComponentProtocol {
     private lazy var verticalStack: UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
-
+        stack.distribution = .fill
+        stack.spacing = 0
+        stack.isUserInteractionEnabled = true
         return stack
     }()
     
-    private lazy var textFieldContainer = UIView()
-    private lazy var textField = InputTextField()
+    private lazy var textFieldContainer: UIView = {
+        let view = UIView()
+        view.clipsToBounds = true
+        view.addGestureRecognizer(UITapGestureRecognizer(
+            target: self,
+            action: #selector(textFieldTapped))
+        )
+        view.snp.makeConstraints { $0.height.equalTo(0) }
+        return view
+    }()
+    
+    private lazy var textField: InputTextField = {
+        let field = InputTextField()
+        field.rightViewMode = .always
+        return field
+    }()
     
     private var viewProperties: ViewProperties = .init()
+    
+    public override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupView()
+    }
+    
+    required init?(coder: NSCoder) { fatalError() }
     
     // MARK: - Public methods
     
     public func update(with viewProperties: ViewProperties) {
-        self.viewProperties = viewProperties
-        
-        setupView(with: viewProperties)
+        stripNonTextFieldSubviews()
+        setupConstraints(with: viewProperties)
         setupHeaderViewIfNeeded(with: viewProperties)
         setupTextField(with: viewProperties)
         setupHintView(with: viewProperties)
         setupAccessibilityIds(with: viewProperties)
+        self.viewProperties = viewProperties
     }
     
     // MARK: - Private methods
     
-    private func setupView(with viewProperties: ViewProperties) {
-        removeConstraintsAndSubviews()
-        
+    private func setupView() {
+        textFieldContainer.addSubview(textField)
+        textField.snp.makeConstraints { $0.edges.equalToSuperview() }
+        verticalStack.addArrangedSubview(textFieldContainer)
         addSubview(verticalStack)
-        verticalStack.spacing = viewProperties.stackViewSpacing
-        verticalStack.isUserInteractionEnabled = true
-        verticalStack.distribution = .fill
-        verticalStack.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(viewProperties.stackViewInsets)
-            make.height.greaterThanOrEqualTo(viewProperties.minHeight)
+        verticalStack.snp.makeConstraints { $0.edges.equalToSuperview() }
+    }
+    
+    private func setupConstraints(with viewProperties: ViewProperties) {
+        verticalStack.snp.updateConstraints {
+            $0.edges.equalToSuperview().inset(viewProperties.stackViewInsets)
+        }
+        textFieldContainer.snp.updateConstraints {
+            $0.height.equalTo(viewProperties.textFieldHeight)
+        }
+        textField.snp.updateConstraints {
+            $0.edges.equalToSuperview().inset(viewProperties.textFieldInsets)
+        }
+    }
+    
+    private func stripNonTextFieldSubviews() {
+        // textField должен оставаться в иерархии
+        verticalStack.arrangedSubviews.forEach {
+            if $0 !== textFieldContainer {
+                $0.removeFromSuperview()
+            }
         }
     }
     
     private func setupHeaderViewIfNeeded(with viewProperties: ViewProperties) {
-        if let headerView = viewProperties.headerView {
-            verticalStack.addArrangedSubview(headerView)
-        }
+        guard let headerView = viewProperties.headerView else { return }
+        verticalStack.insertArrangedSubview(headerView, at: 0)
     }
     
     private func setupTextField(with viewProperties: ViewProperties) {
-        verticalStack.addArrangedSubview(textFieldContainer)
-        textFieldContainer.clipsToBounds = true
         textFieldContainer.layer.borderWidth = viewProperties.textFieldBorderWidth
         textFieldContainer.layer.cornerRadius = viewProperties.textFieldCornerRadius
         textFieldContainer.isUserInteractionEnabled = viewProperties.isEnabled
-        textFieldContainer.addGestureRecognizer(UITapGestureRecognizer(
-            target: self,
-            action: #selector(textFieldTapped))
-        )
-        textFieldContainer.snp.makeConstraints { make in
-            make.height.equalTo(viewProperties.textFieldHeight)
-        }
-        
-        textFieldContainer.addSubview(textField)
-        textField.rightViewMode = .always
         textField.rightView = viewProperties.rightView
         textField.update(with: viewProperties.textFieldViewProperties)
-        textField.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(viewProperties.textFieldInsets)
-        }
         
         UIView.animate(withDuration: 0.1) {
             self.textFieldContainer.backgroundColor = viewProperties.textFieldBackgroundColor
@@ -151,18 +174,6 @@ public final class InputView: UIView, ComponentProtocol {
     
     private func setupHintView(with viewProperties: ViewProperties) {
         verticalStack.addArrangedSubview(viewProperties.hintView)
-    }
-    
-    private func removeConstraintsAndSubviews() {
-        verticalStack.arrangedSubviews.forEach { subview in
-            subview.snp.removeConstraints()
-            subview.removeFromSuperview()
-        }
-        
-        subviews.forEach { subview in
-            subview.snp.removeConstraints()
-            subview.removeFromSuperview()
-        }
     }
     
     @objc private func textFieldTapped() {
