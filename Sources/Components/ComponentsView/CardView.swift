@@ -19,6 +19,7 @@ public final class CardView: UIView, ComponentProtocol {
         public var paymentSystemImageSize: CGSize
         public var maskedCardNumberLabelInsets: UIEdgeInsets
         public var maskedCardNumber: NSMutableAttributedString?
+        public var isMaskedCardNumberHidden: Bool
         public var gradientViewProperties: GradientView.ViewProperties?
         public var stackCardView: StackCardView?
         public var accessibilityIds: AccessibilityIds?
@@ -40,17 +41,14 @@ public final class CardView: UIView, ComponentProtocol {
         }
         
         public struct StackCardView {
-            public var stackCardViewProperties: [CardView.ViewProperties]
-            public var alphaValue: CGFloat
+            public var stackCards: [UIView]
             public var insets: UIEdgeInsets
             
             public init(
-                stackCardViewProperties: [CardView.ViewProperties] = [],
-                alphaValue: CGFloat = .zero,
+                stackCards: [UIView] = .init(),
                 insets: UIEdgeInsets = .zero
             ) {
-                self.stackCardViewProperties = stackCardViewProperties
-                self.alphaValue = alphaValue
+                self.stackCards = stackCards
                 self.insets = insets
             }
         }
@@ -96,6 +94,7 @@ public final class CardView: UIView, ComponentProtocol {
             paymentSystemImageSize: CGSize = .zero,
             maskedCardNumberLabelInsets: UIEdgeInsets = .zero,
             maskedCardNumber: NSMutableAttributedString? = nil,
+            isMaskedCardNumberHidden: Bool = false,
             gradientViewProperties: GradientView.ViewProperties? = nil,
             stackCardView: StackCardView? = nil,
             accessibilityIds: AccessibilityIds? = nil
@@ -112,6 +111,7 @@ public final class CardView: UIView, ComponentProtocol {
             self.paymentSystemImageSize = paymentSystemImageSize
             self.maskedCardNumberLabelInsets = maskedCardNumberLabelInsets
             self.maskedCardNumber = maskedCardNumber
+            self.isMaskedCardNumberHidden = isMaskedCardNumberHidden
             self.gradientViewProperties = gradientViewProperties
             self.stackCardView = stackCardView
             self.accessibilityIds = accessibilityIds
@@ -141,7 +141,6 @@ public final class CardView: UIView, ComponentProtocol {
         return view
     }()
     
-    private lazy var stackCardView = CardView()
     private lazy var gradientView = GradientView(frame: bounds)
     private lazy var cardNumberLabel = UILabel()
     private lazy var bandView = UIView()
@@ -158,9 +157,9 @@ public final class CardView: UIView, ComponentProtocol {
         
         if let centerImage = viewProperties.centerImage {
             setupWithCenterImageView(centerImage: centerImage)
-        } else if  let emptyBand = viewProperties.emptyBand {
+        } else if let emptyBand = viewProperties.emptyBand {
             setupWithEmptyBand(emptyBand: emptyBand)
-        } else if viewProperties.maskedCardNumber != nil {
+        } else if !viewProperties.isMaskedCardNumberHidden {
             setupWithCardLabel(viewProperties: viewProperties)
         } else {
             setupWithPaymentSystemLabel(viewProperties: viewProperties)
@@ -272,14 +271,11 @@ public final class CardView: UIView, ComponentProtocol {
     }
     
     private func setupStackCardView(cardView: ViewProperties.StackCardView) {
-        if let cardViewProperties = cardView.stackCardViewProperties.first {
+        if let stackCardView = cardView.stackCards.first {
             addSubview(stackCardView)
             sendSubviewToBack(stackCardView)
-            stackCardView.update(with: cardViewProperties)
-            stackCardView.alpha = cardView.alphaValue
             
-            stackCardView.snp.remakeConstraints { make in
-                make.size.equalTo(cardViewProperties.size)
+            stackCardView.snp.makeConstraints { make in
                 make.centerX.bottom.equalTo(containerView).inset(cardView.insets)
             }
         }
@@ -295,5 +291,7 @@ public final class CardView: UIView, ComponentProtocol {
             subview.snp.removeConstraints()
             subview.removeFromSuperview()
         }
+        
+        snp.removeConstraints()
     }
 }

@@ -91,23 +91,14 @@ public final class ButtonView: UIButton, ComponentProtocol {
     
     // MARK: - UI
     
-    private let leftIconView = UIImageView()
-    private let textLabel = UILabel()
+    private lazy var leftIconView = UIImageView()
+    private lazy var textLabel = UILabel()
     
     public override var isHighlighted: Bool {
         didSet {
             viewProperties.onHighlighted(isHighlighted)
         }
     }
-    
-    // MARK: - Init
-    
-    public override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
-    
-    @available(*, unavailable)
-    required init?(coder: NSCoder) { fatalError() }
     
     // MARK: - Public Methods
     
@@ -119,12 +110,15 @@ public final class ButtonView: UIButton, ComponentProtocol {
         setupActionButton(with: viewProperties)
         updateConstraints(with: viewProperties)
         setupAccessibilityIds(with: viewProperties)
+        
+        UIView.animate(withDuration: 0.1) {
+            self.backgroundColor = viewProperties.backgroundColor
+        }
     }
     
     // MARK: - Private Methods
     
     private func setupProperties(with viewProperties: ViewProperties) {
-        backgroundColor = viewProperties.backgroundColor
         isUserInteractionEnabled = viewProperties.isEnabled
         textLabel.attributedText = viewProperties.attributedText
         textLabel.isHidden = !(viewProperties.loader?.isHidden ?? true)
@@ -133,6 +127,7 @@ public final class ButtonView: UIButton, ComponentProtocol {
 
     private func updateConstraints(with viewProperties: ViewProperties) {
         removeConstraintsAndSubviews()
+        
         if viewProperties.leftIcon != nil {
             setupFullView()
         } else {
@@ -178,7 +173,10 @@ public final class ButtonView: UIButton, ComponentProtocol {
     }
     
     private func removeConstraintsAndSubviews() {
-        self.subviews.forEach { subview in
+        textLabel.snp.removeConstraints()
+        leftIconView.snp.removeConstraints()
+        
+        subviews.forEach { subview in
             subview.removeFromSuperview()
         }
     }

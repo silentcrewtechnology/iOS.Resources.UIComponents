@@ -62,8 +62,13 @@ public final class InputAmountTextField: UITextField, ComponentProtocol {
     
     private func updateView(viewProperties: ViewProperties) {
         viewProperties.delegateAssigningClosure(self)
-        attributedText = viewProperties.text
-        defaultTextAttributes = viewProperties.textAttributes
+        if let font = viewProperties.textAttributes[.font] as? UIFont {
+            self.font = font
+        }
+        if let textColor = viewProperties.textAttributes[.foregroundColor] as? UIColor {
+            self.textColor = textColor
+        }
+        text = viewProperties.text.string
         typingAttributes = viewProperties.textAttributes
         attributedPlaceholder = viewProperties.placeholder
         tintColor = viewProperties.cursorColor

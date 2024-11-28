@@ -15,6 +15,7 @@ public final class ButtonAuth: UIButton, ComponentProtocol {
         public var image: UIImage
         public var stackViewInsets: UIEdgeInsets
         public var onTap: () -> Void
+        public var onHighlighted: (Bool) -> Void
         
         public init(
             height: CGFloat = .zero,
@@ -25,7 +26,8 @@ public final class ButtonAuth: UIButton, ComponentProtocol {
             text: NSMutableAttributedString = .init(string: ""),
             image: UIImage = .init(),
             stackViewInsets: UIEdgeInsets = .zero,
-            onTap: @escaping () -> Void = { }
+            onTap: @escaping () -> Void = { },
+            onHighlighted: @escaping (Bool) -> Void = { _ in }
         ) {
             self.height = height
             self.minWidth = minWidth
@@ -36,6 +38,13 @@ public final class ButtonAuth: UIButton, ComponentProtocol {
             self.image = image
             self.stackViewInsets = stackViewInsets
             self.onTap = onTap
+            self.onHighlighted = onHighlighted
+        }
+    }
+    
+    public override var isHighlighted: Bool {
+        didSet {
+            viewProperties.onHighlighted(isHighlighted)
         }
     }
     
@@ -61,11 +70,14 @@ public final class ButtonAuth: UIButton, ComponentProtocol {
     public func update(with viewProperties: ViewProperties) {
         self.viewProperties = viewProperties
         
-        backgroundColor = viewProperties.backgroundColor
         layer.cornerRadius = viewProperties.cornerRadius
         logoImageView.image = viewProperties.image
         setupView(viewProperties: viewProperties)
         setupTextLabel(viewProperties: viewProperties)
+        
+        UIView.animate(withDuration: 0.1) {
+            self.backgroundColor = viewProperties.backgroundColor
+        }
     }
     
     // MARK: - Private methods

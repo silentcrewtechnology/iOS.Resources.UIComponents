@@ -8,51 +8,29 @@ public final class ImageView: UIView, ComponentProtocol {
     
     public struct ViewProperties {
         public var size: CGSize
+        public var imageSize: CGSize
         public var backgroundColor: UIColor
         public var cornerRadius: CGFloat
         public var text: NSMutableAttributedString?
         public var image: UIImage?
-        public var margins: Margins
         public var accessibilityIds: AccessibilityIds?
         
         public init(
             size: CGSize = .zero,
+            imageSize: CGSize = .zero,
             backgroundColor: UIColor = .clear,
-            cornerRadius: CGFloat = 0,
+            cornerRadius: CGFloat = .zero,
             text: NSMutableAttributedString? = nil,
             image: UIImage? = nil,
-            margins: Margins = .init(),
             accessibilityIds: AccessibilityIds? = nil
         ) {
             self.size = size
+            self.imageSize = imageSize
             self.backgroundColor = backgroundColor
             self.cornerRadius = cornerRadius
             self.text = text
             self.image = image
-            self.margins = margins
             self.accessibilityIds = accessibilityIds
-        }
-        
-        public struct Margins {
-            public var imageTop: CGFloat
-            public var imageBottom: CGFloat
-            public var imageLeading: CGFloat
-            public var imageTrailing: CGFloat
-            public var size: CGSize
-            
-            public init(
-                imageTop: CGFloat = 0,
-                imageBottom: CGFloat = 0,
-                imageLeading: CGFloat = 0,
-                imageTrailing: CGFloat = 0,
-                size: CGSize = .zero
-            ) {
-                self.imageTop = imageTop
-                self.imageBottom = imageBottom
-                self.imageLeading = imageLeading
-                self.imageTrailing = imageTrailing
-                self.size = size
-            }
         }
         
         public struct AccessibilityIds {
@@ -72,29 +50,27 @@ public final class ImageView: UIView, ComponentProtocol {
         }
     }
     
+    // MARK: - Private properties
+    
     private var viewProperties: ViewProperties = .init()
     
     // MARK: - UI
     
-    private let imageView: UIImageView = {
+    private lazy var imageView: UIImageView = {
         let view = UIImageView()
         view.contentMode = .scaleAspectFill
+        
         return view
     }()
     
-    private let titleLabel: UILabel = {
+    private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.lineBreakMode = .byClipping
+        
         return label
     }()
     
-    // MARK: - init
-    
-    public override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
-    
-    required init?(coder: NSCoder) { fatalError() }
+    // MARK: - Init
     
     public func update(with viewProperties: ViewProperties) {
         self.viewProperties = viewProperties
@@ -107,7 +83,7 @@ public final class ImageView: UIView, ComponentProtocol {
         setupAccessibilityIds(with: viewProperties)
     }
     
-    // MARK: - private methods
+    // MARK: - Private methods
     
     private func updateBackground(with viewProperties: ViewProperties) {
         backgroundColor = viewProperties.backgroundColor
@@ -131,6 +107,11 @@ public final class ImageView: UIView, ComponentProtocol {
     
     private func updateConstraints(with viewProperties: ViewProperties) {
         removeConstraintsAndSubviews()
+        
+        snp.makeConstraints {
+            $0.size.equalTo(viewProperties.size)
+        }
+        
         setupTitleLabel()
         setupImageView()
     }
@@ -153,19 +134,18 @@ public final class ImageView: UIView, ComponentProtocol {
     
     private func setupImageView() {
         addSubview(imageView)
-        imageView.snp.makeConstraints() {
-            $0.top.equalToSuperview().offset(viewProperties.margins.imageTop)
-            $0.leading.equalToSuperview().offset(viewProperties.margins.imageLeading)
-            $0.trailing.equalToSuperview().offset(-viewProperties.margins.imageTrailing)
-            $0.bottom.equalToSuperview().offset(-viewProperties.margins.imageBottom)
-            $0.size.equalTo(viewProperties.margins.size)
+        imageView.snp.makeConstraints {
+            $0.center.equalToSuperview()
+            $0.size.equalTo(viewProperties.imageSize)
         }
     }
     
     private func removeConstraintsAndSubviews() {
-        self.subviews.forEach { subview in
+        subviews.forEach { subview in
             subview.snp.removeConstraints()
             subview.removeFromSuperview()
         }
+        
+        snp.removeConstraints()
     }
 }

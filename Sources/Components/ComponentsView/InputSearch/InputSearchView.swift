@@ -16,6 +16,8 @@ public final class InputSearchView: UISearchBar, ComponentProtocol {
         public var cancelButtonAttributes: [NSAttributedString.Key: Any]?
         public var searchBar: SearchBar
         public var textField: TextField
+        public var cancelButtonText: String
+        public var cancelButtonTextKey: String
         public var textDidChange: ((String) -> Void)?
         public var cancelButtonClicked: (() -> Void)?
         public var textDidBeginEditing: (() -> Void)?
@@ -63,10 +65,10 @@ public final class InputSearchView: UISearchBar, ComponentProtocol {
                 layerBorderColor: CGColor = UIColor.clear.cgColor,
                 placeholder: NSMutableAttributedString? = nil,
                 text: String? = nil,
-                textFieldKey: String = "searchField",
+                textFieldKey: String = .init(),
                 font: UIFont? = nil,
-                layerBorderWidth: CGFloat = 2,
-                layerCornerRadius: CGFloat = 8
+                layerBorderWidth: CGFloat = .zero,
+                layerCornerRadius: CGFloat = .zero
             ) {
                 self.backgroundColor = backgroundColor
                 self.textColor = textColor
@@ -86,6 +88,8 @@ public final class InputSearchView: UISearchBar, ComponentProtocol {
             cancelButtonAttributes: [NSAttributedString.Key: Any]? = nil,
             searchBar: SearchBar = .init(),
             textField: TextField = .init(),
+            cancelButtonText: String = .init(),
+            cancelButtonTextKey: String = .init(),
             textDidChange: ((String) -> Void)? = nil,
             cancelButtonClicked: (() -> Void)? = nil,
             textDidBeginEditing: (() -> Void)? = nil,
@@ -95,6 +99,8 @@ public final class InputSearchView: UISearchBar, ComponentProtocol {
             self.isUserInteractionEnabled = isUserInteractionEnabled
             self.searchBar = searchBar
             self.textField = textField
+            self.cancelButtonText = cancelButtonText
+            self.cancelButtonTextKey = cancelButtonTextKey
             self.textDidChange = textDidChange
             self.cancelButtonClicked = cancelButtonClicked
             self.textDidBeginEditing = textDidBeginEditing
@@ -122,6 +128,7 @@ public final class InputSearchView: UISearchBar, ComponentProtocol {
         isHidden = viewProperties.isHidden
         isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
         UIBarButtonItem.appearance().setTitleTextAttributes(viewProperties.cancelButtonAttributes, for: .normal)
+        setValue(viewProperties.cancelButtonText, forKey: viewProperties.cancelButtonTextKey)
         
         delegate = self
     }
@@ -137,14 +144,17 @@ public final class InputSearchView: UISearchBar, ComponentProtocol {
     
     private func setupTextField(with textField: ViewProperties.TextField) {
         if let textfield = value(forKey: textField.textFieldKey) as? UITextField {
-            textfield.backgroundColor = textField.backgroundColor
             textfield.attributedPlaceholder = textField.placeholder
             textfield.text = textField.text
             textfield.textColor = textfield.textColor
             textfield.font = textField.font
             textfield.layer.borderWidth = textField.layerBorderWidth
-            textfield.layer.borderColor = textField.layerBorderColor
             textfield.layer.cornerRadius = textField.layerCornerRadius
+            
+            UIView.animate(withDuration: 0.1) {
+                textfield.backgroundColor = textField.backgroundColor
+                textfield.layer.borderColor = textField.layerBorderColor
+            }
         }
     }
 }

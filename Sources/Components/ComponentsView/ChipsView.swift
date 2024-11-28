@@ -95,13 +95,14 @@ public final class ChipsView: PressableView, ComponentProtocol {
     public func update(with viewProperties: ViewProperties) {
         self.viewProperties = viewProperties
         
+        isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
+        textLabel.attributedText = viewProperties.text
+        setCornerRadius(with: viewProperties)
+        updateConstraints(with: viewProperties)
+        updateStack(with: viewProperties)
+        
         UIView.animate(withDuration: 0.1) {
             self.backgroundColor = viewProperties.backgroundColor
-            self.isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
-            self.textLabel.attributedText = viewProperties.text
-            self.setCornerRadius(with: viewProperties)
-            self.updateConstraints(with: viewProperties)
-            self.updateStack(with: viewProperties)
         }
     }
     

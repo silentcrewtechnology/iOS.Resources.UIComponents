@@ -96,11 +96,13 @@ public final class SegmentItemView: PressableView, ComponentProtocol {
     public func update(with viewProperties: ViewProperties) {
         self.viewProperties = viewProperties
         
+        setupView(with: viewProperties)
+        setupTitleLabel(with: viewProperties)
+        setupDividerView(with: viewProperties)
+        setupAccessibilityIds(with: viewProperties)
+        
         UIView.animate(withDuration: 0.1) {
-            self.setupView(with: viewProperties)
-            self.setupTitleLabel(with: viewProperties)
-            self.setupDividerView(with: viewProperties)
-            self.setupAccessibilityIds(with: viewProperties)
+            self.backgroundColor = viewProperties.backgroundColor
         }
     }
     
@@ -115,7 +117,6 @@ public final class SegmentItemView: PressableView, ComponentProtocol {
             $0.height.equalTo(viewProperties.margins.height).priority(.required)
         }
         
-        backgroundColor = viewProperties.backgroundColor
         cornerRadius(
             radius: viewProperties.cornerRadius,
             direction: .allCorners,

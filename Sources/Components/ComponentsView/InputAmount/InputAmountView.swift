@@ -12,6 +12,7 @@ public final class InputAmountView: UIView {
         public var textFieldProperties: InputAmountTextField.ViewProperties
         public var amountSymbol: NSMutableAttributedString
         public var isUserInteractionEnabled: Bool
+        public var onTextChanged: ((String?) -> Void)?
         
         public struct Margins {
             public var top: CGFloat
@@ -41,7 +42,8 @@ public final class InputAmountView: UIView {
             hintView: UIView? = nil,
             textFieldProperties: InputAmountTextField.ViewProperties = .init(),
             amountSymbol: NSMutableAttributedString = .init(string: ""),
-            isUserInteractionEnabled: Bool = true
+            isUserInteractionEnabled: Bool = true,
+            onTextChanged: ((String?) -> Void)? = nil
         ) {
             self.margins = margins
             self.headerView = headerView
@@ -49,6 +51,7 @@ public final class InputAmountView: UIView {
             self.textFieldProperties = textFieldProperties
             self.amountSymbol = amountSymbol
             self.isUserInteractionEnabled = isUserInteractionEnabled
+            self.onTextChanged = onTextChanged
         }
     }
     
@@ -64,16 +67,9 @@ public final class InputAmountView: UIView {
         let textField = InputAmountTextField()
         // Для кликабельности всей вьюхи
         textField.isUserInteractionEnabled = false
+        
         return textField
     }()
-    
-    // MARK: - Init
-    
-    public override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
-    
-    required init?(coder: NSCoder) { fatalError() }
     
     // MARK: - Public methods
     
@@ -91,7 +87,7 @@ public final class InputAmountView: UIView {
     // MARK: - Private methods
     
     private func updateConstraint(with viewProperties: ViewProperties) {
-        removeConstraintsAndSubviews()
+        stripNonTextFieldSubviews()
         addSubview(containerView)
         containerView.snp.makeConstraints {
             $0.edges.equalToSuperview()
@@ -154,10 +150,11 @@ public final class InputAmountView: UIView {
         }
     }
     
-    private func removeConstraintsAndSubviews() {
+    private func stripNonTextFieldSubviews() {
         containerView.subviews.forEach { subview in
-            subview.snp.removeConstraints()
-            subview.removeFromSuperview()
+            if subview !== amountCurrencyContainer {
+                subview.removeFromSuperview()
+            }
         }
     }
     
