@@ -179,8 +179,6 @@ public final class ButtonView: UIButton, ComponentProtocol {
         subviews.forEach { subview in
             subview.removeFromSuperview()
         }
-        
-        snp.removeConstraints()
     }
     
     private func setCornerRadius(with viewProperties: ViewProperties) {
