@@ -65,10 +65,10 @@ public final class InputSearchView: UISearchBar, ComponentProtocol {
                 layerBorderColor: CGColor = UIColor.clear.cgColor,
                 placeholder: NSMutableAttributedString? = nil,
                 text: String? = nil,
-                textFieldKey: String = "searchField",
+                textFieldKey: String = .init(),
                 font: UIFont? = nil,
-                layerBorderWidth: CGFloat = 2,
-                layerCornerRadius: CGFloat = 8
+                layerBorderWidth: CGFloat = .zero,
+                layerCornerRadius: CGFloat = .zero
             ) {
                 self.backgroundColor = backgroundColor
                 self.textColor = textColor
@@ -88,8 +88,8 @@ public final class InputSearchView: UISearchBar, ComponentProtocol {
             cancelButtonAttributes: [NSAttributedString.Key: Any]? = nil,
             searchBar: SearchBar = .init(),
             textField: TextField = .init(),
-            cancelButtonText: String = "Отменить",
-            cancelButtonTextKey: String = "cancelButtonText",
+            cancelButtonText: String = .init(),
+            cancelButtonTextKey: String = .init(),
             textDidChange: ((String) -> Void)? = nil,
             cancelButtonClicked: (() -> Void)? = nil,
             textDidBeginEditing: (() -> Void)? = nil,

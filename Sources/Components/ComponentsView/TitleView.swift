@@ -35,8 +35,8 @@ public final class TitleView: UIView, ComponentProtocol {
             buttonIcon: UIView = .init(),
             backgroundColor: UIColor = .clear,
             insets: UIEdgeInsets = .zero,
-            horizontalStackSpacing: CGFloat = 16,
-            verticalStackSpacing: CGFloat = 4,
+            horizontalStackSpacing: CGFloat = .zero,
+            verticalStackSpacing: CGFloat = .zero,
             accessibilityIds: AccessibilityIds? = nil
         ) {
             self.title = title
