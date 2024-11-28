@@ -67,16 +67,9 @@ public final class InputAmountView: UIView {
         let textField = InputAmountTextField()
         // Для кликабельности всей вьюхи
         textField.isUserInteractionEnabled = false
+        
         return textField
     }()
-    
-    // MARK: - Init
-    
-    public override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
-    
-    required init?(coder: NSCoder) { fatalError() }
     
     // MARK: - Public methods
     
@@ -94,7 +87,7 @@ public final class InputAmountView: UIView {
     // MARK: - Private methods
     
     private func updateConstraint(with viewProperties: ViewProperties) {
-        removeConstraintsAndSubviews()
+        stripNonTextFieldSubviews()
         addSubview(containerView)
         containerView.snp.makeConstraints {
             $0.edges.equalToSuperview()
@@ -157,10 +150,11 @@ public final class InputAmountView: UIView {
         }
     }
     
-    private func removeConstraintsAndSubviews() {
+    private func stripNonTextFieldSubviews() {
         containerView.subviews.forEach { subview in
-            subview.snp.removeConstraints()
-            subview.removeFromSuperview()
+            if subview !== amountCurrencyContainer {
+                subview.removeFromSuperview()
+            }
         }
     }
     

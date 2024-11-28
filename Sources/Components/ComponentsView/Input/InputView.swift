@@ -80,8 +80,8 @@ public final class InputView: UIView, ComponentProtocol {
         let stack = UIStackView()
         stack.axis = .vertical
         stack.distribution = .fill
-        stack.spacing = 0
         stack.isUserInteractionEnabled = true
+        
         return stack
     }()
     
@@ -93,16 +93,20 @@ public final class InputView: UIView, ComponentProtocol {
             action: #selector(textFieldTapped))
         )
         view.snp.makeConstraints { $0.height.equalTo(0) }
+        
         return view
     }()
     
     private lazy var textField: InputTextField = {
         let field = InputTextField()
         field.rightViewMode = .always
+        
         return field
     }()
     
     private var viewProperties: ViewProperties = .init()
+    
+    // MARK: - Life cycle
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
@@ -134,6 +138,7 @@ public final class InputView: UIView, ComponentProtocol {
     }
     
     private func setupConstraints(with viewProperties: ViewProperties) {
+        verticalStack.spacing = viewProperties.stackViewSpacing
         verticalStack.snp.updateConstraints {
             $0.edges.equalToSuperview().inset(viewProperties.stackViewInsets)
         }

@@ -12,6 +12,8 @@ public final class TitleView: UIView, ComponentProtocol {
         public var buttonIcon: UIView
         public var backgroundColor: UIColor
         public var insets: UIEdgeInsets
+        public var horizontalStackSpacing: CGFloat
+        public var verticalStackSpacing: CGFloat
         public var accessibilityIds: AccessibilityIds?
         
         public struct AccessibilityIds {
@@ -33,6 +35,8 @@ public final class TitleView: UIView, ComponentProtocol {
             buttonIcon: UIView = .init(),
             backgroundColor: UIColor = .clear,
             insets: UIEdgeInsets = .zero,
+            horizontalStackSpacing: CGFloat = 16,
+            verticalStackSpacing: CGFloat = 4,
             accessibilityIds: AccessibilityIds? = nil
         ) {
             self.title = title
@@ -40,6 +44,8 @@ public final class TitleView: UIView, ComponentProtocol {
             self.buttonIcon = buttonIcon
             self.backgroundColor = backgroundColor
             self.insets = insets
+            self.horizontalStackSpacing = horizontalStackSpacing
+            self.verticalStackSpacing = verticalStackSpacing
             self.accessibilityIds = accessibilityIds
         }
     }
@@ -48,23 +54,25 @@ public final class TitleView: UIView, ComponentProtocol {
     
     private var viewProperties: ViewProperties = .init()
 
-    private let titleLabel: UILabel = {
+    private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = .zero
+        
         return label
     }()
     
-    private let hStack: UIStackView = {
+    private lazy var hStack: UIStackView = {
         let stack = UIStackView()
         stack.axis = .horizontal
         stack.alignment = .top
-        stack.spacing = 16
+        
         return stack
     }()
     
-    private let descriptionLabel: UILabel = {
+    private lazy var descriptionLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = .zero
+        
         return label
     }()
     
@@ -74,14 +82,22 @@ public final class TitleView: UIView, ComponentProtocol {
             descriptionLabel,
         ])
         stack.axis = .vertical
-        stack.spacing = 4
+        
         return stack
+    }()
+    
+    private lazy var growingHSpacer: UIView = {
+        let view = UIView()
+        view.snp.makeConstraints { $0.width.equalTo(CGFloat.greatestFiniteMagnitude).priority(.low) }
+        
+        return view
     }()
     
     // MARK: - Life cycle
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
+        
         setupView()
     }
     
@@ -91,10 +107,11 @@ public final class TitleView: UIView, ComponentProtocol {
     
     public func update(with viewProperties: ViewProperties) {
         backgroundColor = viewProperties.backgroundColor
-        updateHStack(with: viewProperties)
+        updateStacks(with: viewProperties)
         updateDescription(text: viewProperties.description)
         updateInsets(insets: viewProperties.insets)
         setupAccessibilityIds(with: viewProperties)
+        
         self.viewProperties = viewProperties
     }
     
@@ -107,10 +124,13 @@ public final class TitleView: UIView, ComponentProtocol {
         }
     }
     
-    private func updateHStack(with viewProperties: ViewProperties) {
+    private func updateStacks(with viewProperties: ViewProperties) {
         hStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
         updateTitle(title: viewProperties.title)
         hStack.addArrangedSubview(viewProperties.buttonIcon)
+        hStack.spacing = viewProperties.horizontalStackSpacing
+        
+        vStack.spacing = viewProperties.verticalStackSpacing
     }
     
     private func updateTitle(title: NSMutableAttributedString) {
@@ -126,12 +146,6 @@ public final class TitleView: UIView, ComponentProtocol {
         guard !buttonIcon.isHidden else { return }
         hStack.addArrangedSubview(buttonIcon)
     }
-    
-    private lazy var growingHSpacer: UIView = {
-        let view = UIView()
-        view.snp.makeConstraints { $0.width.equalTo(CGFloat.greatestFiniteMagnitude).priority(.low) }
-        return view
-    }()
     
     private func updateDescription(text: NSAttributedString) {
         descriptionLabel.attributedText = text
