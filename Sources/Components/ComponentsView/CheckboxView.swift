@@ -56,10 +56,6 @@ public final class CheckboxView: PressableView, ComponentProtocol {
         }
     }
     
-    public override func handlePress(state: State) {
-        viewProperties.onPressChange(state)
-    }
-    
     // MARK: - Private properties
     
     private var viewProperties: ViewProperties = .init()
@@ -89,6 +85,10 @@ public final class CheckboxView: PressableView, ComponentProtocol {
             self.setupBackground(with: viewProperties)
             self.setupBorder(with: viewProperties)
         }
+    }
+    
+    public override func handlePress(state: State) {
+        viewProperties.onPressChange(state)
     }
     
     // MARK: - Private methods
