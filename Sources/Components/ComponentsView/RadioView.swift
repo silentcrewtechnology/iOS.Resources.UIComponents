@@ -4,7 +4,7 @@ import AccessibilityIds
 
 public final class RadioView: PressableView, ComponentProtocol {
     
-    // MARK: - ViewProperties
+    // MARK: - Properties
     
     public struct ViewProperties {
         public var backgroundColor: UIColor
@@ -16,6 +16,7 @@ public final class RadioView: PressableView, ComponentProtocol {
         public var isUserInteractionEnabled: Bool
         public var accessibilityIds: AccessibilityIds?
         public var onPressChange: (State) -> Void
+        public var onTap: ((Bool) -> Void)?
         
         public struct AccessibilityIds {
             public var id: String?
@@ -33,13 +34,14 @@ public final class RadioView: PressableView, ComponentProtocol {
         public init(
             backgroundColor: UIColor = .clear,
             size: CGSize = .zero,
-            cornerRadius: CGFloat = 0,
+            cornerRadius: CGFloat = .zero,
             borderColor: UIColor = .clear,
-            borderWidth: CGFloat = 0,
+            borderWidth: CGFloat = .zero,
             checkIcon: UIImage? = nil,
             isUserInteractionEnabled: Bool = true,
             accessibilityIds: AccessibilityIds? = nil,
-            onPressChange: @escaping (State) -> Void = { _ in }
+            onPressChange: @escaping (State) -> Void = { _ in },
+            onTap: ((Bool) -> Void)? = nil
         ) {
             self.backgroundColor = backgroundColor
             self.size = size
@@ -50,46 +52,59 @@ public final class RadioView: PressableView, ComponentProtocol {
             self.isUserInteractionEnabled = isUserInteractionEnabled
             self.accessibilityIds = accessibilityIds
             self.onPressChange = onPressChange
+            self.onTap = onTap
         }
     }
+    
+    // MARK: - Private properties
     
     private var viewProperties: ViewProperties = .init()
     
-    // MARK: - UI
+    private lazy var indicatorView = UIImageView()
     
-    private let indicatorView: UIImageView = {
-        let view = UIImageView()
-        return view
-    }()
-    
-    // MARK: - init
+    // MARK: - Life cycle
     
     override public init(frame: CGRect) {
         super.init(frame: frame)
+        
+        setupView()
     }
     
     required init?(coder: NSCoder) { fatalError() }
+    
+    // MARK: - Methods
 
     public func update(with viewProperties: ViewProperties) {
-        UIView.transition(with: self, duration: 0.2, options: .transitionCrossDissolve) { [self] in
-            self.viewProperties = viewProperties
-            isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
-            updateBackground(with: viewProperties)
-            setCornerRadius(with: viewProperties)
-            updateBorder(with: viewProperties)
-            updateIndicator(with: viewProperties)
-            updateConstraints(with: viewProperties)
-        }
+        self.viewProperties = viewProperties
+        
+        isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
+        setCornerRadius(with: viewProperties)
+        updateIndicator(with: viewProperties)
+        updateConstraints(with: viewProperties)
         setupAccessibilityIds(with: viewProperties)
+        
+        UIView.animate(withDuration: 0.2) {
+            self.updateBackground(with: viewProperties)
+            self.updateBorder(with: viewProperties)
+        }
     }
     
-    // MARK: - private methods
+    public override func handlePress(state: State) {
+        viewProperties.onPressChange(state)
+    }
     
-    private func setupAccessibilityIds(with viewProperties: ViewProperties) {
-        isAccessibilityElement = true
-        accessibilityIdentifier = viewProperties.accessibilityIds?.id
-        indicatorView.isAccessibilityElement = true
-        indicatorView.accessibilityIdentifier = viewProperties.accessibilityIds?.indicatorViewId
+    // MARK: - Private methods
+    
+    private func setupView() {
+        layer.masksToBounds = true
+        snp.makeConstraints {
+            $0.size.equalTo(0) // будет обновляться
+        }
+        
+        addSubview(indicatorView)
+        indicatorView.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
     }
     
     private func updateBackground(with viewProperties: ViewProperties) {
@@ -113,42 +128,16 @@ public final class RadioView: PressableView, ComponentProtocol {
         indicatorView.image = viewProperties.checkIcon
     }
     
-    public override func handlePress(state: State) {
-        viewProperties.onPressChange(state)
-    }
-    
     private func updateConstraints(with viewProperties: ViewProperties) {
-        removeConstraintsAndSubviews()
-        if viewProperties.checkIcon != nil {
-            setupSimpleView()
-            setupIndicatorView()
-        } else {
-            setupSimpleView()
+        snp.updateConstraints {
+            $0.size.equalTo(viewProperties.size)
         }
     }
-    
-    private func setupSimpleView() {
-        let view = UIView()
-        view.backgroundColor = .clear
-        addSubview(view)
-        view.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-            $0.height.equalTo(viewProperties.size.height)
-            $0.width.equalTo(viewProperties.size.width)
-        }
-    }
-    
-    private func setupIndicatorView() {
-        addSubview(indicatorView)
-        indicatorView.snp.makeConstraints {
-            $0.center.equalToSuperview()
-        }
-    }
-    
-    private func removeConstraintsAndSubviews() {
-        self.subviews.forEach { subview in
-            subview.snp.removeConstraints()
-            subview.removeFromSuperview()
-        }
+
+    private func setupAccessibilityIds(with viewProperties: ViewProperties) {
+        isAccessibilityElement = true
+        accessibilityIdentifier = viewProperties.accessibilityIds?.id
+        indicatorView.isAccessibilityElement = true
+        indicatorView.accessibilityIdentifier = viewProperties.accessibilityIds?.indicatorViewId
     }
 }
