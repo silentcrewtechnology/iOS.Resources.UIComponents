@@ -4,6 +4,8 @@ import AccessibilityIds
 
 public final class CheckboxView: PressableView, ComponentProtocol {
     
+    // MARK: - Properties
+    
     public struct ViewProperties {
         public var backgroundColor: UIColor
         public var size: CGSize
@@ -14,6 +16,7 @@ public final class CheckboxView: PressableView, ComponentProtocol {
         public var isUserInteractionEnabled: Bool
         public var accessibilityIds: AccessibilityIds?
         public var onPressChange: (State) -> Void
+        public var onTap: ((Bool) -> Void)?
         
         public struct AccessibilityIds {
             public var id: String?
@@ -37,7 +40,8 @@ public final class CheckboxView: PressableView, ComponentProtocol {
             checkIcon: UIImage? = nil,
             isUserInteractionEnabled: Bool = true,
             accessibilityIds: AccessibilityIds? = nil,
-            onPressChange: @escaping (State) -> Void = { _ in }
+            onPressChange: @escaping (State) -> Void = { _ in },
+            onTap: ((Bool) -> Void)? = nil
         ) {
             self.backgroundColor = backgroundColor
             self.size = size
@@ -48,60 +52,66 @@ public final class CheckboxView: PressableView, ComponentProtocol {
             self.isUserInteractionEnabled = isUserInteractionEnabled
             self.accessibilityIds = accessibilityIds
             self.onPressChange = onPressChange
+            self.onTap = onTap
         }
     }
     
+    public override func handlePress(state: State) {
+        viewProperties.onPressChange(state)
+    }
+    
+    // MARK: - Private properties
+    
     private var viewProperties: ViewProperties = .init()
     
-    private let checkView: UIImageView = {
-        let view = UIImageView()
-        return view
-    }()
+    private lazy var checkView = UIImageView()
+    
+    // MARK: - Life cycle
     
     override public init(frame: CGRect) {
         super.init(frame: frame)
+        
         setupView()
     }
     
     required init?(coder: NSCoder) { fatalError() }
+    
+    // MARK: - Methods
+    
+    public func update(with viewProperties: ViewProperties) {
+        self.viewProperties = viewProperties
+        
+        isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
+        setupIndicator(with: viewProperties)
+        setupAccessibilityIds(with: viewProperties)
+        
+        UIView.animate(withDuration: 0.1) {
+            self.setupBackground(with: viewProperties)
+            self.setupBorder(with: viewProperties)
+        }
+    }
+    
+    // MARK: - Private methods
     
     private func setupView() {
         layer.masksToBounds = true
         snp.makeConstraints {
             $0.size.equalTo(0) // будет обновляться
         }
+        
         addSubview(checkView)
         checkView.snp.makeConstraints {
             $0.center.equalToSuperview()
         }
     }
     
-    public func update(with viewProperties: ViewProperties) {
-        UIView.transition(with: self, duration: 0.2, options: .transitionCrossDissolve) { [self] in
-            isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
-            setupBackground(with: viewProperties)
-            setupBorder(with: viewProperties)
-            setupIndicator(with: viewProperties)
-            self.viewProperties = viewProperties
-        }
-        setupAccessibilityIds(with: viewProperties)
-    }
-    
-    private func setupAccessibilityIds(with viewProperties: ViewProperties) {
-        isAccessibilityElement = true
-        accessibilityIdentifier = viewProperties.accessibilityIds?.id
-        checkView.isAccessibilityElement = true
-        checkView.accessibilityIdentifier = viewProperties.accessibilityIds?.checkViewId
-    }
-    
     private func setupBackground(with viewProperties: ViewProperties) {
         backgroundColor = viewProperties.backgroundColor
-        if self.viewProperties.size != viewProperties.size {
-            snp.updateConstraints {
-                $0.size.equalTo(viewProperties.size)
-            }
-        }
         layer.cornerRadius = viewProperties.cornerRadius
+        
+        snp.updateConstraints {
+            $0.size.equalTo(viewProperties.size)
+        }
     }
     
     private func setupBorder(with viewProperties: ViewProperties) {
@@ -113,7 +123,10 @@ public final class CheckboxView: PressableView, ComponentProtocol {
         checkView.image = viewProperties.checkIcon
     }
     
-    public override func handlePress(state: State) {
-        viewProperties.onPressChange(state)
+    private func setupAccessibilityIds(with viewProperties: ViewProperties) {
+        isAccessibilityElement = true
+        accessibilityIdentifier = viewProperties.accessibilityIds?.id
+        checkView.isAccessibilityElement = true
+        checkView.accessibilityIdentifier = viewProperties.accessibilityIds?.checkViewId
     }
 }
