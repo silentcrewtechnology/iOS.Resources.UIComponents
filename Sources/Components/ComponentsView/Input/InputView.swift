@@ -16,7 +16,6 @@ public final class InputView: UIView, ComponentProtocol {
         public var textFieldBorderWidth: CGFloat
         public var textFieldHeight: CGFloat
         public var textFieldInsets: UIEdgeInsets
-        public var minHeight: CGFloat
         public var rightView: UIView
         public var isEnabled: Bool
         public var stackViewInsets: UIEdgeInsets
@@ -47,7 +46,6 @@ public final class InputView: UIView, ComponentProtocol {
             textFieldBorderWidth: CGFloat = .zero,
             textFieldHeight: CGFloat = .zero,
             textFieldInsets: UIEdgeInsets = .zero,
-            minHeight: CGFloat = .zero,
             rightView: UIView = .init(),
             isEnabled: Bool = true,
             stackViewInsets: UIEdgeInsets = .zero,
@@ -64,7 +62,6 @@ public final class InputView: UIView, ComponentProtocol {
             self.textFieldBorderWidth = textFieldBorderWidth
             self.textFieldHeight = textFieldHeight
             self.textFieldInsets = textFieldInsets
-            self.minHeight = minHeight
             self.rightView = rightView
             self.isEnabled = isEnabled
             self.stackViewInsets = stackViewInsets
