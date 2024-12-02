@@ -17,10 +17,10 @@ public final class ToggleView: UIView, ComponentProtocol {
         public var isChecked: Bool
         public var offTintColor: UIColor?
         public var onTintColor: UIColor?
-        public var thumbOffTintColor: UIColor?
-        public var thumbOnTintColor: UIColor?
+        public var thumbColor: UIColor
         public var accessibilityIds: AccessibilityIds?
         public var checkAction: (Bool) -> Void
+        public var handlePress: (Bool) -> Void
         
         public struct AccessibilityIds {
             public var id: String?
@@ -40,19 +40,19 @@ public final class ToggleView: UIView, ComponentProtocol {
             isChecked: Bool = false,
             offTintColor: UIColor? = nil,
             onTintColor: UIColor? = nil,
-            thumbOffTintColor: UIColor? = nil,
-            thumbOnTintColor: UIColor? = nil,
+            thumbColor: UIColor = .clear,
             accessibilityIds: AccessibilityIds? = nil,
-            checkAction: @escaping (Bool) -> Void = { _ in }
+            checkAction: @escaping (Bool) -> Void = { _ in },
+            handlePress: @escaping (Bool) -> Void = { _ in }
         ) {
             self.isEnabled = isEnabled
             self.isChecked = isChecked
             self.offTintColor = offTintColor
             self.onTintColor = onTintColor
-            self.thumbOffTintColor = thumbOffTintColor
-            self.thumbOnTintColor = thumbOnTintColor
+            self.thumbColor = thumbColor
             self.accessibilityIds = accessibilityIds
             self.checkAction = checkAction
+            self.handlePress = handlePress
         }
     }
     
@@ -65,6 +65,7 @@ public final class ToggleView: UIView, ComponentProtocol {
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
+        
         setupView()
     }
     
@@ -86,6 +87,7 @@ public final class ToggleView: UIView, ComponentProtocol {
         backgroundColor = .clear
         
         addSubview(switchView)
+        switchView.addTarget(self, action: #selector(switchTapped), for: .valueChanged)
         switchView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
@@ -99,30 +101,28 @@ public final class ToggleView: UIView, ComponentProtocol {
     }
     
     private func setupProperties(with viewProperties: ViewProperties) {
-        switchView.addTarget(self, action: #selector(switchTapped), for: .valueChanged)
-        switchView.isOn = viewProperties.isChecked
+        switchView.setOn(viewProperties.isChecked, animated: true)
         switchView.isEnabled = viewProperties.isEnabled
         
-        if let onTintColor = viewProperties.onTintColor {
-            switchView.onTintColor = onTintColor
+        UIView.animate(withDuration: 0.1) {
+            if let onTintColor = viewProperties.onTintColor {
+                self.switchView.onTintColor = onTintColor
+            }
+            
+            if let offTintColor = viewProperties.offTintColor {
+                self.switchView.tintColor = offTintColor
+                self.switchView.subviews[0].subviews[0].backgroundColor = offTintColor
+            }
+            
+            self.setupThumbColor(isOn: viewProperties.isChecked)
         }
-        
-        if let offTintColor = viewProperties.offTintColor {
-            switchView.tintColor = offTintColor
-            switchView.subviews[0].subviews[0].backgroundColor = offTintColor
-        }
-        
-        setupThumbColor(isOn: viewProperties.isChecked)
     }
     
     private func setupThumbColor(isOn: Bool) {
-        switchView.thumbTintColor = isOn
-            ? viewProperties.thumbOnTintColor
-            : viewProperties.thumbOffTintColor
+        switchView.thumbTintColor = viewProperties.thumbColor
     }
     
     @objc private func switchTapped(_ sender: UISwitch) {
-        viewProperties.checkAction(sender.isOn)
-        setupThumbColor(isOn: sender.isOn)
+        viewProperties.handlePress(sender.isOn)
     }
 }
