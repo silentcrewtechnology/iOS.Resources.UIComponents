@@ -22,7 +22,7 @@ public final class InputTextView: UITextView, ComponentProtocol {
         public init(
             text: NSMutableAttributedString = .init(string: ""),
             textAttributes: [NSAttributedString.Key: Any] = [:],
-            textContainerInset: UIEdgeInsets = .init(top: 2, left: .zero, bottom: .zero, right: .zero),
+            textContainerInset: UIEdgeInsets = .zero,
             contentInset: UIEdgeInsets = .zero,
             placeholder: NSMutableAttributedString = .init(string: ""),
             cursorColor: UIColor = .black,
@@ -76,13 +76,8 @@ public final class InputTextView: UITextView, ComponentProtocol {
     // MARK: - Private methods
     
     private func updateText(with viewProperties: ViewProperties) {
-        if let font = viewProperties.textAttributes[.font] as? UIFont {
-            self.font = font
-        }
-        if let textColor = viewProperties.textAttributes[.foregroundColor] as? UIColor {
-            self.textColor = textColor
-        }
-        text = viewProperties.text.string
+        attributedText = viewProperties.text
+        typingAttributes = viewProperties.textAttributes
     }
     
     private func setupAccessibilityId(with viewProperties: ViewProperties) {

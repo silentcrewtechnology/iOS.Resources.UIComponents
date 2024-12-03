@@ -12,8 +12,10 @@ public final class InputTextAreaView: UIView, ComponentProtocol {
         public var minTextViewHeight: CGFloat
         public var cornerRadius: CGFloat
         public var stackViewSpacing: CGFloat
+        public var maxNumberOfLines: Int
         public var stackViewInsets: UIEdgeInsets
         public var textViewInsets: UIEdgeInsets
+        public var placeholderInsets: UIEdgeInsets
         public var placeholder: NSMutableAttributedString
         public var backgroundColor: UIColor
         public var isUserInteractionEnabled: Bool
@@ -41,8 +43,10 @@ public final class InputTextAreaView: UIView, ComponentProtocol {
             minTextViewHeight: CGFloat = .zero,
             cornerRadius: CGFloat = .zero,
             stackViewSpacing: CGFloat = .zero,
+            maxNumberOfLines: Int = 9,
             stackViewInsets: UIEdgeInsets = .zero,
             textViewInsets: UIEdgeInsets = .zero,
+            placeholderInsets: UIEdgeInsets = .zero,
             placeholder: NSMutableAttributedString = .init(string: ""),
             backgroundColor: UIColor = .clear,
             isUserInteractionEnabled: Bool = true,
@@ -56,8 +60,10 @@ public final class InputTextAreaView: UIView, ComponentProtocol {
             self.minTextViewHeight = minTextViewHeight
             self.cornerRadius = cornerRadius
             self.stackViewSpacing = stackViewSpacing
+            self.maxNumberOfLines = maxNumberOfLines
             self.stackViewInsets = stackViewInsets
             self.textViewInsets = textViewInsets
+            self.placeholderInsets = placeholderInsets
             self.placeholder = placeholder
             self.backgroundColor = backgroundColor
             self.isUserInteractionEnabled = isUserInteractionEnabled
@@ -111,11 +117,11 @@ public final class InputTextAreaView: UIView, ComponentProtocol {
         self.viewProperties = viewProperties
         
         stripNonTextFieldSubviews()
-        setupConstraints(with: viewProperties)
         setupHeaderViewIfNeeded(with: viewProperties)
         setupTextView(with: viewProperties)
         setupHintView(with: viewProperties)
         setupPlaceholderLabel(with: viewProperties)
+        setupConstraints(with: viewProperties)
     }
     
     // MARK: - Private methods
@@ -130,7 +136,7 @@ public final class InputTextAreaView: UIView, ComponentProtocol {
         verticalStack.addArrangedSubview(textViewContainer)
         addSubview(verticalStack)
         verticalStack.snp.makeConstraints { $0.edges.equalToSuperview() }
-        textViewContainer.snp.makeConstraints { $0.height.greaterThanOrEqualTo(0) }
+        textViewContainer.snp.makeConstraints { $0.height.equalTo(0) } // Будет обновляться
     }
     
     private func setupConstraints(with viewProperties: ViewProperties) {
@@ -139,8 +145,9 @@ public final class InputTextAreaView: UIView, ComponentProtocol {
             $0.edges.equalToSuperview().inset(viewProperties.stackViewInsets)
         }
         
+        let additionalHeight = calculateAdditionalHeight(with: viewProperties)
         textViewContainer.snp.updateConstraints {
-            $0.height.greaterThanOrEqualTo(viewProperties.minTextViewHeight)
+            $0.height.equalTo(viewProperties.minTextViewHeight + additionalHeight)
         }
         
         textView.snp.updateConstraints {
@@ -148,7 +155,7 @@ public final class InputTextAreaView: UIView, ComponentProtocol {
         }
         
         placeholderLabel.snp.updateConstraints {
-            $0.edges.equalToSuperview().inset(viewProperties.textViewInsets)
+            $0.edges.equalToSuperview().inset(viewProperties.placeholderInsets)
         }
     }
     
@@ -156,7 +163,6 @@ public final class InputTextAreaView: UIView, ComponentProtocol {
         textViewContainer.layer.borderWidth = viewProperties.border.width
         textViewContainer.layer.cornerRadius = viewProperties.cornerRadius
         textViewContainer.isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
-        textView.layer.masksToBounds = true
         textView.update(with: viewProperties.textViewProperties)
         
         UIView.animate(withDuration: 0.1) {
@@ -186,6 +192,31 @@ public final class InputTextAreaView: UIView, ComponentProtocol {
     private func setupPlaceholderLabel(with viewProperties: ViewProperties) {
         placeholderLabel.attributedText = viewProperties.placeholder
         placeholderLabel.isHidden = viewProperties.isPlaceholderHidden
+    }
+    
+    /// Не получилось перенести эту логику в сервис. Там некорректно считается
+    /// boundingRect у viewProperties.textViewProperties.text
+    private func calculateAdditionalHeight(with viewProperties: ViewProperties) -> CGFloat {
+        var additionalHeight: CGFloat = .zero
+        let maxNumberOfLines = CGFloat(viewProperties.maxNumberOfLines)
+        if !viewProperties.textViewProperties.text.string.isEmpty {
+            let boundingRect = viewProperties.textViewProperties.text.boundingRect(
+                with: .init(
+                    width: textView.bounds.width,
+                    height: CGFloat.greatestFiniteMagnitude
+                ),
+                context: nil
+            )
+            let lineHeight = boundingRect.height
+            let numberOfLines = textView.contentSize.height / lineHeight
+            if numberOfLines <= maxNumberOfLines, numberOfLines > 1 {
+                additionalHeight = lineHeight * (numberOfLines - 1)
+            } else if numberOfLines > maxNumberOfLines {
+                additionalHeight = lineHeight * (maxNumberOfLines - 1)
+            }
+        }
+        
+        return additionalHeight
     }
     
     @objc private func textViewTapped() {
