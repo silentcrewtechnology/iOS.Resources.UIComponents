@@ -3,61 +3,82 @@ import SnapKit
 
 public final class StepperView: UIView, ComponentProtocol {
     
+    // MARK: - Properties
+    
     public struct ViewProperties {
-        public var items: [StepperItemView.ViewProperties]
-        public var height: CGFloat
+        public var backgroundColor: UIColor
+        public var itemViews: [UIView]
+        public var stackViewSpacing: CGFloat
+        public var stackViewInsets: UIEdgeInsets
         
         public init(
-            items: [StepperItemView.ViewProperties] = [],
-            height: CGFloat = 0
+            backgroundColor: UIColor = .clear,
+            itemViews: [UIView] = [],
+            stackViewSpacing: CGFloat = .zero,
+            stackViewInsets: UIEdgeInsets = .zero
         ) {
-            self.items = items
-            self.height = height
+            self.backgroundColor = backgroundColor
+            self.itemViews = itemViews
+            self.stackViewSpacing = stackViewSpacing
+            self.stackViewInsets = stackViewInsets
         }
     }
     
+    // MARK: - Private properties
+    
     private var viewProperties: ViewProperties = .init()
     
-    private let itemsStack: UIStackView = {
+    private let itemsStackView: UIStackView = {
         let stack = UIStackView()
         stack.axis = .horizontal
-        stack.spacing = 4
         stack.distribution = .fillEqually
+        
         return stack
     }()
     
+    // MARK: - Life cycle
+    
     public override init(frame: CGRect) {
         super.init(frame: frame)
+        
         setupView()
     }
     
     required init?(coder: NSCoder) { fatalError() }
     
-    private func setupView() {
-        addSubview(itemsStack)
-        itemsStack.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-            $0.height.equalTo(viewProperties.height)
-        }
-    }
+    // MARK: - Methods
     
     public func update(with viewProperties: ViewProperties) {
-        let itemViews = recreateItemViews(items: viewProperties.items)
-        for (itemView, itemViewProperties) in zip(itemViews, viewProperties.items) {
-            itemView.update(with: itemViewProperties)
-        }
-        itemsStack.snp.updateConstraints {
-            $0.height.equalTo(viewProperties.height)
-        }
         self.viewProperties = viewProperties
+        
+        setupStackView(with: viewProperties)
+        addNewStepperItemsAndRemoveOld(with: viewProperties)
     }
     
-    private func recreateItemViews(items: [StepperItemView.ViewProperties]) -> [StepperItemView] {
-        itemsStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        let itemViews = (0..<items.count).map { _ in StepperItemView() }
-        for itemView in itemViews {
-            itemsStack.addArrangedSubview(itemView)
+    // MARK: - Private methods
+    
+    private func setupView() {
+        addSubview(itemsStackView)
+        itemsStackView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
         }
-        return itemViews
+    }
+    
+    private func setupStackView(with viewProperties: ViewProperties) {
+        addSubview(itemsStackView)
+        itemsStackView.spacing = 4
+        itemsStackView.snp.remakeConstraints {
+            $0.edges.equalToSuperview().inset(viewProperties.stackViewInsets)
+        }
+    }
+    
+    private func addNewStepperItemsAndRemoveOld(with viewProperties: ViewProperties) {
+        itemsStackView.arrangedSubviews.forEach { subview in
+            subview.removeFromSuperview()
+        }
+        
+        for itemView in viewProperties.itemViews {
+            itemsStackView.addArrangedSubview(itemView)
+        }
     }
 }
