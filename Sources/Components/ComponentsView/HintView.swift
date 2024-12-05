@@ -68,14 +68,6 @@ public final class HintView: UIView, ComponentProtocol {
         return label
     }()
     
-    // MARKL - Init
-    
-    public override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
-    
-    required init?(coder: NSCoder) { fatalError() }
-    
     // MARK: - Methods
     
     public func update(with viewProperties: ViewProperties) {
