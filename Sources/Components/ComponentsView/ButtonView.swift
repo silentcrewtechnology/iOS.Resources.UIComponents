@@ -100,6 +100,13 @@ public final class ButtonView: UIButton, ComponentProtocol {
         }
     }
     
+    public override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupView()
+    }
+    
+    required init?(coder: NSCoder) { fatalError() }
+    
     // MARK: - Public Methods
     
     public func update(with viewProperties: ViewProperties) {
@@ -118,6 +125,12 @@ public final class ButtonView: UIButton, ComponentProtocol {
     
     // MARK: - Private Methods
     
+    private func setupView() {
+        snp.makeConstraints {
+            $0.height.equalTo(0) // будет обновлено
+        }
+    }
+    
     private func setupProperties(with viewProperties: ViewProperties) {
         isUserInteractionEnabled = viewProperties.isEnabled
         textLabel.attributedText = viewProperties.attributedText
@@ -127,6 +140,7 @@ public final class ButtonView: UIButton, ComponentProtocol {
 
     private func updateConstraints(with viewProperties: ViewProperties) {
         removeConstraintsAndSubviews()
+        snp.updateConstraints { $0.height.equalTo(viewProperties.margins.height) }
         
         if viewProperties.leftIcon != nil {
             setupFullView()
@@ -139,27 +153,24 @@ public final class ButtonView: UIButton, ComponentProtocol {
     private func setupLabelView() {
         addSubview(textLabel)
         textLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(viewProperties.margins.top)
             $0.leading.equalToSuperview().offset(viewProperties.margins.leading)
             $0.trailing.equalToSuperview().offset(-viewProperties.margins.trailing)
-            $0.bottom.equalToSuperview().offset(-viewProperties.margins.bottom)
+            $0.centerY.equalToSuperview()
         }
     }
     
     private func setupFullView() {
         addSubview(leftIconView)
         leftIconView.snp.makeConstraints() {
-            $0.top.equalToSuperview().offset(viewProperties.margins.imageTop)
             $0.leading.equalToSuperview().offset(viewProperties.margins.leading)
-            $0.bottom.equalToSuperview().offset(-viewProperties.margins.imageBottom)
+            $0.centerY.equalToSuperview()
         }
         
         addSubview(textLabel)
         textLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(viewProperties.margins.top)
             $0.leading.equalTo(leftIconView.snp.trailing).offset(viewProperties.margins.spacing)
             $0.trailing.equalToSuperview().offset(-viewProperties.margins.trailing)
-            $0.bottom.equalToSuperview().offset(-viewProperties.margins.bottom)
+            $0.centerY.equalToSuperview()
         }
     }
     
