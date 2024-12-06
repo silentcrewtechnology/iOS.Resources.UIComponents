@@ -72,6 +72,16 @@ public final class ImageView: UIView, ComponentProtocol {
     
     // MARK: - Init
     
+    public override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        setupView()
+    }
+    
+    required init?(coder: NSCoder) { fatalError() }
+    
+    // MARK: - Methods
+    
     public func update(with viewProperties: ViewProperties) {
         self.viewProperties = viewProperties
         
@@ -84,6 +94,12 @@ public final class ImageView: UIView, ComponentProtocol {
     }
     
     // MARK: - Private methods
+    
+    private func setupView() {
+        snp.makeConstraints {
+            $0.size.equalTo(0)
+        }
+    }
     
     private func updateBackground(with viewProperties: ViewProperties) {
         backgroundColor = viewProperties.backgroundColor
@@ -108,7 +124,7 @@ public final class ImageView: UIView, ComponentProtocol {
     private func updateConstraints(with viewProperties: ViewProperties) {
         removeConstraintsAndSubviews()
         
-        snp.makeConstraints {
+        snp.updateConstraints {
             $0.size.equalTo(viewProperties.size)
         }
         
@@ -145,7 +161,5 @@ public final class ImageView: UIView, ComponentProtocol {
             subview.snp.removeConstraints()
             subview.removeFromSuperview()
         }
-        
-        snp.removeConstraints()
     }
 }
