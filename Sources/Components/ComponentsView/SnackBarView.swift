@@ -1,10 +1,3 @@
-//
-//  SnackBarView.swift
-//
-//
-//  Created by Ilnur Mugaev on 26.03.2024.
-//
-
 import UIKit
 import SnapKit
 
@@ -138,17 +131,20 @@ public final class SnackBarView: UIView, ComponentProtocol {
             public var delay: TimeInterval
             public var options: UIView.AnimationOptions
             public var showTime: TimeInterval
+            public var completion: (() -> Void)?
             
             public init(
                 duration: TimeInterval = .zero,
                 delay: TimeInterval = .zero,
                 options: UIView.AnimationOptions = [.curveLinear],
-                showTime: TimeInterval = .zero
+                showTime: TimeInterval = .zero,
+                completion: (() -> Void)? = nil
             ) {
                 self.duration = duration
                 self.delay = delay
                 self.options = options
                 self.showTime = showTime
+                self.completion = completion
             }
         }
     }
@@ -239,7 +235,6 @@ public final class SnackBarView: UIView, ComponentProtocol {
             offset: calculateOffset(in: view)
         ) { [weak self] in
             guard let self else { return }
-            
             self.animateOut(self.viewProperties.animationOut)
         }
     }
@@ -372,6 +367,7 @@ public final class SnackBarView: UIView, ComponentProtocol {
             },
             completion: { _ in
                 completion()
+                animation.completion?()
             }
         )
     }
@@ -392,6 +388,7 @@ public final class SnackBarView: UIView, ComponentProtocol {
                 },
                 completion: { _ in
                     self.removeFromSuperview()
+                    animation.completion?()
                 }
             )
         }
@@ -403,6 +400,7 @@ public final class SnackBarView: UIView, ComponentProtocol {
 /// Кнопка-лейбл с высотой, равной высоте titleLabel
 /// (без лишних отступов по вертикали)
 public final class CorrectHeightButton: UIButton {
+    
     public override var intrinsicContentSize: CGSize {
         guard let titleLabel = titleLabel else { return .zero }
         
