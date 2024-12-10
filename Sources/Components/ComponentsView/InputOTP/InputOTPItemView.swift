@@ -3,6 +3,8 @@ import SnapKit
 
 public final class InputOTPItemView: UIView, ComponentProtocol {
     
+    // MARK: - Properties
+    
     public struct ViewProperties {
         public var backgroundColor: UIColor
         public var size: CGSize
@@ -44,19 +46,35 @@ public final class InputOTPItemView: UIView, ComponentProtocol {
         }
     }
     
+    // MARK: - Private properties
+    
     private var viewProperties: ViewProperties = .init()
     
-    private let titleLabel: UILabel = {
-        let label = UILabel()
-        return label
-    }()
+    private lazy var titleLabel = UILabel()
+    
+    // MARK: - Life cycle
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
+        
         setupView()
     }
     
     required init?(coder: NSCoder) { fatalError() }
+    
+    // MARK: - Methods
+    
+    public func update(with viewProperties: ViewProperties) {
+        self.viewProperties = viewProperties
+        
+        titleLabel.attributedText = viewProperties.text
+        updateBackground(with: viewProperties)
+        updateBorder(with: viewProperties)
+        updateSize(with: viewProperties)
+        setupAccessibilityIds(with: viewProperties)
+    }
+    
+    // MARK: - Private methods
     
     private func setupView() {
         addSubview(titleLabel)
@@ -64,28 +82,24 @@ public final class InputOTPItemView: UIView, ComponentProtocol {
         snp.makeConstraints { $0.size.equalTo(0) } // будет обновлено
     }
     
-    public func update(with viewProperties: ViewProperties) {
-        updateBackground(with: viewProperties)
-        titleLabel.attributedText = viewProperties.text
-        updateBorder(with: viewProperties)
-        updateSize(size: viewProperties.size)
-        self.viewProperties = viewProperties
-        setupAccessibilityIds(with: viewProperties)
-    }
-    
-    public func updateBackground(with viewProperties: ViewProperties) {
-        backgroundColor = viewProperties.backgroundColor
+    private func updateBackground(with viewProperties: ViewProperties) {
         layer.cornerRadius = viewProperties.cornerRadius
+        
+        UIView.animate(withDuration: 0.1) {
+            self.backgroundColor = viewProperties.backgroundColor
+        }
     }
     
-    public func updateBorder(with viewProperties: ViewProperties) {
-        layer.borderColor = viewProperties.borderColor.cgColor
+    private func updateBorder(with viewProperties: ViewProperties) {
         layer.borderWidth = viewProperties.borderWidth
+        
+        UIView.animate(withDuration: 0.1) {
+            self.layer.borderColor = viewProperties.borderColor.cgColor
+        }
     }
     
-    private func updateSize(size: CGSize) {
-        guard self.viewProperties.size != size else { return }
-        snp.updateConstraints { $0.size.equalTo(size) }
+    private func updateSize(with viewProperties: ViewProperties) {
+        snp.updateConstraints { $0.size.equalTo(viewProperties.size) }
     }
     
     private func setupAccessibilityIds(with viewProperties: ViewProperties) {
