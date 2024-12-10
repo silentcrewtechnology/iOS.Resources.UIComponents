@@ -12,7 +12,7 @@ public final class InputTextField: UITextField, ComponentProtocol {
         public var cursorColor: UIColor
         public var delegateAssigningClosure: (UITextField) -> Void
         public var autocapitalizationType: UITextAutocapitalizationType
-        public var textContentType: UITextContentType
+        public var textContentType: UITextContentType?
         public var keyboardType: UIKeyboardType
         public var isSecureTextEntry: Bool
         public var isHidden: Bool
@@ -25,7 +25,7 @@ public final class InputTextField: UITextField, ComponentProtocol {
             cursorColor: UIColor = .black,
             delegateAssigningClosure: @escaping (UITextField) -> Void = { _ in },
             autocapitalizationType: UITextAutocapitalizationType = .none,
-            textContentType: UITextContentType = .name,
+            textContentType: UITextContentType? = nil,
             keyboardType: UIKeyboardType = .default,
             isSecureTextEntry: Bool = false,
             isHidden: Bool = false,
@@ -59,8 +59,11 @@ public final class InputTextField: UITextField, ComponentProtocol {
         attributedPlaceholder = viewProperties.placeholder
         tintColor = viewProperties.cursorColor
         isSecureTextEntry = viewProperties.isSecureTextEntry
-        textContentType = viewProperties.textContentType
         isHidden = viewProperties.isHidden
+        
+        if let contentType = viewProperties.textContentType {
+            textContentType = contentType
+        }
         
         viewProperties.delegateAssigningClosure(self)
         updateText(with: viewProperties)
