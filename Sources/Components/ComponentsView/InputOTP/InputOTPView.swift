@@ -4,85 +4,139 @@ import AccessibilityIds
 
 public final class InputOTPView: UIView, ComponentProtocol {
     
+    // MARK: - Properties
+    
     public struct ViewProperties {
-        public var items: [InputOTPItemView.ViewProperties]
-        public var hint: OldHintView.ViewProperties
-        public let accessibilityId: String?
+        public var itemViews: [UIView]
+        public var hintView: UIView
+        public var stackSpacing: CGFloat
+        public var hintViewInsets: UIEdgeInsets
+        public var textFieldViewProperties: InputTextField.ViewProperties
+        public var isUserInteractionEnabled: Bool
+        public var onTextChanged: ((String?) -> Void)?
+        public var accessibilityId: String?
         
         public init(
-            items: [InputOTPItemView.ViewProperties] = [],
-            hint: OldHintView.ViewProperties = .init(),
+            itemViews: [UIView] = [],
+            hintView: UIView = .init(),
+            stackSpacing: CGFloat = .zero,
+            hintViewInsets: UIEdgeInsets = .zero,
+            textFieldViewProperties: InputTextField.ViewProperties = .init(),
+            isUserInteractionEnabled: Bool = true,
+            onTextChanged: ((String?) -> Void)? = nil,
             accessibilityId: String? = nil
         ) {
-            self.items = items
-            self.hint = hint
+            self.itemViews = itemViews
+            self.hintView = hintView
+            self.stackSpacing = stackSpacing
+            self.hintViewInsets = hintViewInsets
+            self.textFieldViewProperties = textFieldViewProperties
+            self.isUserInteractionEnabled = isUserInteractionEnabled
+            self.onTextChanged = onTextChanged
             self.accessibilityId = accessibilityId
         }
     }
     
+    // MARK: - Private propertiesa
+    
     private var viewProperties: ViewProperties = .init()
     
-    private let itemsStack: UIStackView = {
+    private lazy var itemsStackView: UIStackView = {
         let stack = UIStackView()
         stack.axis = .horizontal
-        stack.spacing = 8
+        
         return stack
     }()
     
-    private let hintView: OldHintView = OldHintView()
+    private lazy var textFieldContainer: UIView = {
+        let view = UIView()
+        view.clipsToBounds = true
+        view.addGestureRecognizer(UITapGestureRecognizer(
+            target: self,
+            action: #selector(textFieldTapped))
+        )
+        
+        return view
+    }()
+    
+    private lazy var textField: InputTextField = {
+        let field = InputTextField()
+        field.rightViewMode = .always
+        
+        return field
+    }()
+    
+    // MARK: - Life cycle
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
+        
         setupView()
     }
     
     required init?(coder: NSCoder) { fatalError() }
     
+    // MARK: - Methods
+    
+    public func update(with viewProperties: ViewProperties) {
+        self.viewProperties = viewProperties
+        
+        setupTextField(with: viewProperties)
+        setupStackView(with: viewProperties)
+        setupHintView(with: viewProperties)
+        setupAccessibilityId(with: viewProperties)
+    }
+    
+    // MARK: - Private methods
+    
     private func setupView() {
-        addSubview(itemsStack)
-        itemsStack.snp.makeConstraints {
+        addSubview(itemsStackView)
+        itemsStackView.snp.makeConstraints {
             $0.top.centerX.equalToSuperview()
             $0.leading.greaterThanOrEqualToSuperview()
             $0.trailing.lessThanOrEqualToSuperview()
         }
-        addSubview(hintView)
-        hintView.snp.makeConstraints {
-            $0.top.equalTo(itemsStack.snp.bottom)
-            $0.horizontalEdges.equalToSuperview().inset(12)
+        
+        addSubview(textFieldContainer)
+        textFieldContainer.snp.makeConstraints {
+            $0.edges.equalTo(itemsStackView.snp.edges)
+        }
+        textFieldContainer.addSubview(textField)
+        textField.snp.makeConstraints { $0.edges.equalToSuperview() }
+    }
+    
+    private func setupTextField(with viewProperties: ViewProperties) {
+        textField.update(with: viewProperties.textFieldViewProperties)
+    }
+    
+    private func setupStackView(with viewProperties: ViewProperties) {
+        itemsStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        itemsStackView.spacing = viewProperties.stackSpacing
+        
+        for item in viewProperties.itemViews {
+            itemsStackView.addArrangedSubview(item)
+        }
+    }
+    
+    private func setupHintView(with viewProperties: ViewProperties) {
+        addSubview(viewProperties.hintView)
+        viewProperties.hintView.snp.makeConstraints {
+            $0.top.equalTo(itemsStackView.snp.bottom)
+            $0.horizontalEdges.equalToSuperview().inset(viewProperties.hintViewInsets)
             $0.bottom.equalToSuperview()
         }
     }
-    
-    public func update(with viewProperties: ViewProperties) {
-        self.viewProperties = viewProperties
-        createItems(count: viewProperties.items.count)
-        updateItems(items: viewProperties.items)
-        hintView.update(with: viewProperties.hint)
-        setupAccessibilityId(with: viewProperties)
-    }
-    
-    private func createItems(count: Int) {
-        guard count != itemsStack.arrangedSubviews.count else { return }
-        itemsStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        for _ in 0..<count {
-            itemsStack.addArrangedSubview(InputOTPItemView())
-        }
-    }
-    
-    private var itemViews: [InputOTPItemView] {
-        itemsStack.arrangedSubviews.compactMap { $0 as? InputOTPItemView }
-    }
-    
-    private func updateItems(items: [InputOTPItemView.ViewProperties]) {
-        for (itemView, item) in zip(itemViews, items) {
-            itemView.update(with: item)
-        }
+
+    @objc private func textFieldTapped() {
+        guard textFieldContainer.isUserInteractionEnabled else { return }
+        
+        textField.becomeFirstResponder()
     }
     
     private func setupAccessibilityId(with viewProperties: ViewProperties) {
         isAccessibilityElement = true
         accessibilityIdentifier = viewProperties.accessibilityId
-        itemsStack.isAccessibilityElement = true
-        itemsStack.accessibilityIdentifier = DesignSystemAccessibilityIDs.InputOTPView.itemsStack
+        itemsStackView.isAccessibilityElement = true
+        itemsStackView.accessibilityIdentifier = DesignSystemAccessibilityIDs.InputOTPView.itemsStack
     }
 }

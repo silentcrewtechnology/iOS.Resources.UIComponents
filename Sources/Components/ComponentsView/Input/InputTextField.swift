@@ -12,8 +12,10 @@ public final class InputTextField: UITextField, ComponentProtocol {
         public var cursorColor: UIColor
         public var delegateAssigningClosure: (UITextField) -> Void
         public var autocapitalizationType: UITextAutocapitalizationType
+        public var textContentType: UITextContentType?
         public var keyboardType: UIKeyboardType
         public var isSecureTextEntry: Bool
+        public var isHidden: Bool
         public var accessibilityId: String?
         
         public init(
@@ -23,8 +25,10 @@ public final class InputTextField: UITextField, ComponentProtocol {
             cursorColor: UIColor = .black,
             delegateAssigningClosure: @escaping (UITextField) -> Void = { _ in },
             autocapitalizationType: UITextAutocapitalizationType = .none,
+            textContentType: UITextContentType? = nil,
             keyboardType: UIKeyboardType = .default,
             isSecureTextEntry: Bool = false,
+            isHidden: Bool = false,
             accessibilityId: String? = nil
         ) {
             self.text = text
@@ -33,8 +37,10 @@ public final class InputTextField: UITextField, ComponentProtocol {
             self.cursorColor = cursorColor
             self.delegateAssigningClosure = delegateAssigningClosure
             self.autocapitalizationType = autocapitalizationType
+            self.textContentType = textContentType
             self.keyboardType = keyboardType
             self.isSecureTextEntry = isSecureTextEntry
+            self.isHidden = isHidden
             self.accessibilityId = accessibilityId
         }
     }
@@ -50,11 +56,17 @@ public final class InputTextField: UITextField, ComponentProtocol {
     public func update(with viewProperties: ViewProperties) {
         autocapitalizationType = viewProperties.autocapitalizationType
         keyboardType = viewProperties.keyboardType
-        updateText(with: viewProperties)
         attributedPlaceholder = viewProperties.placeholder
         tintColor = viewProperties.cursorColor
-        viewProperties.delegateAssigningClosure(self)
         isSecureTextEntry = viewProperties.isSecureTextEntry
+        isHidden = viewProperties.isHidden
+        
+        if let contentType = viewProperties.textContentType {
+            textContentType = contentType
+        }
+        
+        viewProperties.delegateAssigningClosure(self)
+        updateText(with: viewProperties)
         setupAccessibilityId(with: viewProperties)
         self.viewProperties = viewProperties
     }
