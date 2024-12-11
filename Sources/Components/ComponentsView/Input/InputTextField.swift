@@ -55,16 +55,12 @@ public final class InputTextField: UITextField, ComponentProtocol {
     
     public func update(with viewProperties: ViewProperties) {
         autocapitalizationType = viewProperties.autocapitalizationType
+        textContentType = viewProperties.textContentType
         keyboardType = viewProperties.keyboardType
         attributedPlaceholder = viewProperties.placeholder
         tintColor = viewProperties.cursorColor
         isSecureTextEntry = viewProperties.isSecureTextEntry
         isHidden = viewProperties.isHidden
-        
-        if let contentType = viewProperties.textContentType {
-            textContentType = contentType
-        }
-        
         viewProperties.delegateAssigningClosure(self)
         updateText(with: viewProperties)
         setupAccessibilityId(with: viewProperties)
