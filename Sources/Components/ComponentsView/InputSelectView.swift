@@ -1,221 +1,239 @@
-//
-//  InputSelectView.swift
-//
-//
-//  Created by Ilnur Mugaev on 16.04.2024.
-//
-
 import UIKit
 import SnapKit
+import AccessibilityIds
 
 public final class InputSelectView: UIView, ComponentProtocol {
     
+    // MARK: - Properties
+    
     public struct ViewProperties {
-        public var header: LabelView.ViewProperties?
-        public var text: NSMutableAttributedString
-        public var placeholder: NSMutableAttributedString
+        public var headerView: UIView?
+        public var hintView: UIView
         public var clearButtonIcon: UIImage
-        public var disclosureIcon: UIImage
-        public var hint: OldHintView.ViewProperties
-        public var border: Border
-        public var backgroundColor: UIColor
-        public var isUserInteractionEnabled: Bool
-        public var clearButtonAction: () -> Void
-        public var inputTapAction: () -> Void
-        
-        public struct Border {
-            public var color: UIColor
-            public var width: CGFloat
-            public var cornerRadius: CGFloat
-            
-            public init(
-                color: UIColor = .clear,
-                width: CGFloat = .zero,
-                cornerRadius: CGFloat = .zero
-            ) {
-                self.color = color
-                self.width = width
-                self.cornerRadius = cornerRadius
-            }
-        }
-        
+        public var disclosureButtonIcon: UIImage
+        public var textFieldViewProperties: InputTextField.ViewProperties
+        public var inputBackgroundColor: UIColor
+        public var inputCornerRadius: CGFloat
+        public var inputBorderColor: UIColor
+        public var inputBorderWidth: CGFloat
+        public var inputHeight: CGFloat
+        public var inputInsets: UIEdgeInsets
+        public var isEnabled: Bool
+        public var verticalStackViewInsets: UIEdgeInsets
+        public var verticalStackViewSpacing: CGFloat
+        public var inputStackViewSpacing: CGFloat
+        public var rightViewsSize: CGSize
+        public var onTextChanged: ((String?) -> Void)?
+        public var onClear: (() -> Void)?
+        public var onDisclosure: (() -> Void)?
+       
         public init(
-            header: LabelView.ViewProperties? = nil,
-            text: NSMutableAttributedString = .init(string: ""),
-            placeholder: NSMutableAttributedString = .init(string: ""),
+            headerView: UIView? = nil,
+            hintView: UIView = .init(),
             clearButtonIcon: UIImage = .init(),
-            disclosureIcon: UIImage = .init(),
-            hint: OldHintView.ViewProperties = .init(),
-            border: Border = .init(),
-            backgroundColor: UIColor = .clear,
-            isUserInteractionEnabled: Bool = true,
-            clearButtonAction: @escaping () -> Void = { },
-            inputTapAction: @escaping () -> Void = { }
+            disclosureButtonIcon: UIImage = .init(),
+            textFieldViewProperties: InputTextField.ViewProperties = .init(),
+            inputBackgroundColor: UIColor = .clear,
+            inputCornerRadius: CGFloat = .zero,
+            inputBorderColor: UIColor = .clear,
+            inputBorderWidth: CGFloat = .zero,
+            inputHeight: CGFloat = .zero,
+            inputInsets: UIEdgeInsets = .zero,
+            isEnabled: Bool = true,
+            verticalStackViewInsets: UIEdgeInsets = .zero,
+            verticalStackViewSpacing: CGFloat = .zero,
+            inputStackViewSpacing: CGFloat = .zero,
+            rightViewsSize: CGSize = .zero,
+            onTextChanged: ((String?) -> Void)? = nil,
+            onClear: (() -> Void)? = nil,
+            onDisclosure: (() -> Void)? = nil
         ) {
-            self.header = header
-            self.text = text
-            self.placeholder = placeholder
+            self.headerView = headerView
+            self.hintView = hintView
             self.clearButtonIcon = clearButtonIcon
-            self.disclosureIcon = disclosureIcon
-            self.hint = hint
-            self.isUserInteractionEnabled = isUserInteractionEnabled
-            self.border = border
-            self.backgroundColor = backgroundColor
-            self.clearButtonAction = clearButtonAction
-            self.inputTapAction = inputTapAction
+            self.disclosureButtonIcon = disclosureButtonIcon
+            self.textFieldViewProperties = textFieldViewProperties
+            self.inputBackgroundColor = inputBackgroundColor
+            self.inputCornerRadius = inputCornerRadius
+            self.inputBorderColor = inputBorderColor
+            self.inputBorderWidth = inputBorderWidth
+            self.inputHeight = inputHeight
+            self.inputInsets = inputInsets
+            self.isEnabled = isEnabled
+            self.verticalStackViewInsets = verticalStackViewInsets
+            self.verticalStackViewSpacing = verticalStackViewSpacing
+            self.inputStackViewSpacing = inputStackViewSpacing
+            self.rightViewsSize = rightViewsSize
+            self.onTextChanged = onTextChanged
+            self.onClear = onClear
+            self.onDisclosure = onDisclosure
         }
     }
     
-    // MARK: - UI
-    
-    private lazy var headerView: LabelView = {
-        let view = LabelView()
-        return view
-    }()
-    
-    private lazy var textField: UITextField = {
-        let textField = CorrectShiftedTextField(frame: .zero)
-        textField.borderStyle = .none
-        textField.isUserInteractionEnabled = false
-        return textField
-    }()
+    // MARK: - Private properties
     
     private lazy var clearButton: UIButton = {
         let button = UIButton()
         button.addTarget(self, action: #selector(clearButtonTapped), for: .touchUpInside)
-        button.snp.makeConstraints {
-            $0.size.equalTo(24)
-        }
+        
         return button
     }()
     
-    private lazy var disclosureImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.snp.makeConstraints {
-            $0.size.equalTo(24)
-        }
-        return imageView
+    private lazy var disclosureButton: UIButton = {
+        let button = UIButton()
+        button.addTarget(self, action: #selector(disclosureButtonTapped), for: .touchUpInside)
+        
+        return button
+    }()
+    
+    private lazy var textField: InputTextField = {
+        let field = InputTextField()
+        field.rightViewMode = .always
+        
+        return field
     }()
     
     private lazy var inputStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [
             textField,
             clearButton,
-            disclosureImageView
+            disclosureButton
         ])
         stackView.axis = .horizontal
-        stackView.spacing = 8
         stackView.alignment = .center
+        
         return stackView
     }()
     
     private lazy var inputContainerView: UIView = {
         let view = UIView()
-        view.layer.masksToBounds = true
-        view.addSubview(inputStackView)
-        inputStackView.snp.makeConstraints {
-            $0.centerY.equalToSuperview()
-            $0.leading.trailing.equalToSuperview().inset(20)
-        }
-        view.snp.makeConstraints {
-            $0.height.equalTo(56)
-        }
+        view.clipsToBounds = true
+        view.addGestureRecognizer(UITapGestureRecognizer(
+            target: self,
+            action: #selector(inputTapped))
+        )
         
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(inputContainerViewTapped))
-        view.addGestureRecognizer(tapGesture)
         return view
     }()
     
-    private lazy var hintView: OldHintView = {
-        let view = OldHintView()
-        return view
+    private lazy var verticalStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.distribution = .fill
+        stack.isUserInteractionEnabled = true
+        
+        return stack
     }()
-    
-    private lazy var stackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [
-            headerView,
-            inputContainerView,
-            hintView
-        ])
-        stackView.axis = .vertical
-        return stackView
-    }()
-    
-    // MARK: - Private Properties
     
     private var viewProperties: ViewProperties = .init()
     
-    // MARK: - Init
+    // MARK: - Life cycle
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
+        
         setupView()
     }
     
-    @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError() }
     
-    private func setupView() {
-        addSubview(stackView)
-        stackView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-        }
-    }
-    
-    // MARK: - Public Methods
+    // MARK: - Public methods
     
     public func update(with viewProperties: ViewProperties) {
-        updateHeader(with: viewProperties.header)
-        updateTextField(with: viewProperties)
-        updateClearButton(with: viewProperties)
-        updateBorder(with: viewProperties.border)
-        updateHintView(with: viewProperties.hint)
-        disclosureImageView.image = viewProperties.disclosureIcon
-        inputContainerView.backgroundColor = viewProperties.backgroundColor
-        isUserInteractionEnabled = viewProperties.isUserInteractionEnabled
+        stripNonTextFieldSubviews()
+        setupConstraints(with: viewProperties)
+        setupHeaderViewIfNeeded(with: viewProperties)
+        setupInputContainerView(with: viewProperties)
+        setupHintView(with: viewProperties)
+        setupRightButtons(with: viewProperties)
+        
         self.viewProperties = viewProperties
     }
     
-    // MARK: - Private Methods
+    // MARK: - Private methods
     
-    private func updateHeader(with header: LabelView.ViewProperties?) {
-        if let header {
-            headerView.update(with: header)
-            headerView.isHidden = false
-        } else {
-            headerView.isHidden = true
+    private func setupView() {
+        inputContainerView.addSubview(inputStackView)
+        inputContainerView.snp.makeConstraints { $0.height.equalTo(0) } // Будет обновляться
+        inputStackView.snp.makeConstraints { $0.edges.equalToSuperview() }
+        
+        verticalStackView.addArrangedSubview(inputContainerView)
+        addSubview(verticalStackView)
+        verticalStackView.snp.makeConstraints { $0.edges.equalToSuperview() }
+        
+        clearButton.snp.makeConstraints { $0.size.equalTo(0) } // Будет обновляться
+        disclosureButton.snp.makeConstraints { $0.size.equalTo(0) } // Будет обновляться
+    }
+    
+    private func setupConstraints(with viewProperties: ViewProperties) {
+        verticalStackView.spacing = viewProperties.verticalStackViewSpacing
+        verticalStackView.snp.updateConstraints {
+            $0.edges.equalToSuperview().inset(viewProperties.verticalStackViewInsets)
+        }
+        
+        inputContainerView.snp.updateConstraints {
+            $0.height.equalTo(viewProperties.inputHeight)
+        }
+        inputStackView.snp.updateConstraints {
+            $0.edges.equalToSuperview().inset(viewProperties.inputInsets)
+        }
+        
+        clearButton.snp.updateConstraints {
+            $0.size.equalTo(viewProperties.rightViewsSize)
+        }
+        disclosureButton.snp.updateConstraints {
+            $0.size.equalTo(viewProperties.rightViewsSize)
         }
     }
     
-    private func updateTextField(with viewProperties: ViewProperties) {
-        textField.attributedText = viewProperties.text
-        textField.attributedPlaceholder = viewProperties.placeholder
+    private func stripNonTextFieldSubviews() {
+        // textField должен оставаться в иерархии
+        verticalStackView.arrangedSubviews.forEach {
+            if $0 !== inputContainerView {
+                $0.removeFromSuperview()
+            }
+        }
     }
     
-    private func updateClearButton(with viewProperties: ViewProperties) {
+    private func setupHeaderViewIfNeeded(with viewProperties: ViewProperties) {
+        guard let headerView = viewProperties.headerView else { return }
+        verticalStackView.insertArrangedSubview(headerView, at: .zero)
+    }
+    
+    private func setupInputContainerView(with viewProperties: ViewProperties) {
+        inputContainerView.layer.borderWidth = viewProperties.inputBorderWidth
+        inputContainerView.layer.cornerRadius = viewProperties.inputCornerRadius
+        inputContainerView.isUserInteractionEnabled = viewProperties.isEnabled
+        inputStackView.spacing = viewProperties.inputStackViewSpacing
+        textField.update(with: viewProperties.textFieldViewProperties)
+        
+        UIView.animate(withDuration: 0.1) {
+            self.inputContainerView.backgroundColor = viewProperties.inputBackgroundColor
+            self.inputContainerView.layer.borderColor = viewProperties.inputBorderColor.cgColor
+        }
+    }
+    
+    private func setupHintView(with viewProperties: ViewProperties) {
+        verticalStackView.addArrangedSubview(viewProperties.hintView)
+    }
+    
+    private func setupRightButtons(with viewProperties: ViewProperties) {
         clearButton.setImage(viewProperties.clearButtonIcon, for: .normal)
-        clearButton.setImage(viewProperties.clearButtonIcon, for: .highlighted)
-        clearButton.setImage(viewProperties.clearButtonIcon, for: .disabled)
         clearButton.isHidden = textField.text?.isEmpty ?? true
+        disclosureButton.setImage(viewProperties.disclosureButtonIcon, for: .normal)
     }
     
-    private func updateBorder(with border: ViewProperties.Border) {
-        inputContainerView.layer.borderColor = border.color.cgColor
-        inputContainerView.layer.borderWidth = border.width
-        inputContainerView.layer.cornerRadius = border.cornerRadius
+    @objc private func inputTapped() {
+        guard inputContainerView.isUserInteractionEnabled else { return }
+        
+        textField.becomeFirstResponder()
     }
-    
-    private func updateHintView(with hint: OldHintView.ViewProperties) {
-        hintView.update(with: hint)
-    }
-    
-    // MARK: - Actions
     
     @objc private func clearButtonTapped() {
-        viewProperties.clearButtonAction()
+        viewProperties.onClear?()
     }
     
-    @objc private func inputContainerViewTapped() {
-        viewProperties.inputTapAction()
+    @objc private func disclosureButtonTapped() {
+        viewProperties.onDisclosure?()
     }
 }
