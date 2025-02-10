@@ -11,7 +11,6 @@ public final class ButtonView: UIButton, ComponentProtocol {
         public var attributedText: NSMutableAttributedString?
         public var leftIcon: UIImage?
         public var backgroundColor: UIColor
-        public var onHighlighted: (Bool) -> Void
         public var loader: UIView?
         public var onTap: () -> Void
         public var cornerRadius: CGFloat
@@ -24,7 +23,6 @@ public final class ButtonView: UIButton, ComponentProtocol {
             leftIcon: UIImage? = nil,
             backgroundColor: UIColor = .clear,
             loader: UIView? = nil,
-            onHighlighted: @escaping (Bool) -> Void = { _ in },
             onTap: @escaping () -> Void = { },
             cornerRadius: CGFloat = 0,
             margins: Margins = .init(),
@@ -35,7 +33,6 @@ public final class ButtonView: UIButton, ComponentProtocol {
             self.leftIcon = leftIcon
             self.backgroundColor = backgroundColor
             self.loader = loader
-            self.onHighlighted = onHighlighted
             self.onTap = onTap
             self.cornerRadius = cornerRadius
             self.margins = margins
@@ -94,12 +91,6 @@ public final class ButtonView: UIButton, ComponentProtocol {
     private lazy var leftIconView = UIImageView()
     private lazy var textLabel = UILabel()
     
-    public override var isHighlighted: Bool {
-        didSet {
-            viewProperties.onHighlighted(isHighlighted)
-        }
-    }
-    
     public override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
@@ -126,51 +117,57 @@ public final class ButtonView: UIButton, ComponentProtocol {
     // MARK: - Private Methods
     
     private func setupView() {
+        // Первоначальное ограничение по высоте, которое обновляется в updateConstraints
         snp.makeConstraints {
-            $0.height.equalTo(0) // будет обновлено
+            $0.height.equalTo(0)
         }
     }
     
     private func setupProperties(with viewProperties: ViewProperties) {
-        isUserInteractionEnabled = viewProperties.isEnabled
         textLabel.attributedText = viewProperties.attributedText
         textLabel.isHidden = !(viewProperties.loader?.isHidden ?? true)
         leftIconView.image = viewProperties.leftIcon
     }
-
+    
     private func updateConstraints(with viewProperties: ViewProperties) {
         removeConstraintsAndSubviews()
         snp.updateConstraints { $0.height.equalTo(viewProperties.margins.height) }
-        
-        if viewProperties.leftIcon != nil {
-            setupFullView()
-        } else {
-            setupLabelView()
-        }
+        setupContentContainer(with: viewProperties)
         setupLoaderView(with: viewProperties)
     }
     
-    private func setupLabelView() {
-        addSubview(textLabel)
-        textLabel.snp.makeConstraints {
-            $0.leading.equalToSuperview().offset(viewProperties.margins.leading)
-            $0.trailing.equalToSuperview().offset(-viewProperties.margins.trailing)
-            $0.centerY.equalToSuperview()
-        }
-    }
-    
-    private func setupFullView() {
-        addSubview(leftIconView)
-        leftIconView.snp.makeConstraints() {
-            $0.leading.equalToSuperview().offset(viewProperties.margins.leading)
-            $0.centerY.equalToSuperview()
+    private func setupContentContainer(with viewProperties: ViewProperties) {
+        let container = UIView()
+        addSubview(container)
+        container.snp.makeConstraints { make in
+            make.center.equalToSuperview()
         }
         
-        addSubview(textLabel)
-        textLabel.snp.makeConstraints {
-            $0.leading.equalTo(leftIconView.snp.trailing).offset(viewProperties.margins.spacing)
-            $0.trailing.equalToSuperview().offset(-viewProperties.margins.trailing)
-            $0.centerY.equalToSuperview()
+        if let _ = viewProperties.leftIcon {
+            // Иконка
+            leftIconView.contentMode = .scaleAspectFit
+            container.addSubview(leftIconView)
+            leftIconView.snp.makeConstraints { make in
+                make.leading.top.bottom.equalToSuperview()
+                make.width.height.equalTo(24)
+            }
+            
+            // Текст
+            textLabel.attributedText = viewProperties.attributedText
+            textLabel.textAlignment = .center
+            container.addSubview(textLabel)
+            textLabel.snp.makeConstraints { make in
+                make.leading.equalTo(leftIconView.snp.trailing).offset(viewProperties.margins.spacing)
+                make.trailing.top.bottom.equalToSuperview()
+            }
+        } else {
+            // Только текст
+            textLabel.attributedText = viewProperties.attributedText
+            textLabel.textAlignment = .center
+            container.addSubview(textLabel)
+            textLabel.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
         }
     }
     
@@ -179,7 +176,8 @@ public final class ButtonView: UIButton, ComponentProtocol {
         
         addSubview(loader)
         loader.snp.makeConstraints {
-            $0.centerX.centerY.equalToSuperview()
+            $0.center.equalToSuperview()
+            $0.width.height.equalTo(24)
         }
     }
     
@@ -206,7 +204,7 @@ public final class ButtonView: UIButton, ComponentProtocol {
     
     @objc
     private func didTapAction() {
-        self.viewProperties.onTap()
+        viewProperties.onTap()
     }
     
     private func setupAccessibilityIds(with viewProperties: ViewProperties) {
