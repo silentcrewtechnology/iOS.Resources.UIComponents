@@ -138,35 +138,43 @@ public final class ButtonView: UIButton, ComponentProtocol {
     
     private func setupContentContainer(with viewProperties: ViewProperties) {
         let container = UIView()
+        container.isUserInteractionEnabled = false
         addSubview(container)
-        container.snp.makeConstraints { make in
-            make.center.equalToSuperview()
+        container.snp.makeConstraints {
+            $0.leading.greaterThanOrEqualToSuperview().offset(viewProperties.margins.leading)
+            $0.trailing.lessThanOrEqualToSuperview().offset(-viewProperties.margins.trailing)
+            $0.height.lessThanOrEqualToSuperview().priority(.low)
+            $0.center.equalToSuperview()
         }
         
         if let _ = viewProperties.leftIcon {
             // Иконка
             leftIconView.contentMode = .scaleAspectFit
             container.addSubview(leftIconView)
-            leftIconView.snp.makeConstraints { make in
-                make.leading.top.bottom.equalToSuperview()
-                make.width.height.equalTo(24)
+            leftIconView.snp.makeConstraints {
+                $0.leading.equalToSuperview()
+                $0.top.bottom.equalToSuperview()
+                $0.width.height.equalTo(24)
             }
             
             // Текст
             textLabel.attributedText = viewProperties.attributedText
             textLabel.textAlignment = .center
             container.addSubview(textLabel)
-            textLabel.snp.makeConstraints { make in
-                make.leading.equalTo(leftIconView.snp.trailing).offset(viewProperties.margins.spacing)
-                make.trailing.top.bottom.equalToSuperview()
+            textLabel.snp.makeConstraints {
+                $0.leading.equalTo(leftIconView.snp.trailing).offset(viewProperties.margins.spacing)
+                $0.top.bottom.equalToSuperview()
+                $0.trailing.equalToSuperview()
             }
         } else {
             // Только текст
             textLabel.attributedText = viewProperties.attributedText
             textLabel.textAlignment = .center
             container.addSubview(textLabel)
-            textLabel.snp.makeConstraints { make in
-                make.edges.equalToSuperview()
+            textLabel.snp.makeConstraints {
+                $0.top.bottom.equalToSuperview()
+                $0.leading.equalToSuperview()
+                $0.trailing.equalToSuperview()
             }
         }
     }
