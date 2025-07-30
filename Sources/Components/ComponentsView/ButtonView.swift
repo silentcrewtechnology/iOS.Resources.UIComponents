@@ -212,7 +212,9 @@ public final class ButtonView: UIButton, ComponentProtocol {
     
     @objc
     private func didTapAction() {
-        viewProperties.onTap()
+        if viewProperties.isEnabled {
+            viewProperties.onTap()
+        }
     }
     
     private func setupAccessibilityIds(with viewProperties: ViewProperties) {
