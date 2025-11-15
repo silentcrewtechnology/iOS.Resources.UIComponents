@@ -17,7 +17,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/SnapKit/SnapKit.git", exact: "5.6.0"),
-        .package(url: "https://gitlab.akbars.tech/abo/ios-ui-tests-accessibilityids.git", .upToNextMajor(from: "1.0.0"))
+        .package(url: "https://github.com/silentcrewtechnology/iOS.UITests.AccessibilityIds.git", .upToNextMajor(from: "1.0.0"))
     ],
     targets: [
         .target(
