@@ -24,7 +24,7 @@ let package = Package(
             name: "Components",
             dependencies: [
                 .product(name: "SnapKit", package: "snapkit"),
-                .product(name: "AccessibilityIds", package: "ios-ui-tests-accessibilityids")
+                .product(name: "AccessibilityIds", package: "iOS.UITests.AccessibilityIds")
             ]
         )
     ]
